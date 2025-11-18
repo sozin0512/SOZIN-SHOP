@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de SOzin</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind para usar el color principal y la fuente Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E3A8A', // Un azul oscuro/militar
+                        'secondary': '#FBBF24', // Un amarillo de acento
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=100..900&display=swap');
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <!-- Encabezado Fijo y Navegación -->
+    <header class="sticky top-0 bg-white shadow-lg z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-extrabold text-primary flex items-center" onclick="switchView('client')">
+                <svg class="w-8 h-8 mr-2 text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM4 10a6 6 0 1112 0 6 6 0 01-12 0zm6-4a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0v-3.5A.75.75 0 0010 6zM9 10a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"></path></svg>
+                Tienda de Esenciales
+            </a>
+            <div class="flex items-center space-x-4">
+                <button id="view-client-button" onclick="switchView('client')" class="bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-200 transition text-sm shadow-md">
+                    Tienda
+                </button>
+                
+                <!-- Botón de Pedidos del Cliente -->
+                <button id="view-orders-button" onclick="switchView('my_orders')" class="bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-200 transition text-sm shadow-md hidden">
+                    Mis Pedidos
+                </button>
+                
+                <!-- Icono de Carrito -->
+                <button onclick="openCartModal()" class="relative p-2 rounded-full text-primary hover:bg-gray-100 transition shadow-md">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 110 4 2 2 0 010-4z"></path></svg>
+                    <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">0</span>
+                </button>
+                
+                <!-- Botón de Acceso/Usuario -->
+                <button id="auth-button" onclick="handleAuthClick()" class="bg-primary text-white font-medium py-2 px-4 rounded-full hover:bg-blue-800 transition text-sm shadow-md">
+                    Acceder
+                </button>
+                <button id="menu-button" class="md:hidden p-2 rounded-lg text-primary hover:bg-gray-100 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+            
+            <nav id="nav-menu" class="hidden md:flex space-x-6 font-medium">
+                <!-- Los enlaces de navegación se rellenarán con JS (solo para vista de cliente) -->
+            </nav>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2 bg-white border-t">
+            <!-- Los enlaces móviles se rellenarán con JS -->
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Mostrar ID del Usuario Logeado (Para depuración y demostración) -->
+        <div id="user-info-bar" class="mb-6 p-3 bg-indigo-100 rounded-lg shadow-inner text-sm text-indigo-800 hidden">
+            <p><span class="font-bold">Usuario ID:</span> <span id="current-user-id">Cargando...</span></p>
+        </div>
+
+        <!-- VISTA DE CLIENTE (Tienda) -->
+        <div id="client-view">
+            <!-- Banner de Bienvenida -->
+            <section class="bg-primary text-white p-6 md:p-12 rounded-2xl shadow-xl mb-12">
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-2">Todo lo que necesitas, en un solo lugar.</h1>
+                <p class="text-xl opacity-90">Organizamos los artículos esenciales para que encontrarlos sea rápido y sencillo.</p>
+            </section>
+
+            <!-- Contenedor de Productos (Inyectado por JS) -->
+            <div id="products-container" class="space-y-16">
+                <!-- Aquí se inyectarán dinámicamente las categorías y productos -->
+                <div class="text-center p-8 text-xl text-gray-500" id="loading-message">
+                    Cargando productos de la base de datos...
+                </div>
+            </div>
+        </div>
+        
+        <!-- NUEVA VISTA: MIS PEDIDOS (Solo para clientes autenticados) -->
+        <div id="my-orders-view" class="hidden">
+            <h1 class="text-4xl font-extrabold text-primary mb-6 border-b-4 border-secondary pb-2">Mis Pedidos Realizados</h1>
+            <div id="my-orders-list" class="space-y-6">
+                 <p class="text-lg text-gray-600">Cargando tu historial de pedidos...</p>
+                 <!-- Pedidos inyectados aquí -->
+            </div>
+        </div>
+
+
+        <!-- VISTA DE ADMINISTRADOR -->
+        <div id="admin-view" class="hidden">
+            <div class="flex justify-between items-center mb-8 border-b-4 border-secondary pb-2">
+                <h1 class="text-4xl font-extrabold text-primary">Panel de Administración</h1>
+                <button onclick="signOutAdmin()" class="bg-red-500 text-white font-medium py-2 px-4 rounded-full hover:bg-red-700 transition text-sm shadow-md">
+                    Cerrar Sesión (Admin)
+                </button>
+            </div>
+            
+            <!-- TABS DE ADMINISTRADOR -->
+            <div class="flex space-x-4 mb-8">
+                <button onclick="setAdminTab('products')" id="tab-products" class="tab-button bg-primary text-white py-2 px-4 rounded-lg font-semibold shadow-md">Gestión de Productos</button>
+                <button onclick="setAdminTab('orders')" id="tab-orders" class="tab-button bg-gray-200 text-gray-800 hover:bg-gray-300 py-2 px-4 rounded-lg font-semibold shadow-md">Pedidos de Clientes (Solo Admin)</button>
+            </div>
+            
+            <!-- Contenido de Gestión de Productos -->
+            <div id="admin-content-products">
+                <!-- Formulario para Añadir/Editar Producto (Detalles Básicos) -->
+                <section class="bg-white p-6 rounded-xl shadow-lg mb-10">
+                    <h2 id="admin-form-title" class="text-2xl font-semibold text-gray-900 mb-4">Añadir Nuevo Producto</h2>
+                    <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Campo oculto para manejar la edición -->
+                        <input type="hidden" id="edit-id" value=""> 
+
+                        <input type="text" id="name" placeholder="Nombre del Producto" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <textarea id="description" placeholder="Descripción del Producto" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
+                        
+                        <input type="number" id="price" placeholder="Precio ($)" required min="0.01" step="0.01" class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <select id="category" required class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                            <option value="" disabled selected>Selecciona Categoría</option>
+                            <!-- Opciones cargadas por JS -->
+                        </select>
+                        
+                        <!-- CAMPO DE IMAGEN/ICONO DEL PRODUCTO (Reemplaza el Emoji) -->
+                        <div class="relative col-span-1 md:col-span-3">
+                            <input type="file" id="product-icon-file" accept="image/*" class="w-full h-12 absolute opacity-0 cursor-pointer" onchange="previewAndConvertProductIcon(this)">
+                            <label for="product-icon-file" class="block w-full text-center py-2 px-4 border border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-50 transition text-gray-700 font-medium">
+                                <span id="product-icon-label">Subir Icono/Imagen del Producto</span>
+                            </label>
+                            <div id="product-icon-preview" class="mt-2 text-center hidden">
+                                <img id="preview-product-icon-img" class="w-16 h-16 object-cover mx-auto rounded-md border border-gray-300">
+                            </div>
+                            <!-- Input oculto para almacenar la URL/Base64 del icono del producto -->
+                            <input type="hidden" id="icon" required> 
+                        </div>
+                        <!-- FIN CAMPO DE IMAGEN/ICONO DEL PRODUCTO -->
+                        
+                        <button type="submit" id="submit-admin-form" class="col-span-1 md:col-span-3 bg-secondary text-primary font-bold py-3 px-6 rounded-full hover:bg-yellow-400 transition shadow-lg mt-4">
+                            Añadir Producto
+                        </button>
+                        <button type="button" onclick="resetAdminForm()" class="col-span-1 md:col-span-3 bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full hover:bg-gray-400 transition shadow-lg mt-2 hidden" id="cancel-edit-button">
+                            Cancelar Edición
+                        </button>
+                    </form>
+                </section>
+                
+                <!-- Gestión de Marcas y Opciones -->
+                <section id="brand-management-section" class="bg-white p-6 rounded-xl shadow-lg mb-10 border-l-4 border-indigo-500 hidden">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Gestionar Marcas y Opciones</h2>
+                    <p class="text-sm text-gray-500 mb-4">Añade o elimina las marcas (con su imagen asociada, ahora puedes subir tus propias imágenes) para el producto actualmente en edición.</p>
+                    
+                    <!-- Formulario para Añadir Marca -->
+                    <form id="add-brand-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4">
+                        <input type="text" id="brand-name" placeholder="Nombre de la Marca" required class="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        
+                        <!-- Campo de Subida de Imagen (Base64) -->
+                        <div class="relative">
+                            <input type="file" id="brand-image-file" accept="image/*" class="w-full h-12 absolute opacity-0 cursor-pointer" onchange="previewAndConvertBrandImage(this)">
+                            <label for="brand-image-file" class="block w-full text-center py-2 px-4 border border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-50 transition text-gray-700 font-medium">
+                                <span id="file-label">Subir Imagen (Convertir a Base64)</span>
+                            </label>
+                            <div id="image-preview" class="mt-2 text-center hidden">
+                                <img id="preview-img" class="w-16 h-16 object-cover mx-auto rounded-md border border-gray-300">
+                            </div>
+                            <!-- Input oculto para almacenar la URL/Base64 -->
+                            <input type="hidden" id="brand-image-data" required> 
+                        </div>
+
+                        <button type="submit" onclick="addBrandToProduct(event)" class="bg-indigo-500 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition shadow-lg">
+                            Añadir Marca
+                        </button>
+                    </form>
+
+                    <!-- Lista de Marcas Actuales -->
+                    <h3 class="text-xl font-medium text-gray-800 mt-6 mb-3">Marcas Existentes:</h3>
+                    <div id="brands-editor-container" class="space-y-3">
+                        <!-- Las marcas se inyectarán aquí -->
+                    </div>
+                    <p id="no-brands-editor-message" class="text-sm text-gray-500 italic mt-2 hidden">No hay marcas añadidas para este producto.</p>
+                </section>
+
+                <!-- Lista de Productos (Tabla de Stock) -->
+                <section class="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Stock de Productos (Persistente)</h2>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID (Firestore)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Filas de productos inyectadas aquí -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <!-- Contenido de Pedidos de Clientes (Solo Admin) -->
+            <div id="admin-content-orders" class="hidden">
+                <section class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">Listado de Pedidos Recibidos</h2>
+                    <div id="admin-order-list" class="space-y-4">
+                        <p class="text-lg text-gray-600">Cargando pedidos de los clientes...</p>
+                        <!-- Pedidos inyectados aquí -->
+                    </div>
+                </section>
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-gray-900 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm opacity-80">
+            <p>&copy; 2025 Tienda de Esenciales. Todos los derechos reservados. | Diseñado para ser simple y funcional.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Detalles del Producto (Vista de Cliente) -->
+    <div id="product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
+            <!-- Contenido del Modal -->
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-start border-b pb-4 mb-4">
+                    <h2 id="modal-product-name" class="text-3xl font-bold text-primary"></h2>
+                    <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-700 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <p id="modal-product-description" class="text-gray-600 text-lg"></p>
+                    <div class="flex justify-between items-center text-xl font-bold pt-2 border-t">
+                        <span>Precio:</span>
+                        <span id="modal-product-price" class="text-primary"></span>
+                    </div>
+
+                    <div id="modal-brands-section" class="pt-4 border-t mt-4">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Opciones de Marcas Disponibles (Clic para seleccionar):</h3>
+                        <div id="modal-brands-container" class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                            <!-- Las opciones de marcas seleccionables se inyectarán aquí -->
+                        </div>
+                        <p id="no-brands-message" class="text-sm text-gray-500 mt-4 hidden text-center italic">
+                            No hay opciones de marca detalladas para este producto, ¡puedes añadirlo directamente!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-6 border-t pt-4 flex justify-end">
+                    <!-- Botón de añadir al carrito que ahora llama a una función que verifica la selección -->
+                    <button id="add-to-cart-button" class="bg-secondary text-primary font-bold py-2 px-6 rounded-full hover:bg-yellow-400 transition shadow-lg mr-4">
+                        Añadir al Carrito
+                    </button>
+                    <button onclick="closeProductModal()" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-full hover:bg-gray-300 transition shadow-lg">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Acceso de Cliente (Reemplaza el Modal de Login Admin) -->
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl transform transition-all duration-300">
+            
+            <button onclick="closeLoginModal()" class="float-right text-gray-400 hover:text-gray-700 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 id="auth-modal-title" class="text-2xl font-bold text-primary mb-4">Acceso Cliente</h2>
+            <p id="auth-modal-subtitle" class="text-sm text-gray-500 mb-4">Ingresa o crea tu cuenta para guardar tu historial de pedidos.</p>
+
+            <!-- Pestañas de Navegación -->
+            <div class="flex space-x-2 mb-6 border-b">
+                <button id="tab-signin" onclick="setAuthTab('signin')" class="auth-tab pb-2 px-4 font-semibold border-b-2 border-primary text-primary transition">Ingresar</button>
+                <button id="tab-signup" onclick="setAuthTab('signup')" class="auth-tab pb-2 px-4 font-semibold border-b-2 border-transparent text-gray-500 hover:text-primary transition">Crear Cuenta</button>
+                <button id="tab-reset" onclick="setAuthTab('reset')" class="auth-tab pb-2 px-4 font-semibold border-b-2 border-transparent text-gray-500 hover:text-primary transition">Restablecer</button>
+                <button onclick="openAdminLogin()" class="ml-auto text-xs text-indigo-500 hover:underline">Admin</button>
+            </div>
+
+
+            <!-- FORMULARIO 1: INICIO DE SESIÓN -->
+            <form id="signin-form" class="auth-form space-y-4">
+                <input type="email" id="signin-email" placeholder="Correo Electrónico" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                <input type="password" id="signin-password" placeholder="Contraseña" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                <button type="submit" class="w-full bg-secondary text-primary font-bold py-3 px-6 rounded-full hover:bg-yellow-400 transition shadow-lg">
+                    Ingresar
+                </button>
+            </form>
+            
+            <!-- FORMULARIO 2: CREAR CUENTA -->
+            <form id="signup-form" class="auth-form space-y-4 hidden">
+                <input type="email" id="signup-email" placeholder="Correo Electrónico (Será tu usuario)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                <input type="password" id="signup-password" placeholder="Contraseña (Mínimo 6 caracteres)" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-6 rounded-full hover:bg-blue-800 transition shadow-lg">
+                    Registrarme
+                </button>
+            </form>
+            
+            <!-- FORMULARIO 3: RESTABLECER CONTRASEÑA -->
+            <form id="reset-form" class="auth-form space-y-4 hidden">
+                <p class="text-sm text-gray-600">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+                <input type="email" id="reset-email" placeholder="Correo Electrónico" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                <button type="submit" class="w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-700 transition shadow-lg">
+                    Enviar Enlace de Restablecimiento
+                </button>
+            </form>
+            
+        </div>
+    </div>
+    
+    <!-- Modal de Carrito de Compras -->
+    <div id="cart-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-start border-b pb-4 mb-4">
+                    <h2 class="text-3xl font-bold text-primary flex items-center">
+                        <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 110 4 2 2 0 010-4z"></path></svg>
+                        Tu Carrito de Compras
+                    </h2>
+                    <button onclick="closeCartModal()" class="text-gray-400 hover:text-gray-700 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Contenedor de Items del Carrito -->
+                <div id="cart-items-container" class="space-y-4">
+                    <!-- Items inyectados por JS -->
+                </div>
+                
+                <!-- Resumen y Total -->
+                <div id="cart-summary" class="mt-6 pt-4 border-t space-y-2">
+                    <div class="flex justify-between font-medium">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-xl text-primary">
+                        <span>Total:</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t flex justify-between">
+                    <button onclick="clearCart()" class="bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition text-sm">
+                        Vaciar Carrito
+                    </button>
+                    <!-- El botón ahora abre el modal de checkout -->
+                    <button onclick="openCheckoutModal()" class="bg-secondary text-primary font-bold py-2 px-6 rounded-full hover:bg-yellow-400 transition shadow-lg">
+                        Proceder al Pago
+                    </button>
+                </div>
+                
+                <p id="cart-empty-message" class="text-center text-gray-500 text-lg py-10 hidden">
+                    Tu carrito está vacío. ¡Añade productos!
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Checkout (Opciones de Pago) -->
+    <div id="checkout-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[101] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-start border-b pb-4 mb-4">
+                    <h2 class="text-3xl font-bold text-primary">Opciones de Pago</h2>
+                    <button onclick="closeCheckoutModal()" class="text-gray-400 hover:text-gray-700 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <!-- Total del Carrito para Checkout -->
+                <div class="bg-gray-100 p-4 rounded-lg mb-6 text-center">
+                    <span class="text-xl font-medium text-gray-700">Total a Pagar: </span>
+                    <span id="checkout-total-display" class="text-3xl font-extrabold text-red-600">$0.00</span>
+                </div>
+
+                <form id="payment-form" onsubmit="processPayment(event)">
+                    
+                    <!-- INFORMACIÓN DEL CLIENTE (REQUERIDA) -->
+                    <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Información de Envío</h3>
+                    <div class="space-y-3 mb-8">
+                        <input type="text" id="client-name" placeholder="Nombre Completo" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <input type="email" id="client-email" placeholder="Correo Electrónico" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <input type="tel" id="client-phone" placeholder="Teléfono (Ej: +504 9900-0000)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <input type="text" id="client-address" placeholder="Dirección de Envío Completa" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                    </div>
+
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Selecciona un Método:</h3>
+                    
+                    <!-- Opción 1: Tarjeta de Crédito/Débito -->
+                    <div class="p-4 border rounded-lg mb-4 hover:bg-gray-50">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="payment_method" value="card" checked onchange="togglePaymentForm('card')" class="h-5 w-5 text-primary focus:ring-primary">
+                            <span class="text-lg font-medium">Tarjeta de Crédito o Débito</span>
+                        </label>
+                        <div id="card-form" class="mt-4 p-3 border-t border-gray-200 space-y-3">
+                            <input type="text" placeholder="Número de Tarjeta" required class="w-full p-2 border border-gray-300 rounded-lg">
+                            <div class="flex space-x-3">
+                                <input type="text" placeholder="MM/AA" required class="w-1/2 p-2 border border-gray-300 rounded-lg">
+                                <input type="text" placeholder="CVV" required class="w-1/2 p-2 border border-gray-300 rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opción 2: PayPal -->
+                    <div class="p-4 border rounded-lg mb-4 hover:bg-gray-50">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="payment_method" value="paypal" onchange="togglePaymentForm('paypal')" class="h-5 w-5 text-primary focus:ring-primary">
+                            <span class="text-lg font-medium">PayPal</span>
+                        </label>
+                        <div id="paypal-form" class="mt-4 p-3 border-t border-gray-200 hidden">
+                            <button type="button" onclick="alertMessage('Simulando redireccionamiento a PayPal...', 'success')" class="w-full bg-blue-700 text-white font-bold py-2 rounded-lg hover:bg-blue-800 transition">
+                                Pagar con PayPal
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Serás redirigido a la plataforma de PayPal para completar el pago.</p>
+                        </div>
+                    </div>
+
+                    <!-- Opción 3: Depósito Bancario -->
+                    <div class="p-4 border rounded-lg mb-6 hover:bg-gray-50">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="payment_method" value="bank" onchange="togglePaymentForm('bank')" class="h-5 w-5 text-primary focus:ring-primary">
+                            <span class="text-lg font-medium">Depósito o Transferencia Bancaria</span>
+                        </label>
+                        <div id="bank-form" class="mt-4 p-3 border-t border-gray-200 hidden bg-yellow-50 rounded-lg">
+                            <p class="font-semibold text-gray-800">Datos Bancarios:</p>
+                            <p class="text-sm">Banco: **Banco Militar de Esenciales**</p>
+                            <p class="text-sm">Cuenta: **9900-1234-5678-901**</p>
+                            <p class="text-sm mt-2 font-semibold text-red-600">Instrucción: Por favor, envíe el comprobante a sucursal@tiendaesenciales.com</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón final de pago para Tarjeta / Confirmación para Depósito -->
+                    <button type="submit" id="final-pay-button" class="w-full bg-primary text-white font-bold py-3 px-6 rounded-full hover:bg-blue-800 transition shadow-lg">
+                        Pagar con Tarjeta
+                    </button>
+                    
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Imports de Firebase (SDKs) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, setLogLevel, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- Configuración de Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW2XUYVndH-PN-gpSGXk1vsykPl9sklvA",
+            authDomain: "ventas-2ee72.firebaseapp.com",
+            projectId: "ventas-2ee72",
+            storageBucket: "ventas-2ee72.firebasestorage.app",
+            messagingSenderId: "237583635376",
+            appId: "1:237583635376:web:f76387415872ddd79cbc75",
+            measurementId: "G-0J9WE3TE4Y"
+        };
+        
+        // Inicialización de Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app); 
+        setLogLevel('debug'); 
+
+        // Variables Globales de Auth
+        let currentUserId = null; // Para clientes (no-admin)
+        let isAuthReady = false; 
+
+        // --- MANEJO DE AUTENTICACIÓN (INICIO DE SESIÓN PARA TODOS LOS USUARIOS) ---
+        
+        // Iniciar sesión con token si está disponible (usuario Canvas) o anónimamente (usuario no Canvas)
+        const initializeAuth = async () => {
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    // Si no hay token, iniciamos sesión anónimamente
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Error al autenticar al usuario:", error);
+                alertMessage("Error de autenticación inicial. Revisa tu consola.", 'error');
+            }
+        };
+
+        // Listener de estado de autenticación (Se ejecuta al iniciar y al cambiar el estado)
+        onAuthStateChanged(auth, (user) => {
+            const authButton = document.getElementById('auth-button');
+
+            if (user && user.isAnonymous === false) { // Usuario registrado (no anónimo)
+                currentUserId = user.uid;
+                document.getElementById('current-user-id').textContent = user.email || currentUserId;
+                document.getElementById('user-info-bar').classList.remove('hidden');
+                
+                document.getElementById('view-orders-button').classList.remove('hidden');
+                authButton.textContent = 'Cerrar Sesión';
+                authButton.onclick = () => signOutClient();
+
+            } else { // Usuario Anónimo o Desconectado
+                currentUserId = user ? user.uid : null;
+                document.getElementById('current-user-id').textContent = currentUserId || 'Anónimo/Desconectado';
+                if(currentUserId) {
+                    document.getElementById('user-info-bar').classList.remove('hidden');
+                } else {
+                    document.getElementById('user-info-bar').classList.add('hidden');
+                }
+
+                document.getElementById('view-orders-button').classList.add('hidden');
+                authButton.textContent = 'Acceder';
+                authButton.onclick = () => openLoginModal();
+            }
+            
+            isAuthReady = true;
+            listenToProducts(); // Iniciar el listener de productos una vez que la auth esté lista
+            
+            // Si el usuario es ADMIN (loggeado via email/password), el botón de admin aparecerá
+            if (user && user.email === 'admin@tienda.com') { 
+                 // Implementación de rol admin simple
+            }
+        });
+        
+        // Cierra la sesión del cliente (registrado o anónimo) y vuelve a iniciar sesión anónimamente
+        window.signOutClient = async () => {
+             try {
+                await signOut(auth);
+                // Forzar inicio de sesión anónimo tras cerrar sesión
+                await signInAnonymously(auth); 
+                alertMessage('Sesión cerrada correctamente.', 'success');
+                switchView('client');
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+                alertMessage('Error al cerrar sesión.', 'error');
+            }
+        }
+
+        // Ejecutar la inicialización
+        initializeAuth();
+        // --- FIN AUTENTICACIÓN DE USUARIOS ---
+
+        // Exportar a window para que el JS global pueda usarlas
+        window.auth = auth;
+        window.db = db; // Exportar db
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.collection = collection; // Exportar funciones de Firestore
+        window.query = query;
+        window.onSnapshot = onSnapshot;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.getDocs = getDocs; // Exportar getDocs
+        window.where = where; // Exportar where para consultas
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword; // Exportar función de registro
+        window.sendPasswordResetEmail = sendPasswordResetEmail; // Exportar función de restablecimiento
+        window.getCurrentUserId = () => currentUserId; // Nueva función para obtener el ID del cliente
+    </script>
+
+
+    <!-- JavaScript para la Lógica de la Tienda y el Admin Panel -->
+    <script>
+        // Array de productos (Ahora se poblará desde Firestore)
+        let products = [];
+        let cart = []; // Variable global para el carrito
+        let unsubscribe = null; // Para guardar la función de desuscripción de onSnapshot
+        let unsubscribeOrders = null; // Para el listener de pedidos del admin/cliente
+        let currentModalProductId = null; // ID del producto actualmente en el modal
+        let adminCurrentTab = 'products'; // Pestaña actual del admin
+
+        // Elementos DOM
+        const clientView = document.getElementById('client-view');
+        const adminView = document.getElementById('admin-view');
+        const myOrdersView = document.getElementById('my-orders-view');
+        const productsContainer = document.getElementById('products-container');
+        const navMenu = document.getElementById('nav-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuButton = document.getElementById('menu-button');
+        const productModal = document.getElementById('product-modal');
+        const loginModal = document.getElementById('login-modal');
+        const adminProductList = document.getElementById('admin-product-list');
+        const addProductForm = document.getElementById('add-product-form');
+        const categorySelect = document.getElementById('category');
+        const adminFormTitle = document.getElementById('admin-form-title');
+        const submitAdminForm = document.getElementById('submit-admin-form');
+        const cancelEditButton = document.getElementById('cancel-edit-button');
+        const editIdInput = document.getElementById('edit-id');
+        const brandManagementSection = document.getElementById('brand-management-section');
+        const brandsEditorContainer = document.getElementById('brands-editor-container');
+        const noBrandsEditorMessage = document.getElementById('no-brands-editor-message');
+        const brandImageDataInput = document.getElementById('brand-image-data');
+        const previewImg = document.getElementById('preview-img');
+        const imagePreviewDiv = document.getElementById('image-preview');
+        const fileLabel = document.getElementById('file-label');
+        const loadingMessage = document.getElementById('loading-message');
+        const addToCartButton = document.getElementById('add-to-cart-button');
+        
+        const cartModal = document.getElementById('cart-modal');
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const cartCount = document.getElementById('cart-count');
+        const cartSubtotal = document.getElementById('cart-subtotal');
+        const cartTotal = document.getElementById('cart-total');
+        const cartEmptyMessage = document.getElementById('cart-empty-message');
+        
+        const checkoutModal = document.getElementById('checkout-modal');
+        const finalPayButton = document.getElementById('final-pay-button');
+        
+        // Elementos del nuevo campo de Icono/Imagen de Producto
+        const productIconInput = document.getElementById('icon'); // El input oculto para Base64
+        
+        // Elementos del panel de administración
+        const adminContentProducts = document.getElementById('admin-content-products');
+        const adminContentOrders = document.getElementById('admin-content-orders');
+        const adminOrderList = document.getElementById('admin-order-list');
+        const myOrdersList = document.getElementById('my-orders-list');
+        
+        // Elementos del Modal de Autenticación
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const authModalSubtitle = document.getElementById('auth-modal-subtitle');
+        const authForms = document.querySelectorAll('.auth-form');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const adminButton = document.getElementById('view-admin-button');
+
+
+        // Se obtiene una lista única de categorías para el formulario
+        const allCategories = [
+            "Ropa y Vestimenta", "Ropa de Cama y Baño", 
+            "Artículos de Aseo Personal", "Salud y Primeros Auxilios", 
+            "Equipo Táctico y Cuidado de Uniforme", "Papelería y Otros"
+        ];
+        
+        // --- DATOS INICIALES (para usar si Firestore está vacío) ---
+        const initialProducts = [
+            // 👕 Ropa y Vestimenta
+            { category: "Ropa y Vestimenta", name: "Camisas azules", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDJMMTkgN0w1IDdMMTIgMlpNNC41IDhIMTkuNVYxOUExIDUgMCAwMTIgMjFoMjBBNSA1IDAgMDEyMC41IDE5VjhoLTJtLTItMmg0TTkgMTJWMThtNi02djZNMTIgMTJ2NiIvPjwvc3ZnPg==", description: "Frescas y duraderas, ideales para el día a día.", price: 25.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Calcetas (negras y blancas)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTggMTZWMTJBMiAyIDAgMDE5IDEwaDIuNTJsMi0yTTE5IDhoLTJWN0EyIDIgMCAwMTIzIDlWMTZhMiAyIDAgMDEtMiAySDh6TTExIDJIMTNWMTJIMTFaIi8+PC9zdmc+", description: "Pack de calcetas esenciales en negro y blanco.", price: 5.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Boxers blancos", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTUgMTJIMTlNMjAgMTdhMiAyIDAgMDEtMiAySDZBMiAyIDAgMDE0IDE3VjloMi41TDEyIDZsNS41IDNIMjB6Ii8+PC9zdmc+", description: "Calzoncillos básicos y cómodos, 100% algodón.", price: 8.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Camiseta militar", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDJMMTkgN0wyMiAxNVYzSDJNNSAxNVY4SDhMMTIgNUwxNiA4SDIxdjciLz48L3N2Zz4=", description: "Camiseta de cuello redondo para entrenamiento.", price: 15.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Gorra azul", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE3IDZBMiAyIDAgMDEyMiA2VjE3TTIgMTNWN2EyIDIgMCAwMTIgLTJMMTIgNFYyMG0wIDBoMiI+PC9wYXRoPjwvc3ZnPg==", description: "Gorra de béisbol azul, ajustable.", price: 12.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Tenis azules", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVYyLjNBMS41IDEuNSAwIDAxNSAxSDI3QTEuNSAxLjUgMCAwMTI4LjUgMi4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDJINUExLjUgMS41IDAgMDEzLjUgMy41VjI1TDE2IDMwbDEyLjUtNVY0LjVhMS41IDEuNSAwIDAxLTEuNS0xLjVaIiBmaWxsPSIjRkZCRjI0Ii8+PC9wYXRoPjwvc3ZnPg==", description: "Calzado deportivo y cómodo, excelente tracción.", price: 45.00, brands: [{ name: "SportLine Azul", imageUrl: "https://placehold.co/200x150/1d4ed8/ffffff?text=SportLine" }] },
+            { category: "Ropa y Vestimenta", name: "Tenis blancos", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVYyLjNBMS41IDEuNSAwIDAxNSAxSDI3QTEuNSAxLjUgMCAwMTI4LjUgMi4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDJINUExLjUgMS41IDAgMDEzLjUgMy41VjI1TDE2IDMwbDEyLjUtNVY0LjVhMS41IDEuNSAwIDAxLTEuNS0xLjVaIiBmaWxsPSIjRkZCRjI0Ii8+PC9pYXRoPjwvc3ZnPg==", description: "Clásicos e impecables para cualquier ocasión.", price: 45.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Calzonetas azules", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Bañador o short de baño, secado rápido.", price: 20.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Sandalias de baño azules", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Sandalias antideslizantes para ducha o piscina.", price: 10.00, brands: [] },
+            { category: "Ropa y Vestimenta", name: "Cuerpiño (Sostén deportivo)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDJDMjAgMiAyMiA2IDIyIDEwVjIxSDJWMTAgQzIgNiA0IDIgMTIgMlpNNiAxNkgxOG0wIDJoLTQifT48L3N2Zz4=", description: "Sujetador de alta sujeción para ejercicio.", price: 18.00, brands: [] },
+
+            // 🛌 Ropa de Cama y Baño
+            { category: "Ropa de Cama y Baño", name: "Toalla (blanca y azul)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjkgMTd2MTAuNUEyLjUgMi41IDAgMDEyNi41IDMwSDUuNUFhMi41IDIuNSAwIDAxMyAyNy41VjE3TTIzIDZoLTYgYy00LjQtNC40LTYgMC03IDRMMTYgMTZIMTcgTDIyIDExSDIzQTEgMSAwIDAwMjMgOVY3QTEgMS AwIDAwMjIgNloiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Toalla grande de algodón, alta absorción.", price: 15.00, brands: [] },
+            { category: "Ropa de Cama y Baño", name: "Sábana blanca", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTQgNlY1QTEgMS AwIDAxNSA0SDE5QTEgMS AwIDAxMjAgNVY2TTIgMTJIMjJNMjIgNlYxOEExIDEgMCAwMTIxIDE5SDNBMSAxIDAgMDEyIDlMMjIgMTJNMjIgMTJMMjIgMTJMMyA5Ii8+PC9wYXRoPjwvc3ZnPg==", description: "Sábana ajustable individual de algodón.", price: 22.00, brands: [] },
+            { category: "Ropa de Cama y Baño", name: "Cubre colchón blanco", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Protector de colchón acolchado.", price: 30.00, brands: [] },
+            { category: "Ropa de Cama y Baño", name: "Fundas blancas", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Juego de dos fundas de almohada blancas.", price: 7.00, brands: [] },
+            { category: "Ropa de Cama y Baño", name: "Almohada", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVY4LjNBMS41IDEuNSAwIDAxNSA3SDI3QTEuNSAxLjUgMCAwMTI4LjUgOC4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDhINUExLjUgMS41IDAgMDEzLjUgOS41VjI1TDE2IDMwbDEyLjUtNVY5LjVBMS41IDEuNSAwIDAxMjcgOFoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Almohada de fibra suave, soporte medio.", price: 18.00, brands: [] },
+
+            // 🧼 Artículos de Aseo Personal
+            { category: "Artículos de Aseo Personal", name: "Jabón de baño", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTcgMTRMMTcgNCIgLz48cGF0aCBkPSJNMjAgMTEuMkw5LjYgMjEgTDQgMTZMMTMuNCA1LjJMMjAgMTEuMloiLz48L3N2Zz4=", description: "Barra de jabón neutro para piel sensible.", price: 3.00, brands: [{ name: "Frescura", imageUrl: "https://placehold.co/200x150/4CAF50/ffffff?text=Jab%C3%B3n" }] },
+            { category: "Artículos de Aseo Personal", name: "Jabonera", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Estuche o contenedor para jabón, plástico resistente.", price: 4.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Espuma de afeitar", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Espuma o gel de afeitar para piel sensible.", price: 6.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Prestobarba (rastrillos/cuchillas de afeitar)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIgNkwxMiAxNkwyMiA2TTQgMTBWMTZBMyAzIDAgMDE3IDE5SDE3QTMgMyAwIDAxMjAgMTZWMTAiLz48L3N2Zz4=", description: "Paquete de rasuradoras desechables.", price: 5.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Desodorante", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Protección antitranspirante de 48 horas.", price: 7.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Pasta dental", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Blanqueamiento y protección total.", price: 5.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Cepillo dental", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjggNEg0QTEgMS AwIDAwMyA1VjI3YTEgMS Aw IDAwMSAxaDI0YTEgMS Aw IDAwMS0xVjVhMSAxIDAgMDAtMS0xWiIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik00IDlIMjhNNiAxNFYxNk0xMSAxNFYxNk0xNiAxNFYxNk0yMSAxNFYxNk0yNiAxNFYxNloiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=", description: "Cepillo de dientes de cerdas medias.", price: 3.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Listerine (enjuague bucal)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Enjuague bucal antiséptico, 250ml.", price: 8.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Shampoo", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Shampoo 2 en 1 (limpieza y acondicionador).", price: 9.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Peine", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Peine de plástico resistente de bolsillo.", price: 2.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Gelatina para cabello", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVY4LjNBMS41IDEuNSAwIDAxNSA3SDI3QTEuNSAxLjUgMCAwMTI4LjUgOC4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDhINUExLjUgMS41IDAgMDEzLjUgOS41VjI1TDE2IDMwbDEyLjUtNVY5LjVBMS41IDEuNSAwIDAxMjcgOFoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Gel de fijación fuerte.", price: 7.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Talco", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEyIDJDMjIgNiAyMiA5IDE4IDExVjIxSDZWMTFDMiA5IDIgNiAxMiAyWk0xMiA1VjgiLz48L3N2Zz4=", description: "Talco desodorante para pies o cuerpo.", price: 4.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Papel higiénico", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Paquete de papel higiénico, 4 rollos.", price: 6.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Pañuelos", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE5IDJoLTRhMiAyIDAgMDEtMi0yVjRNNyA2SDRhMiAyIDAgMDEtMiAydjE0YTIgMi Aw IDAwMiAyaDE2YTIgMi AwIDAxMi0yVjhhMiAyIDAgMDEtMi0ySDUiLz48L3N2Zz4=", description: "Pañuelos de papel desechables, paquete individual.", price: 1.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Labial de humectación", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Bálsamo labial humectante con FPS.", price: 3.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Manteca de cacao", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHNzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMCA4VjE4TTE0IDhWMThNNiA2SDE4TTE4IDZMMjIgMTlMMiAxMU0xOCA2SDE5Ii8+PC9zdmc+", description: "Protector labial de cacao.", price: 2.50, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Vaselina", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Jalea de petróleo, multiusos.", price: 4.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Toallas sanitarias", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Paquete de toallas sanitarias, regulares.", price: 5.00, brands: [] },
+            { category: "Artículos de Aseo Personal", name: "Colas militares (para el cabello)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Ligas resistentes de color neutro para cabello.", price: 2.00, brands: [] },
+
+            // 🩺 Salud y Primeros Auxilios
+            { category: "Salud y Primeros Auxilios", name: "Kit de primeros auxilios", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Completo kit básico para emergencias menores.", price: 35.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Alcohol clínico", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Alcohol isopropílico para desinfección, 250ml.", price: 4.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Cortaúñas (Trim)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjggN0gxMmEyIDIgMCAwMC0yIDJWOUExIDEgMCAwMDExIDEwaDJBMSAx IDAgMDAtMTQgOVY3QTEgMS Aw IDAwMTUgN0gyOEExIDMgMCAwMTMwIDEwVjIxQTMgMyAwIDAxMjcgMjRINUEzIDMgMCAwMTIgMjBWMTZBMiAyIDAgMDE0IDE0aDJWMTlIMjVWMTQuMkwyMyAxMnoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Cortaúñas pequeño de metal.", price: 3.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Cortaúñas grande", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Cortaúñas de tamaño mayor para uñas gruesas.", price: 5.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Crema para el sol (protector solar)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Protector solar FPS 50, resistente al agua.", price: 15.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Rodilleras", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Soporte para rodilla, unitalla.", price: 12.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Banda para estiramiento de músculo", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Banda elástica para terapia y ejercicio.", price: 8.00, brands: [] },
+            { category: "Salud y Primeros Auxilios", name: "Coffal (medicamento)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Analgésico y antipirético (simulación).", price: 10.00, brands: [] },
+
+            // 🎖️ Equipo Táctico y Cuidado de Uniforme
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Fajas tácticas", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Cinturón de trabajo o táctico, alta resistencia.", price: 25.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Mochila táctica", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Gran capacidad, múltiples compartimentos, resistente al agua.", price: 70.00, brands: [{ name: "Modelo Delta", imageUrl: "https://placehold.co/200x150/9CA3AF/111827?text=Mochila" }] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Perfume militar", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVM0LjMgMjAuNSA2LjQgMTguNEM4LjUgMTYuMyAxMi42IDE0IDE2IDE0YzMuNCAwIDcuNSAyLjMgOS42IDQuNGE0LjIgNC4yIDAgMDEyLjUgNVMzMC41IDIyLjIgMjcuNSAyNVoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Colonia o fragancia de uso reglamentario.", price: 15.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Cartucheras", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE5IDJoLTRhMiAyIDAgMDEtMi0yVjRNNyA2SDRhMiAyIDAgMDEtMiAydjE0YTIgMiAwIDAwMiAyaDE2YTIgMi AwIDAxMi0yVjhhMiAyIDAgMDEtMi0ySDUiLz48L3N2Zz4=", description: "Porta cargadores o estuches modulares.", price: 20.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Plantillas para botas", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Plantillas de gel para confort y amortiguación.", price: 10.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Ligas de algodón", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Ligas para asegurar pantalones y medias.", price: 3.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Cepillo de zapatos", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjggN0gxMmEyIDIgMCAwMC0yIDJWOUExIDEgMCAwMDExIDEwaDJBMSAx IDAgMDAtMTQgOVY3QTEgMS Aw IDAwMTUgN0gyOEExIDMgMCAwMTMwIDEwVjIxQTMgMyAwIDAxMjcgMjRINUEzIDMgMCAwMTIgMjBWMTZBMiAyIDAgMDE0IDE0aDJWMTlIMjVWMTQuMkwyMyAxMnoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Cepillo de cerdas para limpieza de calzado.", price: 4.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Chinola (betún negro)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjggN0gxMmEyIDIgMCAwMC0yIDJWOUExIDEgMCAwMDExIDEwaDJBMSAx IDAgMDAtMTQgOVY3QTEgMS AwIDAwMTUgN0gyOEExIDMgMCAwMTMwIDEwVjIxQTMgMyAwIDAxMjcgMjRINUEzIDMgMCAwMTIgMjBWMTZBMiAyIDAgMDE0IDE0aDJWMTlIMjVWMTQuMkwyMyAxMnoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Cera o pasta para lustrar zapatos, color negro.", price: 5.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Chinola blanca (betún blanco)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVYyLjNBMS41IDEuNSAwIDAxNSAxSDI3QTEuNSAxLjUgMCAwMTI4LjUgMi4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDJINUExLjUgMS41IDAgMDEzLjUgMy41VjI1TDE2IDMwbDEyLjUtNVY0LjVhMS41IDEuNSAwIDAxLTEuNS0xLjVaIiBmaWxsPSIjRkZCRjI0Ii8+PC9wYXRoPjwvc3ZnPg==", description: "Líquido restaurador de color blanco para calzado.", price: 6.00, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Kiwi (betún)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNVY4LjNBMS41IDEuNSAwIDAxNSA3SDI3QTEuNSAxLjUgMCAwMTI4LjUgOC4zVjIzLjVBMS41IDEuNSAwIDAxMjcgMjVaTTI3IDhINUExLjUgMS41IDAgMDEzLjUgOS41VjI1TDE2IDMwbDEyLjUtNVY5LjVBMS41IDEuNSAwIDAxMjcgOFoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Betún de cera tradicional (simulación de marca).", price: 5.50, brands: [] },
+            { category: "Equipo Táctico y Cuidado de Uniforme", name: "Sidol (pulidor de metales)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE5IDJoLTRhMiAyIDAgMDEtMi0yVjRNNyA2SDRhMiAyIDAgMDEtMiAydjE0YTIgMiAwIDAwMiAyaDE2YTIgMi AwIDAxMi0yVjhhMiAyIDAgMDEtMi0ySDUiLz48L3N2Zz4=", description: "Pulidor líquido para hebillas y metales (simulación).", price: 7.00, brands: [] },
+
+            // ✏️ Papelería y Otros
+            { category: "Papelería y Otros", name: "Cuadernos", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMjcgMjVINUExLjUgMS41IDAgMDEzLjUgMjMuNXYtMTkuNUEyLjUgMi41IDAgMDE2LjUgMkgyNS41QTIuNSAyLjUgMCAwMTI4IDQuNVYyMy41QTEuNSAxLjUgMCAwMTI3IDI1WiIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01IDZIMjdNNSAxMEgyN001IDE0SDI3TTE2IDE5SDI0IiBzdHJva2U9IiMxQzM1NTQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvpzdjJ3M+PC9zdmc+", description: "Paquete de 3 cuadernos de línea.", price: 4.00, brands: [] },
+            { category: "Papelería y Otros", name: "Lápices", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIj48cGF0aCBkPSJNMyAzTDggMThMMjEgMjFMMjkgMTdMMjUgMTNMOSAxMVoiIHN0cm9rZT0iIzFDMzU1NCIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9wYXRoPjwvc3ZnPg==", description: "Caja con 12 lápices de grafito.", price: 3.50, brands: [] },
+            { category: "Papelería y Otros", name: "Ficheros para diario", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE5IDJoLTRhMiAyIDAgMDEtMi0yVjRNNyA2SDRhMiAyIDAgMDEtMiAydjE0YTIgMi AwIDAwMiAyaDE2YTIgMi AwIDAxMi0yVjhhMiAyIDAgMDEtMi0ySDUiLz48L3N2Zz4=", description: "Caja de fichas para notas o estudio.", price: 6.00, brands: [] },
+            { category: "Papelería y Otros", name: "Jabón de lavar ropa (Detergente, ej. Ace)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Detergente en polvo o líquido, 1kg.", price: 12.00, brands: [] },
+            { category: "Papelería y Otros", name: "Bolsa de tela", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE1IDJMMTcgNlYyMEg3VjZMMTAgMiIgLz48L3N2Zz4=", description: "Bolsa reutilizable de lona o tela.", price: 8.00, brands: [] },
+            { category: "Papelería y Otros", name: "Chapas (candados)", icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=", description: "Candado pequeño de seguridad con 2 llaves.", price: 9.00, brands: [] },
+        ];
+        // --- FIN DATOS INICIALES ---
+
+
+        // --- LÓGICA DEL CARRITO (usando localStorage para persistencia temporal) ---
+
+        /**
+         * Carga los items del carrito desde localStorage.
+         */
+        const loadCart = () => {
+            const storedCart = localStorage.getItem('shoppingCart');
+            try {
+                cart = storedCart ? JSON.parse(storedCart) : [];
+            } catch (e) {
+                console.error("Error al cargar el carrito:", e);
+                cart = [];
+            }
+            updateCartUI();
+        };
+
+        /**
+         * Guarda los items del carrito en localStorage.
+         */
+        const saveCart = () => {
+            localStorage.setItem('shoppingCart', JSON.stringify(cart));
+            updateCartUI();
+        };
+
+        /**
+         * Actualiza el contador del carrito en el encabezado y el modal.
+         */
+        const updateCartUI = () => {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems > 99 ? '99+' : totalItems;
+
+            if (!cartModal.classList.contains('hidden')) {
+                renderCartItems();
+            }
+        };
+
+        /**
+         * Calcula y devuelve el total final del carrito (incluyendo impuestos).
+         */
+        const getCartTotal = () => {
+             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+             const taxRate = 0.15; // 15% de impuesto simulado
+             const total = subtotal * (1 + taxRate);
+             return total;
+        };
+
+
+        /**
+         * Renderiza los items del carrito dentro del modal.
+         */
+        const renderCartItems = () => {
+            cartItemsContainer.innerHTML = '';
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                cartEmptyMessage.classList.remove('hidden');
+                cartItemsContainer.classList.add('hidden');
+                document.getElementById('cart-summary').classList.add('hidden');
+            } else {
+                cartEmptyMessage.classList.add('hidden');
+                cartItemsContainer.classList.remove('hidden');
+                document.getElementById('cart-summary').classList.remove('hidden');
+
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+
+                    // AQUI SE INYECTA EL DETALLE DE LA MARCA/OPCION
+                    const brandDetail = item.selectedBrands.length > 0 
+                        ? `<p class="text-xs text-gray-500 mt-1">Marca/Opciones: ${item.selectedBrands.join(', ')}</p>` 
+                        : '';
+                    
+                    // Renderiza el icono como imagen (Base64)
+                    const iconDisplay = item.icon.startsWith('data:image') 
+                        ? `<img src="${item.icon}" alt="${item.name} icon" class="w-8 h-8 object-contain">`
+                        : `<div class="text-3xl flex-shrink-0">${item.icon}</div>`; // Fallback o Emoji si no es Base64
+
+                    cartItemsContainer.innerHTML += `
+                        <div class="flex items-center space-x-4 p-3 border-b border-gray-100 last:border-b-0">
+                            <div class="flex-shrink-0">${iconDisplay}</div>
+                            <div class="flex-grow">
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                ${brandDetail}
+                                <p class="text-sm text-gray-600">$${item.price.toFixed(2)} c/u</p>
+                            </div>
+                            <div class="flex items-center space-x-2 flex-shrink-0">
+                                <input type="number" min="1" value="${item.quantity}" 
+                                       onchange="updateItemQuantity(${index}, this.value)" 
+                                       class="w-16 p-1 border rounded-lg text-center text-sm focus:border-primary focus:ring-primary">
+                                <p class="font-medium w-16 text-right">$${itemTotal.toFixed(2)}</p>
+                                <button onclick="removeItemFromCart(${index})" class="text-red-400 hover:text-red-600 transition p-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const tax = subtotal * 0.15; // Simulación de 15% de impuesto
+            cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            cartTotal.textContent = `$${(subtotal + tax).toFixed(2)}`;
+            
+            // Actualizar total en el modal de checkout
+            document.getElementById('checkout-total-display').textContent = `$${getCartTotal().toFixed(2)}`;
+        };
+
+        window.openCartModal = () => {
+            renderCartItems(); // Asegura que el contenido esté actualizado al abrir
+            cartModal.classList.remove('hidden');
+        };
+        
+        window.openCheckoutModal = () => {
+            if (cart.length === 0) {
+                alertMessage('El carrito está vacío. Añade productos para pagar.', 'error');
+                return;
+            }
+            // Asegura que el total esté actualizado
+            document.getElementById('checkout-total-display').textContent = `$${getCartTotal().toFixed(2)}`;
+            
+            closeCartModal();
+            checkoutModal.classList.remove('hidden');
+            togglePaymentForm('card'); // Establecer el método por defecto
+        };
+        
+        window.closeCheckoutModal = () => {
+            checkoutModal.classList.add('hidden');
+        };
+        
+        /**
+         * Muestra/oculta los formularios de pago según la opción seleccionada.
+         */
+        window.togglePaymentForm = (method) => {
+            const cardForm = document.getElementById('card-form');
+            const paypalForm = document.getElementById('paypal-form');
+            const bankForm = document.getElementById('bank-form');
+            
+            // Ocultar todos por defecto
+            cardForm.classList.add('hidden');
+            paypalForm.classList.add('hidden');
+            bankForm.classList.add('hidden');
+            
+            // Mostrar el formulario o instrucción relevante
+            if (method === 'card') {
+                cardForm.classList.remove('hidden');
+                finalPayButton.textContent = 'Pagar con Tarjeta';
+                finalPayButton.classList.replace('bg-green-500', 'bg-primary');
+            } else if (method === 'paypal') {
+                paypalForm.classList.remove('hidden');
+                finalPayButton.textContent = 'Continuar a PayPal (Simulación)';
+                finalPayButton.classList.replace('bg-primary', 'bg-green-500'); 
+            } else if (method === 'bank') {
+                bankForm.classList.remove('hidden');
+                finalPayButton.textContent = 'Confirmar Pedido (Pagar por Depósito)';
+                finalPayButton.classList.replace('bg-primary', 'bg-green-500'); 
+            }
+        };
+
+        /**
+         * LÓGICA: Procesa el pago y guarda la orden en Firestore.
+         */
+        window.processPayment = async (e) => {
+            e.preventDefault();
+            
+            const userId = window.getCurrentUserId();
+            if (!userId) {
+                alertMessage('Error de autenticación. Intenta refrescar la página.', 'error');
+                return;
+            }
+            
+            // 1. CAPTURAR Y VALIDAR DATOS DEL CLIENTE
+            const clientName = document.getElementById('client-name').value;
+            const clientEmail = document.getElementById('client-email').value;
+            const clientPhone = document.getElementById('client-phone').value;
+            const clientAddress = document.getElementById('client-address').value;
+            
+            if (!clientName || !clientEmail || !clientPhone || !clientAddress) {
+                alertMessage('Por favor, rellena todos los campos de información de envío.', 'error');
+                return;
+            }
+
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            const totalAmount = getCartTotal();
+            const orderItems = cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                selectedBrands: item.selectedBrands
+            }));
+            
+            let paymentStatus = "Pending";
+            let paymentDetails = {};
+            let message = '';
+            
+            // 2. SIMULACIÓN DE PAGO Y DEFINICIÓN DE MENSAJES
+            if (selectedMethod === 'card') {
+                const cardNumber = document.querySelector('#card-form input[placeholder="Número de Tarjeta"]').value;
+                if (cardNumber.length < 16) {
+                    alertMessage('El número de tarjeta es inválido.', 'error');
+                    return;
+                }
+                paymentStatus = "Paid - Card";
+                paymentDetails = { method: "Card", last4: cardNumber.slice(-4) };
+                message = `¡Pedido de $${totalAmount.toFixed(2)} CONFIRMADO! Envío a ${clientName} (${clientAddress}). Pago: Tarjeta.`;
+
+            } else if (selectedMethod === 'paypal') {
+                paymentStatus = "Pending - PayPal Redirect";
+                paymentDetails = { method: "PayPal", redirectSimulated: true };
+                message = '¡Redireccionando a PayPal para finalizar la compra! (Simulación)';
+
+            } else if (selectedMethod === 'bank') {
+                paymentStatus = "Pending - Bank Deposit";
+                paymentDetails = { method: "Bank Deposit", instructionsSent: true };
+                message = `¡Pedido de $${totalAmount.toFixed(2)} CONFIRMADO! Recibirá la orden, ${clientName}, en su correo. Pago: Depósito/Transferencia.`;
+            }
+            
+            // 3. CONSTRUCCIÓN DEL OBJETO DE LA ORDEN
+            // NOTA IMPORTANTE: Se añade el campo userId para que solo el cliente vea sus órdenes (Mis Pedidos)
+            const newOrder = {
+                userId: userId, 
+                client: {
+                    name: clientName,
+                    email: clientEmail,
+                    phone: clientPhone,
+                    address: clientAddress
+                },
+                items: orderItems,
+                total: totalAmount,
+                subtotal: totalAmount / 1.15, 
+                tax: totalAmount - (totalAmount / 1.15),
+                payment: paymentDetails,
+                status: paymentStatus,
+                date: new Date().toISOString()
+            };
+
+            // 4. GUARDAR LA ORDEN EN FIRESTORE (Colección 'orders')
+            try {
+                const ordersCollectionRef = window.collection(window.db, 'orders');
+                const docRef = await window.addDoc(ordersCollectionRef, newOrder);
+                console.log("Orden guardada exitosamente con ID: ", docRef.id);
+                message += ` [ID de Orden: ${docRef.id}]`;
+                alertMessage(message, 'success');
+            } catch (error) {
+                console.error("Error al guardar la orden en Firestore:", error);
+                alertMessage('Error al guardar la orden. Revisa la consola para más detalles.', 'error');
+                return; 
+            }
+
+            // 5. FINALIZAR PROCESO DE COMPRA
+            closeCheckoutModal();
+            clearCart();
+        };
+
+        window.closeCartModal = () => {
+            cartModal.classList.add('hidden');
+        };
+
+        window.clearCart = () => {
+            cart = [];
+            saveCart();
+            renderCartItems();
+        };
+        
+        window.removeItemFromCart = (index) => {
+            cart.splice(index, 1);
+            saveCart();
+        };
+
+        window.updateItemQuantity = (index, newQuantity) => {
+            const quantity = parseInt(newQuantity);
+            if (quantity > 0) {
+                cart[index].quantity = quantity;
+            } else {
+                removeItemFromCart(index);
+            }
+            saveCart();
+        };
+
+        // --- LÓGICA DE FIREBASE Y CRUD (Persistencia de productos) ---
+
+        /**
+         * Función para inicializar la base de datos con productos por defecto si está vacía.
+         */
+        const seedInitialData = async () => {
+            if (!window.db) return;
+
+            const productsCollectionRef = window.collection(window.db, 'products');
+            try {
+                const snapshot = await window.getDocs(productsCollectionRef);
+                
+                if (snapshot.empty) {
+                    console.log("Firestore está vacío. Sembrando datos iniciales...");
+                    for (const product of initialProducts) {
+                        // El array initialProducts ya está definido en la parte de JS
+                        await window.addDoc(productsCollectionRef, product);
+                    }
+                    alertMessage("Datos iniciales cargados a Firestore.", 'success');
+                } else {
+                    console.log("Firestore ya contiene productos. No es necesario sembrar datos.");
+                }
+            } catch (error) {
+                console.error("Error al sembrar datos iniciales:", error);
+                if (error.code === 'permission-denied' || error.message.includes('401')) {
+                    alertMessage("Error de permiso al intentar sembrar datos. ¡Revisa tus Reglas de Seguridad de Firestore!", 'error');
+                }
+            }
+        };
+
+
+        // --- VISTAS Y AUTENTICACIÓN GENERAL (CLIENTE Y ADMIN) ---
+        
+        /**
+         * Controla el click en el botón superior de "Acceder" / "Cerrar Sesión".
+         */
+        window.handleAuthClick = () => {
+            // Si el botón dice "Cerrar Sesión", es un usuario logeado con correo/pass
+            if (document.getElementById('auth-button').textContent === 'Cerrar Sesión') {
+                signOutClient();
+            } else {
+                // Si dice "Acceder", abrimos el modal de login/registro
+                openLoginModal();
+            }
+        }
+        
+        /**
+         * Abre el modal de autenticación por defecto en la pestaña de inicio de sesión.
+         */
+        window.openLoginModal = (initialTab = 'signin') => {
+            loginModal.classList.remove('hidden');
+            setAuthTab(initialTab);
+        };
+        
+        /**
+         * Abre el modal de autenticación forzando la vista de inicio de sesión de Admin
+         */
+        window.openAdminLogin = () => {
+            setAuthTab('signin');
+            authModalTitle.textContent = 'Acceso de Administrador';
+            authModalSubtitle.textContent = 'Ingresa tus credenciales de admin.';
+        }
+
+        window.closeLoginModal = () => {
+            loginModal.classList.add('hidden');
+            document.getElementById('signin-email').value = '';
+            document.getElementById('signin-password').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('reset-email').value = '';
+            // Restablecer el título a cliente por defecto
+            authModalTitle.textContent = 'Acceso Cliente';
+            authModalSubtitle.textContent = 'Ingresa o crea tu cuenta para guardar tu historial de pedidos.';
+        };
+        
+        /**
+         * Maneja el cambio de pestañas en el modal de autenticación.
+         */
+        window.setAuthTab = (tab) => {
+            authForms.forEach(form => form.classList.add('hidden'));
+            authTabs.forEach(tabBtn => {
+                tabBtn.classList.remove('border-primary', 'text-primary');
+                tabBtn.classList.add('border-transparent', 'text-gray-500', 'hover:text-primary');
+            });
+            
+            document.getElementById(`${tab}-form`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('border-primary', 'text-primary');
+            document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+
+            // Limpieza y enfoque
+            if (tab === 'signin') {
+                document.getElementById('signin-email').focus();
+            } else if (tab === 'signup') {
+                document.getElementById('signup-email').focus();
+            } else if (tab === 'reset') {
+                document.getElementById('reset-email').focus();
+            }
+        }
+
+        // 1. INICIO DE SESIÓN DE CLIENTE (O ADMIN)
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+
+            try {
+                const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                
+                closeLoginModal();
+
+                if (email === 'admin@tienda.com') { // Simulación de rol de admin
+                    alertMessage('Acceso de administrador concedido. Bienvenido.', 'success');
+                    switchView('admin');
+                } else {
+                    alertMessage('Inicio de sesión de cliente exitoso.', 'success');
+                    switchView('client'); // Volver a la vista de tienda
+                }
+            } catch (error) {
+                console.error("Error de inicio de sesión:", error.code, error.message);
+                
+                let errorMessage = "Credenciales incorrectas. Intenta de nuevo.";
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = "No existe una cuenta con este correo. ¿Deseas crear una?";
+                    setAuthTab('signup');
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = "Contraseña incorrecta. ¿Olvidaste tu contraseña?";
+                }
+
+                alertMessage(errorMessage, 'error');
+                document.getElementById('signin-password').value = '';
+                document.getElementById('signin-password').focus();
+            }
+        });
+        
+        // 2. REGISTRO DE NUEVO CLIENTE
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            try {
+                await window.createUserWithEmailAndPassword(window.auth, email, password);
+                closeLoginModal();
+                alertMessage('Cuenta creada y sesión iniciada. ¡Bienvenido!', 'success');
+                switchView('client');
+            } catch (error) {
+                console.error("Error de registro:", error.code, error.message);
+                
+                let errorMessage = "Error al registrar la cuenta.";
+                 if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Este correo ya está en uso. Intenta iniciar sesión.";
+                    setAuthTab('signin');
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Formato de correo inválido.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Contraseña muy débil (mínimo 6 caracteres).";
+                }
+                
+                alertMessage(errorMessage, 'error');
+            }
+        });
+
+        // 3. RESTABLECIMIENTO DE CONTRASEÑA
+        document.getElementById('reset-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            try {
+                await window.sendPasswordResetEmail(window.auth, email);
+                closeLoginModal();
+                alertMessage(`Enlace de restablecimiento enviado a ${email}. ¡Revisa tu bandeja de entrada!`, 'success');
+            } catch (error) {
+                console.error("Error de restablecimiento:", error.code, error.message);
+                
+                let errorMessage = "Error al enviar el enlace. Verifica que el correo sea correcto.";
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = "No se encontró una cuenta con este correo.";
+                }
+                
+                alertMessage(errorMessage, 'error');
+            }
+        });
+
+
+        window.signOutAdmin = async () => {
+            try {
+                // Al cerrar la sesión del admin, volvemos a la autenticación del cliente (token/anónimo)
+                await window.signOut(window.auth);
+                window.initializeAuth(); 
+                alertMessage('Sesión de administrador cerrada correctamente.', 'success');
+                switchView('client');
+            } catch (error) {
+                console.error("Error al cerrar sesión de administrador:", error);
+                alertMessage('Error al cerrar sesión.', 'error');
+            }
+        };
+        
+        // Cambia la vista entre cliente, pedidos de cliente y administrador
+        window.switchView = (view) => {
+            clientView.classList.add('hidden');
+            adminView.classList.add('hidden');
+            myOrdersView.classList.add('hidden');
+
+            if (view === 'client') {
+                clientView.classList.remove('hidden');
+                // Al cambiar la vista, si hay un listener de órdenes activo, lo detenemos (para evitar cargas innecesarias)
+                if(unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } 
+
+            } else if (view === 'my_orders') {
+                if (!window.auth.currentUser || window.auth.currentUser.isAnonymous) {
+                    alertMessage('Debes crear una cuenta o iniciar sesión para ver tu historial de pedidos.', 'error');
+                    openLoginModal('signin'); // Invita al usuario a loguearse
+                    return;
+                }
+                myOrdersView.classList.remove('hidden');
+                listenToMyOrders(); 
+                
+            } else if (view === 'admin') {
+                // Comprobación de administrador: asumimos que el admin usa un correo específico
+                if (!window.auth.currentUser || window.auth.currentUser.email !== 'admin@tienda.com') {
+                    alertMessage("Acceso denegado. Solo administradores pueden ver el panel.", 'error');
+                    // Si intenta acceder sin ser admin, lo devolvemos a la vista de cliente
+                    switchView('client');
+                    return;
+                }
+                adminView.classList.remove('hidden');
+                setAdminTab(adminCurrentTab); 
+            }
+        };
+        
+        // Lógica de pestañas del panel de administrador
+        window.setAdminTab = (tab) => {
+            adminCurrentTab = tab;
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+            });
+            
+            document.getElementById(`tab-${tab}`).classList.remove('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+            document.getElementById(`tab-${tab}`).classList.add('bg-primary', 'text-white');
+            
+            adminContentProducts.classList.add('hidden');
+            adminContentOrders.classList.add('hidden');
+
+            if (tab === 'products') {
+                adminContentProducts.classList.remove('hidden');
+                renderAdminPanel(); // Re-renderizar tabla de productos
+                if(unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } 
+            } else if (tab === 'orders') {
+                adminContentOrders.classList.remove('hidden');
+                listenToAdminOrders(); // Iniciar listener de todos los pedidos
+            }
+        };
+
+
+        // --- LISTENERS DE FIRESTORE ---
+
+        // Función para escuchar TODOS los pedidos (Solo Admin)
+        const listenToAdminOrders = () => {
+            if (unsubscribeOrders) {
+                unsubscribeOrders(); // Detener listener anterior
+            }
+            if (!window.db) return;
+
+            adminOrderList.innerHTML = '<p class="text-lg text-gray-600">Cargando pedidos de clientes...</p>';
+
+            const ordersCollectionRef = window.collection(window.db, 'orders');
+            const q = window.query(ordersCollectionRef);
+
+            unsubscribeOrders = window.onSnapshot(q, (snapshot) => {
+                let ordersHtml = '';
+                if (snapshot.empty) {
+                    ordersHtml = '<p class="text-lg text-gray-600">No hay pedidos de clientes registrados aún.</p>';
+                } else {
+                    snapshot.docs.forEach(doc => {
+                        const order = doc.data();
+                        ordersHtml += renderAdminOrderCard(doc.id, order);
+                    });
+                }
+                adminOrderList.innerHTML = ordersHtml;
+            }, (error) => {
+                console.error("Error al escuchar TODOS los pedidos:", error);
+                adminOrderList.innerHTML = '<p class="text-lg text-red-600">Error al cargar pedidos. Verifique permisos.</p>';
+            });
+        };
+        
+        // Función para escuchar SOLO los pedidos del usuario actual (Cliente)
+        const listenToMyOrders = () => {
+            if (unsubscribeOrders) {
+                unsubscribeOrders(); // Detener listener anterior si estaba activo
+            }
+            const userId = window.getCurrentUserId();
+            if (!window.db || !userId) return;
+            
+            myOrdersList.innerHTML = '<p class="text-lg text-gray-600">Cargando tu historial de pedidos...</p>';
+
+            const ordersCollectionRef = window.collection(window.db, 'orders');
+            // Usamos la query `where` para filtrar solo los pedidos de este userId
+            const q = window.query(ordersCollectionRef, window.where("userId", "==", userId));
+
+            unsubscribeOrders = window.onSnapshot(q, (snapshot) => {
+                let ordersHtml = '';
+                if (snapshot.empty) {
+                    ordersHtml = '<p class="text-lg text-gray-600">No has realizado ningún pedido todavía.</p>';
+                } else {
+                    snapshot.docs.forEach(doc => {
+                        const order = doc.data();
+                        ordersHtml += renderClientOrderCard(doc.id, order);
+                    });
+                }
+                myOrdersList.innerHTML = ordersHtml;
+            }, (error) => {
+                console.error("Error al escuchar MIS pedidos:", error);
+                myOrdersList.innerHTML = '<p class="text-lg text-red-600">Error al cargar tus pedidos. Problema de conexión.</p>';
+            });
+        };
+        
+        // Renderiza el pedido para el administrador (muestra todos los detalles del cliente)
+        const renderAdminOrderCard = (orderId, order) => {
+            const date = new Date(order.date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+            
+            let statusColor = 'bg-yellow-100 text-yellow-800';
+            if (order.status.includes('Paid')) statusColor = 'bg-green-100 text-green-800';
+            if (order.status.includes('Cancelled')) statusColor = 'bg-red-100 text-red-800';
+
+            return `
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary">
+                    <div class="flex justify-between items-center mb-3 border-b pb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Orden #${orderId.substring(0, 8).toUpperCase()}</h3>
+                        <span class="${statusColor} text-xs font-semibold px-2.5 py-0.5 rounded-full">${order.status}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-1">Cliente: <span class="font-medium">${order.client.name}</span> (<span class="font-mono text-xs">${order.userId.substring(0, 10)}...</span>)</p>
+                    <p class="text-sm text-gray-700 mb-1">Contacto: ${order.client.email} | ${order.client.phone}</p>
+                    <p class="text-sm text-gray-700 mb-3">Dirección: ${order.client.address}</p>
+                    <p class="text-lg font-bold text-red-600 mt-2">Total: $${order.total.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500">Fecha: ${date}</p>
+                    <div class="mt-4 pt-3 border-t">
+                        <h4 class="font-semibold text-sm mb-2">Artículos:</h4>
+                        <ul class="text-xs space-y-1">
+                            ${order.items.map(item => 
+                                `<li>- ${item.quantity}x ${item.name} ($${item.price.toFixed(2)} c/u) ${item.selectedBrands.length ? `(${item.selectedBrands.join(', ')})` : ''}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Renderiza el pedido para el cliente (muestra solo detalles de la orden)
+        const renderClientOrderCard = (orderId, order) => {
+            const date = new Date(order.date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+            
+            let statusColor = 'bg-yellow-100 text-yellow-800';
+            if (order.status.includes('Paid')) statusColor = 'bg-green-100 text-green-800';
+            if (order.status.includes('Cancelled')) statusColor = 'bg-red-100 text-red-800';
+
+            return `
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-secondary">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-primary">Pedido #${orderId.substring(0, 8).toUpperCase()}</h3>
+                        <span class="${statusColor} text-xs font-semibold px-2.5 py-0.5 rounded-full">${order.status}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">Fecha: ${date} | Total: <span class="font-bold text-red-600">$${order.total.toFixed(2)}</span></p>
+                    
+                    <div class="mt-4 pt-3 border-t">
+                        <h4 class="font-semibold text-sm mb-2">Artículos:</h4>
+                        <ul class="text-sm space-y-1 text-gray-700">
+                            ${order.items.map(item => 
+                                `<li><span class="font-medium">${item.quantity}x ${item.name}</span> ${item.selectedBrands.length ? `(${item.selectedBrands.join(', ')})` : ''}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Función para escuchar productos en tiempo real desde Firestore
+        const listenToProducts = () => {
+            if (unsubscribe) {
+                unsubscribe(); 
+            }
+
+            if (!window.db) {
+                 console.error("Firestore no está inicializado.");
+                 return;
+            }
+
+            loadingMessage.classList.remove('hidden');
+
+            const productsCollectionRef = window.collection(window.db, 'products');
+            const q = window.query(productsCollectionRef);
+
+            unsubscribe = window.onSnapshot(q, (snapshot) => {
+                products = snapshot.docs.map(d => ({
+                    id: d.id, 
+                    ...d.data()
+                }));
+                console.log("Productos actualizados desde Firestore:", products.length);
+                loadingMessage.classList.add('hidden');
+                
+                generateProductSections(); 
+                if (!adminView.classList.contains('hidden') && adminCurrentTab === 'products') {
+                    renderAdminPanel(); 
+                }
+            }, (error) => {
+                console.error("Error al escuchar productos de Firestore:", error);
+                alertMessage('Error de conexión con la base de datos. (Revisa tus reglas de seguridad)', 'error');
+                loadingMessage.textContent = 'Error al cargar los productos. Problema de permisos.';
+            });
+        };
+
+        // --- LÓGICA DE CLIENTE (Tienda y Modal de Marcas) ---
+
+        // Función para renderizar el producto en una tarjeta (Vista de Cliente)
+        const renderProductCard = (product) => {
+            // Determinar si el icono es una imagen Base64 o un SVG
+            const iconDisplay = product.icon.startsWith('data:image') 
+                ? `<img src="${product.icon}" alt="${product.name} icon" class="w-10 h-10 object-contain mx-auto">`
+                : `<div class="text-4xl mb-3 text-center">${product.icon}</div>`;
+
+            return `
+                <div onclick="openProductModal('${product.id}')" class="cursor-pointer bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition duration-300 transform hover:scale-[1.02] border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <div class="mb-3 text-center">${iconDisplay}</div>
+                        <h3 class="text-lg font-semibold text-primary mb-1">${product.name}</h3>
+                        <p class="text-sm text-gray-500 mb-3 line-clamp-2">${product.description}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-100">
+                        <span class="text-xl font-bold text-gray-900">$${product.price ? product.price.toFixed(2) : 'N/A'}</span>
+                        <span class="bg-secondary text-primary font-bold py-1.5 px-3 rounded-full text-xs shadow-md">
+                            Ver Opciones
+                        </span>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Lógica para agrupar y generar la interfaz del Cliente
+        const generateProductSections = () => {
+            const categorizedProducts = products.reduce((acc, product) => {
+                if (!acc[product.category]) {
+                    acc[product.category] = [];
+                }
+                acc[product.category].push(product);
+                return acc;
+            }, {});
+
+            let html = '';
+            let navHtml = '';
+            let mobileNavHtml = '';
+
+            if (products.length === 0 && loadingMessage.classList.contains('hidden')) {
+                html = '<p class="text-center text-gray-500 text-lg">No hay productos disponibles. ¡El administrador debe añadirlos!</p>';
+            }
+
+            Object.keys(categorizedProducts).forEach((category) => {
+                const categoryId = category.replace(/\s+/g, '-').toLowerCase();
+
+                html += `
+                    <section id="${categoryId}" class="scroll-mt-24">
+                        <div class="flex items-center mb-6">
+                            <h2 class="text-3xl font-bold text-gray-900 border-b-4 border-secondary pb-1 inline-block">${category}</h2>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                            ${categorizedProducts[category].map(renderProductCard).join('')}
+                        </div>
+                    </section>
+                `;
+
+                navHtml += `<a href="#${categoryId}" class="hover:text-primary transition duration-200 p-2 rounded-lg hover:bg-gray-100">${category}</a>`;
+                mobileNavHtml += `<a href="#${categoryId}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary">${category}</a>`;
+            });
+
+            productsContainer.innerHTML = html;
+            navMenu.innerHTML = navHtml;
+            mobileMenu.innerHTML = mobileNavHtml;
+        };
+        
+        /**
+         * Renderiza una opción de marca seleccionable en el modal del cliente.
+         */
+        const renderBrandOption = (brand, index) => `
+            <div id="brand-option-${index}" 
+                 data-brand-name="${brand.name}" 
+                 onclick="toggleBrandSelection(this)" 
+                 class="cursor-pointer bg-white p-3 rounded-xl text-center shadow-lg border-2 border-transparent hover:border-primary transition duration-200">
+                <img src="${brand.imageUrl}" 
+                     alt="Imagen de la marca ${brand.name}" 
+                     class="w-full h-auto object-cover rounded-lg mb-2" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/200x150/FCA5A5/DC2626?text=Error+Imagen';"
+                >
+                <p class="font-medium text-sm text-gray-700">${brand.name}</p>
+            </div>
+        `;
+
+        /**
+         * Función para alternar la selección de una marca en el modal.
+         */
+        window.toggleBrandSelection = (element) => {
+            element.classList.toggle('border-secondary'); 
+            element.classList.toggle('border-transparent');
+        };
+
+
+        // Lógica del Modal (Vista de Cliente)
+        window.openProductModal = (productId) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentModalProductId = productId;
+
+            document.getElementById('modal-product-name').textContent = product.name;
+            document.getElementById('modal-product-description').textContent = product.description;
+            document.getElementById('modal-product-price').textContent = `$${product.price ? product.price.toFixed(2) : 'N/A'}`;
+            
+            const brandsContainer = document.getElementById('modal-brands-container');
+            const noBrandsMessage = document.getElementById('no-brands-message');
+            
+            brandsContainer.innerHTML = ''; 
+
+            if (product.brands && product.brands.length > 0) {
+                noBrandsMessage.classList.add('hidden');
+                
+                let brandsHtml = product.brands.map(renderBrandOption).join('');
+                brandsContainer.innerHTML = brandsHtml;
+                
+                addToCartButton.onclick = () => addToCart(productId);
+
+            } else {
+                noBrandsMessage.classList.remove('hidden');
+                addToCartButton.onclick = () => addToCart(productId);
+            }
+
+            productModal.classList.remove('hidden');
+        };
+
+        window.closeProductModal = () => {
+            productModal.classList.add('hidden');
+            currentModalProductId = null;
+        };
+        
+        /**
+         * Simula la adición de un producto al carrito, incluyendo las marcas seleccionadas.
+         */
+        window.addToCart = (productId) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            let selectedBrands = [];
+            const brandOptions = document.getElementById('modal-brands-container').children;
+            
+            if (product.brands.length > 0) {
+                // Recoger todas las marcas seleccionadas
+                for (let i = 0; i < brandOptions.length; i++) {
+                    if (brandOptions[i].classList.contains('border-secondary')) {
+                        selectedBrands.push(brandOptions[i].getAttribute('data-brand-name'));
+                    }
+                }
+                
+                if (selectedBrands.length === 0) {
+                    alertMessage(`Por favor, selecciona al menos una opción de marca para ${product.name}.`, 'error');
+                    return;
+                }
+            }
+            
+            const newItem = {
+                id: Date.now(), // ID único para el item en el carrito
+                productId: productId,
+                name: product.name,
+                icon: product.icon, // Ahora es Base64 o SVG
+                price: product.price,
+                quantity: 1,
+                selectedBrands: selectedBrands
+            };
+
+            cart.push(newItem);
+            saveCart();
+
+            const detail = selectedBrands.length > 0 ? 
+                           ` con marcas: ${selectedBrands.join(', ')}` : 
+                           '(opción única)';
+
+            alertMessage(`¡Añadido al carrito: ${product.name} ${detail}!`, 'success');
+            closeProductModal();
+        };
+
+        // --- LÓGICA DE ADMINISTRADOR (CRUD con Firestore) ---
+        
+        // Rellenar el selector de categorías del formulario de administración
+        const fillCategorySelect = () => {
+            categorySelect.innerHTML = '<option value="" disabled selected>Selecciona Categoría</option>';
+            allCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+        };
+        
+        // --- GESTIÓN DE ICONOS DEL PRODUCTO (Admin) ---
+
+        /**
+         * Convierte la imagen del producto a Base64 y la guarda en el input oculto.
+         */
+        window.previewAndConvertProductIcon = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                const file = input.files[0];
+
+                productIconLabel.textContent = file.name;
+                productIconPreview.classList.remove('hidden');
+
+                reader.onload = (e) => {
+                    productIconInput.value = e.target.result; // Almacena el Base64 en el campo 'icon'
+                    previewProductIconImg.src = e.target.result;
+                };
+
+                reader.onerror = () => {
+                    alertMessage('Error al leer el archivo. Intenta con otro.', 'error');
+                    productIconLabel.textContent = 'Error al cargar';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                productIconInput.value = '';
+                productIconLabel.textContent = 'Subir Icono/Imagen del Producto';
+                productIconPreview.classList.add('hidden');
+                previewProductIconImg.src = '';
+            }
+        };
+
+        // --- GESTIÓN DE MARCAS (Admin) ---
+
+        // Función para convertir archivo a Base64 y mostrar vista previa de MARCA
+        window.previewAndConvertBrandImage = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                const file = input.files[0];
+
+                fileLabel.textContent = file.name;
+                imagePreviewDiv.classList.remove('hidden');
+
+                reader.onload = (e) => {
+                    brandImageDataInput.value = e.target.result;
+                    previewImg.src = e.target.result;
+                };
+
+                reader.onerror = () => {
+                    alertMessage('Error al leer el archivo. Intenta con otro.', 'error');
+                    fileLabel.textContent = 'Error al cargar';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                brandImageDataInput.value = '';
+                fileLabel.textContent = 'Subir Imagen (Convertir a Base64)';
+                imagePreviewDiv.classList.add('hidden');
+                previewImg.src = '';
+            }
+        };
+
+        // Renderiza las marcas para la edición (sin cambios, solo renombre)
+        const renderBrandsEditor = (product) => {
+            const brands = product.brands || [];
+            if (brands.length === 0) {
+                noBrandsEditorMessage.classList.remove('hidden');
+                brandsEditorContainer.innerHTML = '';
+            } else {
+                noBrandsEditorMessage.classList.add('hidden');
+                brandsEditorContainer.innerHTML = brands.map(brand => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                        <div class="flex items-center space-x-3">
+                            <img src="${brand.imageUrl}" class="w-10 h-10 object-cover rounded-md" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/100x70/FF0000/ffffff?text=X';" />
+                            <span class="font-medium text-gray-700 truncate">${brand.name}</span>
+                        </div>
+                        <button onclick="deleteBrandFromProduct(event, '${product.id}', '${brand.name}')" 
+                                class="text-red-500 hover:text-red-700 transition p-1 flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        };
+
+        // Agrega una marca al producto actualmente en edición (Actualizado a Firestore)
+        window.addBrandToProduct = async (e) => {
+            e.preventDefault();
+            const productId = editIdInput.value;
+            const brandName = document.getElementById('brand-name').value;
+            const brandImageUrl = brandImageDataInput.value;
+
+            if (!productId) return alertMessage('Primero selecciona un producto para editar.', 'error');
+            if (!brandImageUrl) return alertMessage('Debes subir o seleccionar una imagen.', 'error');
+            
+            const product = products.find(p => p.id == productId);
+            if (product) {
+                if (product.brands.some(b => b.name === brandName)) {
+                    return alertMessage('Esta marca ya existe para este producto.', 'error');
+                }
+                
+                const newBrands = [...product.brands, { name: brandName, imageUrl: brandImageUrl }];
+                
+                try {
+                    const productsCollectionRef = window.collection(window.db, 'products');
+                    const productDocRef = window.doc(productsCollectionRef, productId);
+                    
+                    await window.updateDoc(productDocRef, { brands: newBrands });
+                    alertMessage(`Marca "${brandName}" añadida a ${product.name} en Firestore.`, 'success');
+
+                    document.getElementById('brand-name').value = '';
+                    document.getElementById('brand-image-file').value = ''; 
+                    brandImageDataInput.value = '';
+                    fileLabel.textContent = 'Subir Imagen (Convertir a Base64)';
+                    imagePreviewDiv.classList.add('hidden');
+                    previewImg.src = '';
+                } catch (error) {
+                    console.error("Error al añadir marca:", error);
+                    alertMessage('Error al añadir la marca a la base de datos.', 'error');
+                }
+            }
+        };
+
+        // Elimina una marca del producto (Actualizado a Firestore)
+        window.deleteBrandFromProduct = async (e, productId, brandName) => {
+            e.preventDefault();
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const newBrands = product.brands.filter(b => b.name !== brandName);
+
+            try {
+                const productsCollectionRef = window.collection(window.db, 'products');
+                const productDocRef = window.doc(productsCollectionRef, productId);
+                
+                await window.updateDoc(productDocRef, { brands: newBrands });
+                alertMessage(`Marca "${brandName}" eliminada de ${product.name} en Firestore.`, 'success');
+            } catch (error) {
+                console.error("Error al eliminar marca:", error);
+                alertMessage('Error al eliminar la marca de la base de datos.', 'error');
+            }
+        };
+        // --- FIN GESTIÓN DE MARCAS ---
+
+
+        // Función para renderizar la tabla de productos del panel de administración
+        const renderAdminPanel = () => {
+            let tableRows = '';
+            products.forEach(product => {
+                tableRows += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                             ${product.icon.startsWith('data:image') ? 
+                                 `<img src="${product.icon}" alt="Icono" class="w-6 h-6 object-contain inline-block mr-2">` : 
+                                 product.icon} 
+                             ${product.name}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${product.category}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">$${product.price ? product.price.toFixed(2) : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editProduct('${product.id}')" class="text-indigo-600 hover:text-indigo-900 transition font-bold p-1 rounded-md hover:bg-indigo-50 mr-2">
+                                Editar
+                            </button>
+                            <button onclick="deleteProduct('${product.id}')" class="text-red-600 hover:text-red-900 transition font-bold p-1 rounded-md hover:bg-red-50">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            adminProductList.innerHTML = tableRows;
+        };
+        
+        // Lógica para cargar un producto en el formulario para editar
+        window.editProduct = (productId) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            document.getElementById('name').value = product.name;
+            document.getElementById('description').value = product.description;
+            document.getElementById('price').value = product.price;
+            document.getElementById('category').value = product.category;
+            
+            // Cargar y previsualizar el icono/imagen del producto
+            productIconInput.value = product.icon;
+            productIconLabel.textContent = product.icon.startsWith('data:image') ? 'Imagen Base64 cargada' : 'No hay imagen Base64';
+            previewProductIconImg.src = product.icon.startsWith('data:image') ? product.icon : '';
+            productIconPreview.classList.remove('hidden');
+
+            editIdInput.value = productId;
+            adminFormTitle.textContent = 'Editar Producto (ID: ' + productId + ')';
+            submitAdminForm.textContent = 'Guardar Cambios';
+            submitAdminForm.classList.replace('bg-secondary', 'bg-indigo-500');
+            submitAdminForm.classList.replace('hover:bg-yellow-400', 'hover:bg-indigo-600');
+            cancelEditButton.classList.remove('hidden');
+
+            brandManagementSection.classList.remove('hidden');
+            renderBrandsEditor(product);
+            
+            // Limpiar formulario de marca
+            document.getElementById('brand-name').value = '';
+            document.getElementById('brand-image-file').value = '';
+            brandImageDataInput.value = '';
+            fileLabel.textContent = 'Subir Imagen (Convertir a Base64)';
+            imagePreviewDiv.classList.add('hidden');
+        };
+
+        // Lógica para limpiar y reiniciar el formulario de administración
+        window.resetAdminForm = () => {
+            addProductForm.reset();
+            editIdInput.value = '';
+            adminFormTitle.textContent = 'Añadir Nuevo Producto';
+            submitAdminForm.textContent = 'Añadir Producto';
+            submitAdminForm.classList.replace('bg-indigo-500', 'bg-secondary');
+            submitAdminForm.classList.replace('hover:bg-indigo-600', 'hover:bg-yellow-400');
+            cancelEditButton.classList.add('hidden');
+            
+            // Limpiar campos de icono de producto
+            productIconInput.value = '';
+            productIconLabel.textContent = 'Subir Icono/Imagen del Producto';
+            productIconPreview.classList.add('hidden');
+
+            brandManagementSection.classList.add('hidden');
+            document.getElementById('brand-name').value = '';
+            document.getElementById('brand-image-file').value = '';
+            brandImageDataInput.value = '';
+            fileLabel.textContent = 'Subir Imagen (Convertir a Base64)';
+            imagePreviewDiv.classList.add('hidden');
+        };
+
+        // Lógica principal para añadir o actualizar un producto (Actualizado a Firestore)
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const productId = editIdInput.value;
+            const data = {
+                category: document.getElementById('category').value,
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price: parseFloat(document.getElementById('price').value),
+                icon: productIconInput.value || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci IHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUUzQThBIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDhWMThNMTQgOFYxOE02IDZIMThNMTggNkwyMiAxOUwyIDExTTE4IDZIMTkiLz48L3N2Zz4=', // Default icon if none uploaded
+            };
+
+            try {
+                const productsCollectionRef = window.collection(window.db, 'products');
+
+                if (productId) {
+                    const productDocRef = window.doc(productsCollectionRef, productId);
+                    await window.updateDoc(productDocRef, data);
+                    alertMessage(`Producto "${data.name}" actualizado en Firestore.`, 'success');
+                } else {
+                    await window.addDoc(productsCollectionRef, { ...data, brands: [] });
+                    alertMessage(`Producto "${data.name}" añadido a Firestore!`, 'success');
+                }
+            } catch (error) {
+                console.error("Error al guardar el producto:", error);
+                alertMessage('Error al guardar el producto en la base de datos.', 'error');
+            }
+
+            resetAdminForm(); 
+        });
+
+        // Lógica para eliminar un producto (Actualizado a Firestore)
+        window.deleteProduct = async (productId) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            try {
+                const productsCollectionRef = window.collection(window.db, 'products');
+                const productDocRef = window.doc(productsCollectionRef, productId);
+                
+                await window.deleteDoc(productDocRef);
+                alertMessage(`Producto "${product.name}" eliminado de Firestore.`, 'success');
+            } catch (error) {
+                console.error("Error al eliminar el producto:", error);
+                alertMessage('Error al eliminar el producto de la base de datos.', 'error');
+            }
+        };
+
+        // Simulación de Alerta (Reemplazo de alert())
+        const alertMessage = (message, type) => {
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 ${bgColor} text-white p-4 rounded-lg shadow-xl transition-opacity duration-300 z-[110]`;
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.classList.add('opacity-0');
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        };
+
+        // --- Inicialización ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fillCategorySelect(); 
+            loadCart(); // Cargar el carrito al iniciar la aplicación
+            seedInitialData(); 
+            // La inicialización de Auth y los listeners se manejan en el bloque <script type="module">
+        });
+    </script>
+
+</body>
+</html>
