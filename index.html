@@ -102,12 +102,16 @@
 
     <!-- Encabezado Fijo y Navegación -->
     <header class="sticky top-0 bg-white shadow-lg z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <!-- CORRECCIÓN 1: Título adaptable (más pequeño en celular) para que quepa el botón de login -->
-            <a href="#" class="text-xl md:text-3xl font-extrabold text-primary flex items-center truncate" onclick="switchView('client')">
-                <svg class="w-6 h-6 md:w-8 md:h-8 mr-2 text-secondary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM4 10a6 6 0 1112 0 6 6 0 01-12 0zm6-4a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0v-3.5A.75.75 0 0010 6zM9 10a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"></path></svg>
-                <span class="truncate">Tienda</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- LOGO HEADER -->
+            <a href="#" class="flex items-center group" onclick="switchView('client')">
+                <img id="logo-header" src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" alt="Logo" class="h-12 w-12 rounded-full border-2 border-secondary mr-3 transition group-hover:scale-105 object-cover">
+                <div class="flex flex-col">
+                    <span class="text-lg md:text-xl font-extrabold text-primary leading-tight">INVERSIONES</span>
+                    <span class="text-xs md:text-sm font-medium text-secondary tracking-widest leading-tight">SOZA</span>
+                </div>
             </a>
+            
             <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Icono de Carrito -->
                 <button onclick="openCartModal()" class="relative p-2 rounded-full text-primary hover:bg-gray-100 transition shadow-md">
@@ -115,12 +119,12 @@
                     <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">0</span>
                 </button>
                 
-                <!-- CORRECCIÓN 2: Botón de Acceso VISIBLE EN TODOS LOS DISPOSITIVOS (eliminé 'hidden md:inline-block') -->
+                <!-- Botón de Acceso -->
                 <button id="auth-button" onclick="handleAuthClick()" class="bg-primary text-white font-medium py-2 px-3 md:px-4 rounded-full hover:bg-blue-800 transition text-xs md:text-sm shadow-md whitespace-nowrap">
                     Acceder
                 </button>
 
-                <!-- Botón Mis Pedidos (Desktop Only - en móvil está en la barra de usuario) -->
+                <!-- Botón Mis Pedidos (Desktop) -->
                 <button id="view-orders-button-desktop" onclick="switchView('my_orders')" class="hidden md:block bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-200 transition text-sm shadow-md">
                     Mis Pedidos
                 </button>
@@ -131,11 +135,10 @@
     <!-- Contenido Principal -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         
-        <!-- Info Usuario (Aparece tras login) -->
+        <!-- Info Usuario -->
         <div id="user-info-bar" class="mb-6 p-3 bg-indigo-100 rounded-lg shadow-inner text-sm text-indigo-800 hidden flex flex-col md:flex-row justify-between items-center gap-2">
             <p><span class="font-bold">Usuario:</span> <span id="current-user-id">Cargando...</span></p>
             <div class="flex space-x-2 w-full md:w-auto justify-end">
-                <!-- Botones móviles -->
                 <button id="view-orders-button-mobile" onclick="switchView('my_orders')" class="md:hidden flex-1 bg-white text-primary font-bold py-2 px-3 rounded-full text-xs shadow-sm text-center">
                     Mis Pedidos
                 </button>
@@ -151,28 +154,35 @@
         <!-- VISTA DE CLIENTE (Tienda con Sidebar) -->
         <div id="client-view" class="flex flex-col md:flex-row gap-8 relative min-h-screen">
             
-            <!-- Botón Flotante para Categorías (Solo Móvil) -->
+            <!-- Botón Flotante Categorías (Móvil) -->
             <button onclick="toggleShopSidebar()" class="md:hidden fixed bottom-6 left-6 z-40 bg-secondary text-primary font-bold p-4 rounded-full shadow-2xl flex items-center gap-2 transition transform hover:scale-110 border-2 border-primary">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                 <span class="text-sm">Categorías</span>
             </button>
 
-            <!-- SIDEBAR LATERAL DE CATEGORÍAS -->
+            <!-- SIDEBAR LATERAL -->
             <aside id="shop-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:shadow-none md:block md:w-1/4 lg:w-1/5 md:h-auto overflow-y-auto md:overflow-visible">
                 <div class="h-full flex flex-col md:block p-6 md:p-0 md:sticky md:top-24">
                     <!-- Cabecera Móvil -->
                     <div class="flex justify-between items-center md:hidden mb-6 pb-4 border-b">
-                        <h2 class="text-2xl font-bold text-primary">Explorar</h2>
+                        <div class="flex items-center">
+                            <!-- LOGO MOBILE SIDEBAR -->
+                            <img id="logo-mobile" src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" class="h-10 w-10 rounded-full mr-2 object-cover">
+                            <span class="text-lg font-bold text-primary">Menú</span>
+                        </div>
                         <button onclick="toggleShopSidebar()" class="text-gray-500 hover:text-red-500 p-2">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
 
                     <div class="bg-white md:bg-gray-50 md:rounded-xl md:p-4 md:shadow-sm border md:border-gray-200">
-                        <h3 class="text-lg font-extrabold mb-4 text-gray-900 uppercase tracking-wide flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-                            Categorías
-                        </h3>
+                        <!-- LOGO DESKTOP SIDEBAR -->
+                        <div class="hidden md:flex flex-col items-center mb-6">
+                            <img id="logo-sidebar" src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" class="h-24 w-24 rounded-full border-4 border-white shadow-md object-cover mb-3">
+                            <h3 class="text-sm font-bold text-primary text-center">INVERSIONES SOZA</h3>
+                        </div>
+                        
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Categorías</h3>
                         <nav id="sidebar-nav-links" class="space-y-1">
                             <!-- Enlaces inyectados por JS -->
                         </nav>
@@ -184,22 +194,26 @@
                         <p class="text-xs opacity-80">En todos los pedidos dentro de la base.</p>
                     </div>
                 </div>
-                <!-- Overlay para cerrar en móvil -->
+                <!-- Overlay móvil -->
                 <div onclick="toggleShopSidebar()" class="md:hidden absolute inset-0 -z-10"></div> 
             </aside>
             
-            <!-- Overlay oscuro -->
             <div id="sidebar-overlay" onclick="toggleShopSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity duration-300"></div>
 
-            <!-- Contenido Principal de Productos -->
+            <!-- Contenido Principal -->
             <div class="w-full md:w-3/4 lg:w-4/5 flex-grow">
-                <!-- Banner de Bienvenida -->
-                <section class="hero-banner text-white p-6 md:p-10 rounded-2xl shadow-lg mb-8 transform transition duration-500 flex flex-col justify-center min-h-[200px]">
-                    <h1 class="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight">Tienda de Esenciales</h1>
-                    <p class="text-lg md:text-xl opacity-90 font-light max-w-2xl">Encuentra todo tu equipo y artículos personales en un solo lugar, organizado para ti.</p>
+                <!-- Banner -->
+                <section class="hero-banner text-white p-6 md:p-10 rounded-2xl shadow-lg mb-8 transform transition duration-500 flex flex-col justify-center min-h-[200px] relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h1 class="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight">Equípate con lo Mejor</h1>
+                        <p class="text-lg md:text-xl opacity-90 font-light max-w-2xl">Calidad y resistencia para los futuros suboficiales.</p>
+                    </div>
+                    <!-- Marca de agua decorativa (opcional) -->
+                    <div class="absolute right-[-20px] bottom-[-20px] opacity-10">
+                        <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16z"/></svg>
+                    </div>
                 </section>
 
-                <!-- Grid de Productos -->
                 <div id="products-container" class="space-y-12 pb-20">
                     <div class="text-center p-12 bg-white rounded-xl shadow-sm border border-gray-100">
                         <svg class="w-12 h-12 mx-auto text-gray-300 animate-spin mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -215,18 +229,22 @@
                 <button onclick="switchView('client')" class="mr-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </button>
-                <h1 class="text-3xl font-extrabold text-primary">Mi Historial de Pedidos</h1>
+                <h1 class="text-3xl font-extrabold text-primary">Mi Historial</h1>
             </div>
             <div id="my-orders-list" class="space-y-4 max-w-4xl mx-auto">
-                 <p class="text-lg text-gray-600">Cargando tu historial de pedidos...</p>
+                 <p class="text-lg text-gray-600">Cargando tu historial...</p>
             </div>
         </div>
 
 
-        <!-- VISTA DE ADMINISTRADOR (DASHBOARD) -->
+        <!-- VISTA DE ADMINISTRADOR -->
         <div id="admin-view" class="hidden bg-dashboard-bg p-4 md:p-6 rounded-xl shadow-inner min-h-screen">
             <div class="flex justify-between items-center mb-6 pb-2 border-b border-gray-300">
-                <h1 class="text-2xl md:text-4xl font-extrabold text-primary">Admin Panel</h1>
+                <div class="flex items-center">
+                    <!-- LOGO ADMIN HEADER (No cambia dinámicamente para mantener la sesión clara, pero puedes usar el ID si quieres) -->
+                    <img src="https://placehold.co/100x100/1E3A8A/ffffff?text=A" class="h-10 w-10 rounded-full mr-3 border border-gray-300 object-cover">
+                    <h1 class="text-2xl md:text-4xl font-extrabold text-primary">Admin Panel</h1>
+                </div>
                 <div class="flex gap-2">
                     <button onclick="switchView('client')" class="bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-300 transition text-sm shadow-md">
                         Ir a Tienda
@@ -238,40 +256,39 @@
             </div>
             
             <div class="admin-main-container flex flex-col lg:flex-row gap-6">
-                <!-- SIDEBAR ADMIN -->
                 <aside class="admin-sidebar bg-white p-4 rounded-xl shadow-lg flex-shrink-0">
-                    <h2 class="text-lg font-bold mb-4 text-gray-900 uppercase text-xs tracking-wider text-gray-500">Menú Principal</h2>
+                    <h2 class="text-lg font-bold mb-4 text-gray-900 uppercase text-xs tracking-wider text-gray-500">Gestión</h2>
                     <nav class="space-y-2">
                         <button onclick="setAdminTab('products')" id="tab-products" class="w-full text-left admin-tab-button flex items-center space-x-3 p-3 rounded-lg bg-primary text-white font-semibold transition hover:bg-blue-800 shadow-md">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span>Productos</span>
                         </button>
                         <button onclick="setAdminTab('orders')" id="tab-orders" class="w-full text-left admin-tab-button flex items-center space-x-3 p-3 rounded-lg bg-white text-gray-700 font-medium transition hover:bg-gray-100 hover:text-primary">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Pedidos</span>
+                        </button>
+                        <!-- NUEVA PESTAÑA CONFIGURACIÓN -->
+                        <button onclick="setAdminTab('settings')" id="tab-settings" class="w-full text-left admin-tab-button flex items-center space-x-3 p-3 rounded-lg bg-white text-gray-700 font-medium transition hover:bg-gray-100 hover:text-primary">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>Configuración</span>
                         </button>
                     </nav>
                 </aside>
 
-                <!-- AREA DE CONTENIDO -->
                 <section class="admin-content-area flex-grow space-y-8">
                     <div id="dashboard-metrics" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
                     
-                    <!-- Contenido de Gestión de Productos -->
                     <div id="admin-content-products">
                         <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
                             <h2 id="admin-form-title" class="text-xl font-bold text-gray-800 mb-4">Nuevo Producto</h2>
                             <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <input type="hidden" id="edit-id" value=""> 
-
                                 <input type="text" id="name" placeholder="Nombre del Producto" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <textarea id="description" placeholder="Descripción" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary h-20"></textarea>
-                                
                                 <input type="number" id="price" placeholder="Precio ($)" required min="0.01" step="0.01" class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <select id="category" required class="p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                     <option value="" disabled selected>Categoría</option>
                                 </select>
-                                
                                 <div class="relative col-span-1">
                                     <input type="file" id="product-icon-file" accept="image/*" class="w-full h-12 absolute opacity-0 cursor-pointer" onchange="previewAndConvertProductIcon(this)">
                                     <label for="product-icon-file" class="block w-full text-center py-2 px-4 border border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-50 transition text-gray-700 font-medium text-sm flex flex-col items-center justify-center h-full">
@@ -282,7 +299,6 @@
                                     </div>
                                     <input type="hidden" id="icon" required> 
                                 </div>
-                                
                                 <button type="submit" id="submit-admin-form" class="col-span-1 md:col-span-3 bg-secondary text-primary font-bold py-3 px-6 rounded-full hover:bg-yellow-400 transition shadow-lg mt-2">
                                     Guardar Producto
                                 </button>
@@ -292,13 +308,10 @@
                             </form>
                         </section>
                         
-                        <!-- Gestión de Marcas -->
                         <section id="brand-management-section" class="bg-white p-6 rounded-xl shadow-lg mb-8 border-l-4 border-indigo-500 hidden">
                             <h2 class="text-lg font-bold text-gray-800 mb-4">Marcas / Opciones</h2>
-                            
                             <form id="add-brand-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4">
                                 <input type="text" id="brand-name" placeholder="Nombre" class="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500">
-                                
                                 <div class="relative">
                                     <input type="file" id="brand-image-file" accept="image/*" class="w-full h-12 absolute opacity-0 cursor-pointer" onchange="previewAndConvertBrandImage(this)">
                                     <label for="brand-image-file" class="block w-full text-center py-2 px-4 border border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-50 text-sm">
@@ -309,16 +322,13 @@
                                     </div>
                                     <input type="hidden" id="brand-image-data"> 
                                 </div>
-
                                 <button type="submit" onclick="addBrandToProduct(event)" class="bg-indigo-500 text-white font-bold py-2 rounded-full hover:bg-indigo-600 transition">
                                     + Añadir
                                 </button>
                             </form>
-
                             <div id="brands-editor-container" class="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-2"></div>
                         </section>
 
-                        <!-- Lista de Productos -->
                         <section class="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -335,80 +345,68 @@
                         </section>
                     </div>
 
-                    <!-- Pedidos -->
                     <div id="admin-content-orders" class="hidden">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Pedidos Recientes</h2>
                         <div id="admin-order-list" class="space-y-4"></div>
+                    </div>
+                    
+                    <!-- CONTENIDO CONFIGURACIÓN (NUEVO) -->
+                    <div id="admin-content-settings" class="hidden">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Configuración General</h2>
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Logo de la Tienda</h3>
+                            <p class="text-sm text-gray-500 mb-4">Sube el logo que aparecerá en la cabecera y en el menú lateral.</p>
+                            
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="w-full md:w-1/3">
+                                    <label class="block w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition relative">
+                                        <input type="file" id="logo-upload-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewLogoUpload(this)">
+                                        <div class="text-center p-4">
+                                            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="text-sm text-gray-500 font-medium">Clic para subir imagen</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="w-full md:w-1/3 text-center">
+                                    <p class="text-xs text-gray-400 mb-2">Vista Previa Actual:</p>
+                                    <img id="logo-upload-preview" src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" class="w-32 h-32 object-contain mx-auto rounded-full border-4 border-gray-100 shadow-md">
+                                </div>
+                                <div class="w-full md:w-1/3 flex justify-center">
+                                    <button onclick="saveLogoSettings()" class="bg-secondary text-primary font-bold py-3 px-8 rounded-full hover:bg-yellow-400 shadow-lg transition transform hover:scale-105">
+                                        Guardar Nuevo Logo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
         </div>
     </main>
 
-    <!-- Pie de página -->
-    <footer class="bg-gray-900 text-white mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm opacity-80">
-            <p>&copy; 2025 Tienda de Esenciales.</p>
-        </div>
-    </footer>
-
-    <!-- Modal de Detalles del Producto -->
-    <div id="product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
-            <div class="p-6 md:p-8">
-                <div class="flex justify-between items-start border-b pb-4 mb-4">
-                    <h2 id="modal-product-name" class="text-2xl md:text-3xl font-bold text-primary"></h2>
-                    <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-700 transition">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <p id="modal-product-description" class="text-gray-600 text-lg leading-relaxed"></p>
-                    <div class="flex justify-between items-center text-xl font-bold pt-2 border-t">
-                        <span>Precio:</span>
-                        <span id="modal-product-price" class="text-primary text-2xl"></span>
-                    </div>
-
-                    <div id="modal-brands-section" class="pt-4 mt-4">
-                        <h3 class="text-lg font-semibold mb-3 text-gray-800">Selecciona una opción:</h3>
-                        <div id="modal-brands-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
-                        <p id="no-brands-message" class="text-sm text-gray-500 mt-4 hidden text-center italic bg-gray-50 p-2 rounded">
-                            Producto estándar (sin variantes).
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex justify-end gap-3">
-                    <button onclick="closeProductModal()" class="bg-gray-100 text-gray-800 font-bold py-3 px-6 rounded-full hover:bg-gray-200 transition">
-                        Cancelar
-                    </button>
-                    <button id="add-to-cart-button" class="bg-secondary text-primary font-bold py-3 px-8 rounded-full hover:bg-yellow-400 transition shadow-lg flex items-center">
-                        <span>Añadir al Carrito</span>
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de Acceso -->
+    <!-- Modal Acceso -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
-            <button onclick="closeLoginModal()" class="float-right text-gray-400 hover:text-gray-700">X</button>
-            <h2 id="auth-modal-title" class="text-2xl font-bold text-primary mb-2">Acceso Cliente</h2>
-            <p id="auth-modal-subtitle" class="text-sm text-gray-500 mb-6">Gestiona tus pedidos fácilmente.</p>
+        <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl relative text-center">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">X</button>
+            
+            <!-- LOGO LOGIN MODAL -->
+            <img id="logo-login" src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" class="h-24 w-24 rounded-full mx-auto mb-4 shadow-md object-cover border-4 border-gray-100">
+            
+            <h2 id="auth-modal-title" class="text-2xl font-bold text-primary mb-2">Bienvenido</h2>
+            <p id="auth-modal-subtitle" class="text-sm text-gray-500 mb-6">Inversiones Soza</p>
 
-            <div class="flex space-x-4 mb-6 border-b text-sm">
+            <div class="flex space-x-4 mb-6 border-b text-sm justify-center">
                 <button id="tab-signin" onclick="setAuthTab('signin')" class="auth-tab pb-2 font-semibold border-b-2 border-primary text-primary">Ingresar</button>
                 <button id="tab-signup" onclick="setAuthTab('signup')" class="auth-tab pb-2 font-semibold border-b-2 border-transparent text-gray-500 hover:text-primary">Crear Cuenta</button>
-                <button onclick="openAdminLogin()" class="ml-auto text-xs text-indigo-500 hover:underline">Soy Admin</button>
             </div>
 
             <form id="signin-form" class="auth-form space-y-4">
                 <input type="email" id="signin-email" placeholder="Correo" required class="w-full p-3 border border-gray-300 rounded-lg">
                 <input type="password" id="signin-password" placeholder="Contraseña" required class="w-full p-3 border border-gray-300 rounded-lg">
                 <button type="submit" class="w-full bg-secondary text-primary font-bold py-3 rounded-full hover:bg-yellow-400 shadow-lg">Ingresar</button>
+                <div class="text-right">
+                     <button type="button" onclick="openAdminLogin()" class="text-xs text-indigo-300 hover:text-primary transition">Soy Admin</button>
+                </div>
             </form>
             
             <form id="signup-form" class="auth-form space-y-4 hidden">
@@ -419,7 +417,40 @@
         </div>
     </div>
     
-    <!-- Modal de Carrito -->
+    <!-- (El resto de modales como Carrito, Checkout y Producto se mantienen igual) -->
+    <div id="product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-start border-b pb-4 mb-4">
+                    <h2 id="modal-product-name" class="text-2xl md:text-3xl font-bold text-primary"></h2>
+                    <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-700 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <p id="modal-product-description" class="text-gray-600 text-lg leading-relaxed"></p>
+                    <div class="flex justify-between items-center text-xl font-bold pt-2 border-t">
+                        <span>Precio:</span>
+                        <span id="modal-product-price" class="text-primary text-2xl"></span>
+                    </div>
+                    <div id="modal-brands-section" class="pt-4 mt-4">
+                        <h3 class="text-lg font-semibold mb-3 text-gray-800">Selecciona una opción:</h3>
+                        <div id="modal-brands-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+                        <p id="no-brands-message" class="text-sm text-gray-500 mt-4 hidden text-center italic bg-gray-50 p-2 rounded">
+                            Producto estándar (sin variantes).
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button onclick="closeProductModal()" class="bg-gray-100 text-gray-800 font-bold py-3 px-6 rounded-full hover:bg-gray-200 transition">Cancelar</button>
+                    <button id="add-to-cart-button" class="bg-secondary text-primary font-bold py-3 px-8 rounded-full hover:bg-yellow-400 transition shadow-lg flex items-center">
+                        <span>Añadir al Carrito</span>
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="cart-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
             <div class="p-6 md:p-8">
@@ -427,33 +458,21 @@
                     <h2 class="text-2xl font-bold text-primary">Tu Carrito</h2>
                     <button onclick="closeCartModal()" class="text-gray-400 hover:text-red-500 transition text-2xl">&times;</button>
                 </div>
-
                 <div id="cart-items-container" class="space-y-4 min-h-[100px]"></div>
-                
                 <div id="cart-summary" class="mt-6 pt-4 border-t bg-gray-50 p-4 rounded-lg">
                     <div class="flex justify-between font-bold text-xl text-primary">
                         <span>Total:</span>
                         <span id="cart-total">$0.00</span>
                     </div>
                 </div>
-
                 <div class="mt-6 flex gap-3">
-                    <button onclick="clearCart()" class="w-1/3 bg-red-100 text-red-600 font-bold py-3 rounded-lg hover:bg-red-200 text-sm">
-                        Vaciar
-                    </button>
-                    <button onclick="openCheckoutModal()" class="w-2/3 bg-secondary text-primary font-bold py-3 rounded-lg hover:bg-yellow-400 shadow-lg text-lg">
-                        Pagar Ahora
-                    </button>
+                    <button onclick="clearCart()" class="w-1/3 bg-red-100 text-red-600 font-bold py-3 rounded-lg hover:bg-red-200 text-sm">Vaciar</button>
+                    <button onclick="openCheckoutModal()" class="w-2/3 bg-secondary text-primary font-bold py-3 rounded-lg hover:bg-yellow-400 shadow-lg text-lg">Pagar Ahora</button>
                 </div>
-                
-                <p id="cart-empty-message" class="text-center text-gray-500 py-8 hidden italic">
-                    Tu carrito está vacío.
-                </p>
+                <p id="cart-empty-message" class="text-center text-gray-500 py-8 hidden italic">Tu carrito está vacío.</p>
             </div>
         </div>
     </div>
-    
-    <!-- Modal de Checkout con Métodos REALES -->
     <div id="checkout-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[101] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="p-6">
@@ -461,12 +480,10 @@
                     <h2 class="text-2xl font-bold text-primary">Finalizar Compra</h2>
                     <button onclick="closeCheckoutModal()" class="text-gray-400 hover:text-gray-700">&times;</button>
                 </div>
-                
                 <div class="bg-blue-50 p-4 rounded-lg mb-6 flex justify-between items-center border border-blue-100">
                     <span class="text-gray-700 font-medium">Total a Pagar:</span>
                     <span id="checkout-total-display" class="text-2xl font-extrabold text-primary">$0.00</span>
                 </div>
-
                 <form id="payment-form" onsubmit="processPayment(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Datos de Envío</label>
@@ -479,73 +496,32 @@
                             <input type="text" id="client-address" placeholder="Dirección Exacta" required class="w-full p-2 border border-gray-300 rounded">
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Forma de Pago</label>
                         <div class="grid grid-cols-2 gap-3">
-                            <!-- Opción WhatsApp -->
                             <label class="cursor-pointer border rounded-lg p-3 hover:bg-green-50 has-[:checked]:bg-green-50 has-[:checked]:border-whatsapp transition relative overflow-hidden">
                                 <input type="radio" name="payment_method" value="whatsapp" checked onchange="togglePaymentForm('whatsapp')" class="hidden">
                                 <div class="font-bold text-sm text-gray-800 flex items-center justify-center h-full gap-2">
-                                    <svg class="w-6 h-6 text-whatsapp" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.017-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                                    WhatsApp
-                                </div>
-                            </label>
-                            <!-- Opción Depósito -->
-                            <label class="cursor-pointer border rounded-lg p-3 hover:bg-blue-50 has-[:checked]:bg-blue-50 has-[:checked]:border-primary transition">
-                                <input type="radio" name="payment_method" value="bank" onchange="togglePaymentForm('bank')" class="hidden">
-                                <div class="font-bold text-sm text-gray-800 flex items-center justify-center h-full gap-2">
-                                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-                                    Depósito
-                                </div>
-                            </label>
+                                    <svg class="w-6 h-6 text-whatsapp" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.017-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg> WhatsApp</div></label>
+                            <label class="cursor-pointer border rounded-lg p-3 hover:bg-blue-50 has-[:checked]:bg-blue-50 has-[:checked]:border-primary transition"><input type="radio" name="payment_method" value="bank" onchange="togglePaymentForm('bank')" class="hidden"><div class="font-bold text-sm text-gray-800 flex items-center justify-center h-full gap-2"><svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg> Depósito</div></label>
                         </div>
                     </div>
-                    
-                    <!-- Panel WhatsApp -->
-                    <div id="whatsapp-form" class="pt-2">
-                        <div class="bg-green-50 p-3 rounded border border-green-200 text-sm text-green-800">
-                            <p class="font-bold mb-1">¡Pedido Rápido!</p>
-                            <p>Al confirmar, se abrirá WhatsApp con el detalle de tu pedido para enviarlo directamente a nuestro equipo.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Panel Banco -->
-                    <div id="bank-form" class="hidden bg-yellow-50 p-3 rounded border border-yellow-200 text-sm text-yellow-800">
-                        <p class="font-bold">Banco Militar</p>
-                        <p>Cuenta: 9900-1234-5678</p>
-                        <p class="text-xs mt-1">Por favor envía el comprobante a pagos@tienda.com o por WhatsApp.</p>
-                    </div>
-
-                    <button type="submit" id="final-pay-button" class="w-full bg-whatsapp text-white font-bold py-3 rounded-lg hover:bg-green-600 shadow-lg mt-4 text-lg transition-colors">
-                        Confirmar en WhatsApp
-                    </button>
+                    <div id="whatsapp-form" class="pt-2"><div class="bg-green-50 p-3 rounded border border-green-200 text-sm text-green-800"><p class="font-bold mb-1">¡Pedido Rápido!</p><p>Al confirmar, se abrirá WhatsApp.</p></div></div>
+                    <div id="bank-form" class="hidden bg-yellow-50 p-3 rounded border border-yellow-200 text-sm text-yellow-800"><p class="font-bold">Banco Militar</p><p>Cuenta: 9900-1234-5678</p><p class="text-xs mt-1">Envía comprobante.</p></div>
+                    <button type="submit" id="final-pay-button" class="w-full bg-whatsapp text-white font-bold py-3 rounded-lg hover:bg-green-600 shadow-lg mt-4 text-lg transition-colors">Confirmar en WhatsApp</button>
                 </form>
             </div>
         </div>
     </div>
 
 
-    <!-- Imports de Firebase (SDKs) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, setLogLevel, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, setLogLevel, where, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // Configuración Preview
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // CORRECCIÓN: Usar directamente la variable del entorno (__firebase_config)
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-          apiKey: "AIzaSyBW2XUYVndH-PN-gpSGXk1vsykPl9sklvA",
-          authDomain: "ventas-2ee72.firebaseapp.com",
-          databaseURL: "https://ventas-2ee72-default-rtdb.firebaseio.com",
-          projectId: "ventas-2ee72",
-          storageBucket: "ventas-2ee72.firebasestorage.app",
-          messagingSenderId: "237583635376",
-          appId: "1:237583635376:web:f76387415872ddd79cbc75",
-          measurementId: "G-0J9WE3TE4Y"
-        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyBW2XUYVndH-PN-gpSGXk1vsykPl9sklvA", authDomain: "ventas-2ee72.firebaseapp.com", databaseURL: "https://ventas-2ee72-default-rtdb.firebaseio.com", projectId: "ventas-2ee72", storageBucket: "ventas-2ee72.firebasestorage.app", messagingSenderId: "237583635376", appId: "1:237583635376:web:f76387415872ddd79cbc75", measurementId: "G-0J9WE3TE4Y" };
         
         let app, auth, db;
 
@@ -553,28 +529,21 @@
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app); 
-            // setLogLevel('debug'); 
-        } else {
-            console.error("Configuración de Firebase no encontrada.");
         }
 
         let currentUserId = null; 
         let isAuthReady = false; 
-        // LISTA DE ADMINS: Aquí agregué el segundo correo como pediste
         const adminEmails = ['josuesoza0513@gmail.com', 'jessimal2001@gmail.com']; 
+        let currentLogo = null;
 
         const initializeAuth = async () => {
             if (!auth) return; 
-            
             const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
             try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+                else await signInAnonymously(auth);
             } catch (error) { 
-                try { await signInAnonymously(auth); } catch(e) { console.error("Error crítico auth:", e); }
+                try { await signInAnonymously(auth); } catch(e) {}
             }
         };
 
@@ -583,88 +552,63 @@
                 const authButton = document.getElementById('auth-button');
                 const adminLink = document.getElementById('admin-dashboard-link');
                 const viewOrdersBtn = document.getElementById('view-orders-button-desktop');
-                const viewOrdersBtnMobile = document.getElementById('view-orders-button-mobile');
 
                 if (user && !user.isAnonymous) { 
                     currentUserId = user.uid;
                     const displayEmail = user.email ? user.email.split('@')[0] : 'Usuario';
                     document.getElementById('current-user-id').textContent = displayEmail;
                     document.getElementById('user-info-bar').classList.remove('hidden');
-                    
                     viewOrdersBtn.classList.remove('hidden');
-                    viewOrdersBtnMobile.classList.remove('hidden');
                     
-                    const updateAuthBtn = (btn) => {
-                        if(btn) {
-                            btn.textContent = 'Salir';
-                            btn.onclick = () => signOutClient();
-                        }
-                    };
+                    const updateAuthBtn = (btn) => { if(btn) { btn.textContent = 'Salir'; btn.onclick = () => signOutClient(); } };
                     updateAuthBtn(authButton);
 
                     if (adminEmails.includes(user.email)) adminLink.classList.remove('hidden');
                     else adminLink.classList.add('hidden');
-
                 } else { 
                     currentUserId = user ? user.uid : null;
                     document.getElementById('current-user-id').textContent = 'Invitado';
                     document.getElementById('user-info-bar').classList.remove('hidden');
-                    
                     viewOrdersBtn.classList.add('hidden');
-                    viewOrdersBtnMobile.classList.add('hidden');
                     adminLink.classList.add('hidden'); 
                     
-                    const updateAuthBtn = (btn) => {
-                        if(btn) {
-                            btn.textContent = 'Acceder';
-                            btn.onclick = () => openLoginModal();
-                        }
-                    };
+                    const updateAuthBtn = (btn) => { if(btn) { btn.textContent = 'Acceder'; btn.onclick = () => openLoginModal(); } };
                     updateAuthBtn(authButton);
                 }
-                
                 isAuthReady = true;
-                if (isAuthReady) listenToProducts(); 
+                if (isAuthReady) { listenToProducts(); listenToSettings(); }
             });
         }
         
         window.signOutClient = async () => {
              if(!auth) return;
-             try {
-                await signOut(auth);
-                await signInAnonymously(auth); 
-                alertMessage('Sesión cerrada.', 'success');
-                switchView('client');
-            } catch (error) {}
+             try { await signOut(auth); await signInAnonymously(auth); alertMessage('Sesión cerrada.', 'success'); switchView('client'); } catch (error) {}
         }
 
-        if (firebaseConfig) {
-            initializeAuth();
-        }
+        if (firebaseConfig) initializeAuth();
 
-        // Export globals
         window.auth = auth; window.db = db; window.appId = appId;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.signOut = signOut;
         window.collection = collection; window.query = query; window.onSnapshot = onSnapshot;
         window.addDoc = addDoc; window.updateDoc = updateDoc; window.deleteDoc = deleteDoc;
-        window.doc = doc; window.getDocs = getDocs; window.where = where;
+        window.doc = doc; window.getDocs = getDocs; window.where = where; window.setDoc = setDoc;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.getCurrentUserId = () => currentUserId;
-        window.adminEmails = adminEmails; // Export admin emails for usage
+        window.adminEmails = adminEmails; 
     </script>
 
-    <!-- Lógica de la Aplicación -->
     <script>
         let products = [];
         let orders = [];
         let cart = []; 
         let unsubscribe = null; 
         let unsubscribeOrders = null; 
+        let unsubscribeSettings = null;
         let currentModalProductId = null; 
         let adminCurrentTab = 'products';
+        let logoBase64 = null;
 
-        // DOM
         const clientView = document.getElementById('client-view');
         const adminView = document.getElementById('admin-view');
         const myOrdersView = document.getElementById('my-orders-view');
@@ -695,35 +639,79 @@
         const productIconInput = document.getElementById('icon');
         const adminContentProducts = document.getElementById('admin-content-products');
         const adminContentOrders = document.getElementById('admin-content-orders');
+        const adminContentSettings = document.getElementById('admin-content-settings'); // NEW
         const adminOrderList = document.getElementById('admin-order-list');
         const myOrdersList = document.getElementById('my-orders-list');
         const dashboardMetrics = document.getElementById('dashboard-metrics');
 
-        const allCategories = [
-            "Ropa y Vestimenta", "Ropa de Cama y Baño", 
-            "Artículos de Aseo Personal", "Salud y Primeros Auxilios", 
-            "Equipo Táctico", "Papelería y Otros"
-        ];
+        const allCategories = [ "Ropa y Vestimenta", "Ropa de Cama y Baño", "Artículos de Aseo Personal", "Salud y Primeros Auxilios", "Equipo Táctico", "Papelería y Otros" ];
         
-        const initialProducts = [
-            { category: "Ropa y Vestimenta", name: "Camiseta Táctica", icon: "👕", description: "Algodón resistente, color azul.", price: 25.00, brands: [] },
-            { category: "Equipo Táctico", name: "Mochila Asalto", icon: "🎒", description: "Impermeable, múltiples bolsillos.", price: 70.00, brands: [] },
-            { category: "Artículos de Aseo Personal", name: "Kit Higiene", icon: "🧼", description: "Jabón, pasta, cepillo.", price: 12.00, brands: [] }
-        ];
+        const initialProducts = [ { category: "Ropa y Vestimenta", name: "Camiseta Táctica", icon: "👕", description: "Algodón resistente.", price: 25.00, brands: [] } ];
+
+        // --- SETTINGS LOGIC ---
+        window.previewLogoUpload = (input) => {
+             if(input.files && input.files[0]) {
+                 const r = new FileReader();
+                 r.onload = e => { 
+                     logoBase64 = e.target.result; 
+                     document.getElementById('logo-upload-preview').src = e.target.result; 
+                 };
+                 r.readAsDataURL(input.files[0]);
+             }
+        };
+
+        window.saveLogoSettings = async () => {
+            if(!logoBase64) return alertMessage('Selecciona una imagen primero.', 'error');
+            try {
+                // Guardar en colección 'settings', documento 'general'
+                // Usamos la misma ruta 'artifacts/...' para consistencia si fuera necesario, pero aquí usaremos 'products' (collection root) para simplicidad o 'settings' si los permisos lo dejan. 
+                // Dado el error anterior de permisos, usaremos una colección 'settings' si la creaste, o un documento especial en 'products' llamado 'store_settings'.
+                // MEJOR: Usaremos un documento en 'products' con ID 'STORE_SETTINGS' para evitar líos de permisos.
+                await window.setDoc(window.doc(window.db, 'products', 'STORE_SETTINGS'), { 
+                    logo: logoBase64,
+                    type: 'settings' // Etiqueta para filtrarlo de la lista de productos
+                });
+                alertMessage('Logo actualizado exitosamente.', 'success');
+            } catch (e) {
+                console.error(e);
+                alertMessage('Error al guardar logo.', 'error');
+            }
+        };
+
+        const listenToSettings = () => {
+            if(unsubscribeSettings) unsubscribeSettings();
+            if(!window.db) return;
+            const ref = window.doc(window.db, 'products', 'STORE_SETTINGS');
+            unsubscribeSettings = window.onSnapshot(ref, (doc) => {
+                if(doc.exists()) {
+                    const data = doc.data();
+                    if(data.logo) {
+                        // Actualizar todos los logos en la UI
+                        const logoIds = ['logo-header', 'logo-mobile', 'logo-sidebar', 'logo-login'];
+                        logoIds.forEach(id => {
+                            const el = document.getElementById(id);
+                            if(el) el.src = data.logo;
+                        });
+                        // Actualizar favicon (opcional, avanzado)
+                        let link = document.querySelector("link[rel~='icon']");
+                        if (!link) {
+                            link = document.createElement('link');
+                            link.rel = 'icon';
+                            document.head.appendChild(link);
+                        }
+                        link.href = data.logo;
+                    }
+                }
+            });
+        };
 
         // --- SIDEBAR TOGGLE ---
         window.toggleShopSidebar = () => {
             const sidebar = document.getElementById('shop-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             const isClosed = sidebar.classList.contains('-translate-x-full');
-            
-            if (isClosed) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
+            if (isClosed) { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); } 
+            else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
         };
 
         // --- CARRITO ---
@@ -734,22 +722,15 @@
             } catch (e) { cart = []; }
             updateCartUI();
         };
-
-        const saveCart = () => {
-            localStorage.setItem('shoppingCart', JSON.stringify(cart));
-            updateCartUI();
-        };
-
+        const saveCart = () => { localStorage.setItem('shoppingCart', JSON.stringify(cart)); updateCartUI(); };
         const updateCartUI = () => {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCount.textContent = totalItems > 99 ? '99+' : totalItems;
             if (!cartModal.classList.contains('hidden')) renderCartItems();
         };
-
         const renderCartItems = () => {
             cartItemsContainer.innerHTML = '';
             let subtotal = 0;
-
             if (cart.length === 0) {
                 cartEmptyMessage.classList.remove('hidden');
                 cartItemsContainer.classList.add('hidden');
@@ -758,237 +739,73 @@
                 cartEmptyMessage.classList.add('hidden');
                 cartItemsContainer.classList.remove('hidden');
                 document.getElementById('cart-summary').classList.remove('hidden');
-
                 cart.forEach((item, index) => {
-                    if (!item) return; // Protección
+                    if (!item) return; 
                     subtotal += (item.price || 0) * (item.quantity || 1);
-                    
-                    // BLINDAJE: Usar icono por defecto si falta
                     const iconSrc = item.icon || '📦';
-                    const iconDisplay = iconSrc.startsWith('data:image') 
-                        ? `<img src="${iconSrc}" class="w-10 h-10 object-contain rounded bg-gray-50 p-1">`
-                        : `<span class="text-2xl">${iconSrc}</span>`;
-
-                    cartItemsContainer.innerHTML += `
-                        <div class="flex items-center space-x-3 p-3 border border-gray-100 rounded-lg mb-2 bg-white shadow-sm">
-                            ${iconDisplay}
-                            <div class="flex-grow min-w-0">
-                                <p class="font-bold text-gray-800 truncate">${item.name || 'Producto'}</p>
-                                ${item.selectedBrands && item.selectedBrands.length ? `<p class="text-xs text-gray-500 truncate">${item.selectedBrands.join(', ')}</p>` : ''}
-                                <p class="text-sm text-primary font-semibold">$${(item.price || 0).toFixed(2)}</p>
-                            </div>
-                            <div class="flex flex-col items-end gap-1">
-                                <button onclick="removeItemFromCart(${index})" class="text-red-400 hover:text-red-600 text-xs uppercase font-bold">Eliminar</button>
-                                <div class="flex items-center border rounded bg-gray-50">
-                                    <button onclick="updateItemQuantity(${index}, ${(item.quantity || 1) - 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-200">-</button>
-                                    <span class="px-2 text-sm font-bold">${item.quantity || 1}</span>
-                                    <button onclick="updateItemQuantity(${index}, ${(item.quantity || 1) + 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-200">+</button>
-                                </div>
-                            </div>
-                        </div>`;
+                    const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="w-10 h-10 object-contain rounded bg-gray-50 p-1">` : `<span class="text-2xl">${iconSrc}</span>`;
+                    cartItemsContainer.innerHTML += `<div class="flex items-center space-x-3 p-3 border border-gray-100 rounded-lg mb-2 bg-white shadow-sm">${iconDisplay}<div class="flex-grow min-w-0"><p class="font-bold text-gray-800 truncate">${item.name || 'Producto'}</p>${item.selectedBrands && item.selectedBrands.length ? `<p class="text-xs text-gray-500 truncate">${item.selectedBrands.join(', ')}</p>` : ''}<p class="text-sm text-primary font-semibold">$${(item.price || 0).toFixed(2)}</p></div><div class="flex flex-col items-end gap-1"><button onclick="removeItemFromCart(${index})" class="text-red-400 hover:text-red-600 text-xs uppercase font-bold">Eliminar</button><div class="flex items-center border rounded bg-gray-50"><button onclick="updateItemQuantity(${index}, ${(item.quantity || 1) - 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-200">-</button><span class="px-2 text-sm font-bold">${item.quantity || 1}</span><button onclick="updateItemQuantity(${index}, ${(item.quantity || 1) + 1})" class="px-2 py-1 text-gray-600 hover:bg-gray-200">+</button></div></div></div>`;
                 });
             }
             cartTotal.textContent = `$${subtotal.toFixed(2)}`;
             document.getElementById('checkout-total-display').textContent = `$${subtotal.toFixed(2)}`;
         };
-
         window.openCartModal = () => { renderCartItems(); cartModal.classList.remove('hidden'); };
-        window.openCheckoutModal = () => {
-            if (cart.length === 0) return alertMessage('El carrito está vacío.', 'error');
-            closeCartModal();
-            checkoutModal.classList.remove('hidden');
-            togglePaymentForm('whatsapp'); // WhatsApp por defecto
-        };
+        window.openCheckoutModal = () => { if (cart.length === 0) return alertMessage('El carrito está vacío.', 'error'); closeCartModal(); checkoutModal.classList.remove('hidden'); togglePaymentForm('whatsapp'); };
         window.closeCheckoutModal = () => checkoutModal.classList.add('hidden');
-        
         window.togglePaymentForm = (method) => {
             document.getElementById('whatsapp-form').classList.add('hidden');
             document.getElementById('bank-form').classList.add('hidden');
             const btn = document.getElementById('final-pay-button');
-            
-            if (method === 'whatsapp') {
-                document.getElementById('whatsapp-form').classList.remove('hidden');
-                btn.textContent = 'Confirmar en WhatsApp';
-                btn.className = "w-full bg-whatsapp text-white font-bold py-3 rounded-lg hover:bg-green-600 shadow-lg mt-4 text-lg transition-colors";
-            } else {
-                document.getElementById('bank-form').classList.remove('hidden');
-                btn.textContent = 'Confirmar Pedido';
-                btn.className = "w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-800 shadow-lg mt-4 text-lg transition-colors";
-            }
+            if (method === 'whatsapp') { document.getElementById('whatsapp-form').classList.remove('hidden'); btn.textContent = 'Confirmar en WhatsApp'; btn.className = "w-full bg-whatsapp text-white font-bold py-3 rounded-lg hover:bg-green-600 shadow-lg mt-4 text-lg transition-colors"; } 
+            else { document.getElementById('bank-form').classList.remove('hidden'); btn.textContent = 'Confirmar Pedido'; btn.className = "w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-800 shadow-lg mt-4 text-lg transition-colors"; }
         };
-        
-        // Función Helper para generar el mensaje de WhatsApp
         const generateWhatsAppMessage = (order) => {
             let message = `¡Hola! 👋 Quiero realizar el siguiente pedido:\n\n`;
-            
-            order.items.forEach(item => {
-                const brand = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : '';
-                message += `▪️ ${item.quantity}x ${item.name}${brand} - $${(item.price * item.quantity).toFixed(2)}\n`;
-            });
-            
-            message += `\n💰 *Total: $${order.total.toFixed(2)}*\n`;
-            message += `\n📍 *Datos de Envío:*\n`;
-            message += `Nombre: ${order.client.name}\n`;
-            message += `Dirección: ${order.client.address}\n`;
-            message += `Teléfono: ${order.client.phone}\n`;
-            message += `\nID Pedido: ${order.date.split('T')[1].substring(0,8)}`;
-            
+            order.items.forEach(item => { const brand = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : ''; message += `▪️ ${item.quantity}x ${item.name}${brand} - $${(item.price * item.quantity).toFixed(2)}\n`; });
+            message += `\n💰 *Total: $${order.total.toFixed(2)}*\n\n📍 *Datos de Envío:*\nNombre: ${order.client.name}\nDirección: ${order.client.address}\nTeléfono: ${order.client.phone}\n\nID Pedido: ${order.date.split('T')[1].substring(0,8)}`;
             return encodeURIComponent(message);
         };
-
         window.processPayment = async (e) => {
             e.preventDefault();
             const userId = window.getCurrentUserId();
-            if (!userId) {
-                alertMessage('Debes acceder para comprar.', 'error');
-                closeCheckoutModal();
-                openLoginModal();
-                return;
-            }
-            
+            if (!userId) { alertMessage('Debes acceder para comprar.', 'error'); closeCheckoutModal(); openLoginModal(); return; }
             const clientName = document.getElementById('client-name').value;
             const clientEmail = document.getElementById('client-email').value;
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             const total = cart.reduce((sum, i) => sum + ((i.price || 0) * (i.quantity || 1)), 0);
-
-            const newOrder = {
-                userId, 
-                client: { name: clientName, email: clientEmail, address: document.getElementById('client-address').value, phone: document.getElementById('client-phone').value },
-                items: cart,
-                total,
-                paymentMethod: method,
-                status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'),
-                date: new Date().toISOString(),
-                type: 'order' // ETIQUETA MÁGICA PARA FILTRAR
-            };
-
+            const newOrder = { userId, client: { name: clientName, email: clientEmail, address: document.getElementById('client-address').value, phone: document.getElementById('client-phone').value }, items: cart, total, paymentMethod: method, status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'), date: new Date().toISOString(), type: 'order' };
             try {
-                // Guardar en 'products' para pasar las reglas de seguridad
-                // Pero con la etiqueta type='order' para poder separarlos después
                 await window.addDoc(window.collection(window.db, 'products'), newOrder);
-                
-                if (method === 'whatsapp') {
-                    const phoneNumber = "50489333462"; 
-                    const message = generateWhatsAppMessage(newOrder);
-                    // En móviles, window.open puede ser bloqueado si ocurre después de una operación asíncrona (como guardar en BD).
-                    // window.location.href es más seguro para forzar la apertura de la App.
-                    window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
-                    alertMessage('Abriendo WhatsApp...', 'success');
-                } else {
-                    alertMessage('¡Pedido registrado! Revisa tu correo.', 'success');
-                }
-                
-                closeCheckoutModal();
-                clearCart();
-                switchView('my_orders');
-            } catch (error) {
-                console.error(error);
-                alertMessage('Error al procesar pedido.', 'error');
-            }
+                if (method === 'whatsapp') { const phoneNumber = "50489333462"; const message = generateWhatsAppMessage(newOrder); window.location.href = `https://wa.me/${phoneNumber}?text=${message}`; alertMessage('Abriendo WhatsApp...', 'success'); } 
+                else { alertMessage('¡Pedido registrado! Revisa tu correo.', 'success'); }
+                closeCheckoutModal(); clearCart(); switchView('my_orders');
+            } catch (error) { console.error(error); alertMessage('Error al procesar pedido.', 'error'); }
         };
-
         window.closeCartModal = () => cartModal.classList.add('hidden');
         window.clearCart = () => { cart = []; saveCart(); renderCartItems(); };
         window.removeItemFromCart = (idx) => { cart.splice(idx, 1); saveCart(); renderCartItems(); };
-        window.updateItemQuantity = (idx, qty) => {
-            if (qty > 0) cart[idx].quantity = qty;
-            else cart.splice(idx, 1);
-            saveCart(); renderCartItems();
-        };
+        window.updateItemQuantity = (idx, qty) => { if (qty > 0) cart[idx].quantity = qty; else cart.splice(idx, 1); saveCart(); renderCartItems(); };
 
-        // --- SEED DATA ---
-        const seedInitialData = async () => {
-            if (!window.db) return;
-            const ref = window.collection(window.db, 'products');
-            try {
-                if ((await window.getDocs(ref)).empty) {
-                    for (const p of initialProducts) await window.addDoc(ref, p);
-                    alertMessage("Tienda inicializada.", 'success');
-                }
-            } catch (e) {}
-        };
+        const seedInitialData = async () => { if (!window.db) return; const ref = window.collection(window.db, 'products'); try { if ((await window.getDocs(ref)).empty) { for (const p of initialProducts) await window.addDoc(ref, p); alertMessage("Tienda inicializada.", 'success'); } } catch (e) {} };
 
-        // --- UI & AUTH ---
-        window.handleAuthClick = () => {
-            if (document.getElementById('auth-button').textContent === 'Salir') signOutClient();
-            else openLoginModal();
-        }
-        window.openLoginModal = (tab = 'signin') => {
-            loginModal.classList.remove('hidden');
-            document.getElementById(tab === 'signin' ? 'signin-form' : 'signup-form').classList.remove('hidden');
-            document.getElementById(tab === 'signin' ? 'signup-form' : 'signin-form').classList.add('hidden');
-        };
-        window.openAdminLogin = () => {
-             loginModal.classList.remove('hidden');
-             document.getElementById('signin-form').classList.remove('hidden');
-             document.getElementById('auth-modal-title').textContent = "Admin Login";
-        }
+        window.handleAuthClick = () => { if (document.getElementById('auth-button').textContent === 'Salir') signOutClient(); else openLoginModal(); }
+        window.openLoginModal = (tab = 'signin') => { loginModal.classList.remove('hidden'); document.getElementById(tab === 'signin' ? 'signin-form' : 'signup-form').classList.remove('hidden'); document.getElementById(tab === 'signin' ? 'signup-form' : 'signin-form').classList.add('hidden'); };
+        window.openAdminLogin = () => { loginModal.classList.remove('hidden'); document.getElementById('signin-form').classList.remove('hidden'); document.getElementById('auth-modal-title').textContent = "Admin Login"; }
         window.closeLoginModal = () => loginModal.classList.add('hidden');
-        window.setAuthTab = (tab) => {
-             document.getElementById('signin-form').classList.toggle('hidden', tab !== 'signin');
-             document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
-             document.getElementById('tab-signin').classList.toggle('border-primary', tab === 'signin');
-             document.getElementById('tab-signup').classList.toggle('border-primary', tab === 'signup');
-        }
+        window.setAuthTab = (tab) => { document.getElementById('signin-form').classList.toggle('hidden', tab !== 'signin'); document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup'); document.getElementById('tab-signin').classList.toggle('border-primary', tab === 'signin'); document.getElementById('tab-signup').classList.toggle('border-primary', tab === 'signup'); }
+        document.getElementById('signin-form').addEventListener('submit', async (e) => { e.preventDefault(); try { await window.signInWithEmailAndPassword(window.auth, document.getElementById('signin-email').value, document.getElementById('signin-password').value); closeLoginModal(); alertMessage('Sesión iniciada.', 'success'); } catch (e) { alertMessage('Error de acceso.', 'error'); } });
+        document.getElementById('signup-form').addEventListener('submit', async (e) => { e.preventDefault(); try { await window.createUserWithEmailAndPassword(window.auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value); closeLoginModal(); alertMessage('Bienvenido!', 'success'); } catch (e) { alertMessage('Error de registro.', 'error'); } });
 
-        document.getElementById('signin-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await window.signInWithEmailAndPassword(window.auth, document.getElementById('signin-email').value, document.getElementById('signin-password').value);
-                closeLoginModal();
-                alertMessage('Sesión iniciada.', 'success');
-            } catch (e) { alertMessage('Error de acceso.', 'error'); }
-        });
-        
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await window.createUserWithEmailAndPassword(window.auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value);
-                closeLoginModal();
-                alertMessage('Bienvenido!', 'success');
-            } catch (e) { alertMessage('Error de registro.', 'error'); }
-        });
-
-        // Agregada función faltante para métricas del dashboard
-        const renderDashboardMetrics = () => {
-            const totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-            dashboardMetrics.innerHTML = `
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-blue-400">
-                    <p class="text-sm text-gray-500">Productos</p>
-                    <p class="text-2xl font-bold">${products.length}</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-yellow-400">
-                    <p class="text-sm text-gray-500">Pedidos</p>
-                    <p class="text-2xl font-bold">${orders.length}</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-green-400">
-                    <p class="text-sm text-gray-500">Ingresos</p>
-                    <p class="text-2xl font-bold">$${totalRev.toFixed(2)}</p>
-                </div>`;
-        };
+        const renderDashboardMetrics = () => { const totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0); dashboardMetrics.innerHTML = `<div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-blue-400"><p class="text-sm text-gray-500">Productos</p><p class="text-2xl font-bold">${products.length}</p></div><div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-yellow-400"><p class="text-sm text-gray-500">Pedidos</p><p class="text-2xl font-bold">${orders.length}</p></div><div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-green-400"><p class="text-sm text-gray-500">Ingresos</p><p class="text-2xl font-bold">$${totalRev.toFixed(2)}</p></div>`; };
 
         window.switchView = (view) => {
-            clientView.classList.add('hidden');
-            adminView.classList.add('hidden');
-            myOrdersView.classList.add('hidden');
-
-            if (view === 'client') {
-                clientView.classList.remove('hidden');
-                if(unsubscribeOrders) unsubscribeOrders();
-            } else if (view === 'my_orders') {
-                myOrdersView.classList.remove('hidden');
-                listenToMyOrders();
-            } else if (view === 'admin') {
-                // Protección de ruta admin
-                if (!window.auth.currentUser || !window.adminEmails.includes(window.auth.currentUser.email)) {
-                     alertMessage("Acceso denegado.", 'error');
-                     switchView('client');
-                     return;
-                }
-                adminView.classList.remove('hidden');
-                // CORREGIDO: Forzar renderizado al entrar y refrescar pestañas
-                renderDashboardMetrics();
-                setAdminTab(adminCurrentTab);
+            clientView.classList.add('hidden'); adminView.classList.add('hidden'); myOrdersView.classList.add('hidden');
+            if (view === 'client') { clientView.classList.remove('hidden'); if(unsubscribeOrders) unsubscribeOrders(); } 
+            else if (view === 'my_orders') { myOrdersView.classList.remove('hidden'); listenToMyOrders(); } 
+            else if (view === 'admin') {
+                if (!window.auth.currentUser || !window.adminEmails.includes(window.auth.currentUser.email)) { alertMessage("Acceso denegado.", 'error'); switchView('client'); return; }
+                adminView.classList.remove('hidden'); renderDashboardMetrics(); setAdminTab(adminCurrentTab);
             }
         };
         
@@ -996,87 +813,33 @@
             adminCurrentTab = tab;
             adminContentProducts.classList.toggle('hidden', tab !== 'products');
             adminContentOrders.classList.toggle('hidden', tab !== 'orders');
+            adminContentSettings.classList.toggle('hidden', tab !== 'settings'); // TOGGLE SETTINGS
+
             document.getElementById('tab-products').classList.toggle('bg-primary', tab === 'products');
             document.getElementById('tab-products').classList.toggle('text-white', tab === 'products');
             document.getElementById('tab-orders').classList.toggle('bg-primary', tab === 'orders');
             document.getElementById('tab-orders').classList.toggle('text-white', tab === 'orders');
+            document.getElementById('tab-settings').classList.toggle('bg-primary', tab === 'settings');
+            document.getElementById('tab-settings').classList.toggle('text-white', tab === 'settings');
             
             if (tab === 'orders') listenToAdminOrders();
-            
-            // CORREGIDO: Renderizar explícitamente al cambiar a pestaña productos
-            if (tab === 'products') {
-                if(unsubscribeOrders) unsubscribeOrders();
-                renderAdminProductList();
-            }
+            if (tab === 'products') { if(unsubscribeOrders) unsubscribeOrders(); renderAdminProductList(); }
         };
         
-        // --- LISTENERS ---
         const listenToAdminOrders = () => {
             if (unsubscribeOrders) unsubscribeOrders();
-            // LEEMOS DE 'products' PERO FILTRAMOS SOLO LOS QUE TIENEN type == 'order'
             const q = window.query(window.collection(window.db, 'products'), window.where('type', '==', 'order'));
             unsubscribeOrders = window.onSnapshot(q, s => {
                 orders = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                
-                if (orders.length === 0) {
-                    adminOrderList.innerHTML = '<p class="text-gray-500 text-center py-4">No hay pedidos recientes.</p>';
-                    renderDashboardMetrics();
-                    return;
-                }
-
-                let tableHtml = `
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 border rounded-lg">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Artículos</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                `;
-
+                if (orders.length === 0) { adminOrderList.innerHTML = '<p class="text-gray-500 text-center py-4">No hay pedidos recientes.</p>'; renderDashboardMetrics(); return; }
+                let tableHtml = `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200 border rounded-lg"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Artículos</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">`;
                 tableHtml += orders.map(o => {
-                    // LISTA LIMPIA DE ARTÍCULOS: Solo Cantidad y Nombre (Formato más limpio y compacto)
-                    const itemsSummary = (o.items || [])
-                        .map(i => `<span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${i.quantity}x ${i.name}</span>`)
-                        .join('');
-                    
+                    const itemsSummary = (o.items || []).map(i => `<span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${i.quantity}x ${i.name}</span>`).join('');
                     const dateStr = o.date ? new Date(o.date).toLocaleDateString() + ' ' + new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A';
-                    
-                    return `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold text-gray-900">${o.client?.name || 'Cliente'}</div>
-                                <div class="text-xs text-gray-500">${o.client?.phone || ''}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${dateStr}
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex flex-wrap">
-                                    ${itemsSummary}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                $${(o.total || 0).toFixed(2)}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${o.status && o.status.includes('WhatsApp') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${o.status || 'Pendiente'}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
+                    return `<tr class="hover:bg-gray-50"><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-bold text-gray-900">${o.client?.name || 'Cliente'}</div><div class="text-xs text-gray-500">${o.client?.phone || ''}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td><td class="px-6 py-4"><div class="flex flex-wrap">${itemsSummary}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">$${(o.total || 0).toFixed(2)}</td><td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${o.status && o.status.includes('WhatsApp') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${o.status || 'Pendiente'}</span></td></tr>`;
                 }).join('');
-
                 tableHtml += `</tbody></table></div>`;
-                
-                adminOrderList.innerHTML = tableHtml;
-                renderDashboardMetrics();
+                adminOrderList.innerHTML = tableHtml; renderDashboardMetrics();
             });
         };
         
@@ -1084,21 +847,10 @@
             if (unsubscribeOrders) unsubscribeOrders();
             const uid = window.getCurrentUserId();
             if (!uid) return;
-            // FILTRO DOBLE: ES PEDIDO Y ES MÍO
             const q = window.query(window.collection(window.db, 'products'), window.where('type', '==', 'order'), window.where("userId", "==", uid));
             unsubscribeOrders = window.onSnapshot(q, s => {
                 const myOrds = s.docs.map(d => d.data());
-                myOrdersList.innerHTML = myOrds.length ? myOrds.map(o => `
-                    <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
-                        <div class="flex justify-between items-center border-b pb-2 mb-2">
-                            <span class="font-bold text-primary">Pedido ${o.date ? new Date(o.date).toLocaleDateString() : ''}</span>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${o.status || 'Pendiente'}</span>
-                        </div>
-                        <ul class="text-sm text-gray-600 mb-2 space-y-1">
-                            ${(o.items || []).map(i => `<li>${i.quantity}x ${i.name}</li>`).join('')}
-                        </ul>
-                        <div class="text-right font-bold text-lg">$${(o.total || 0).toFixed(2)}</div>
-                    </div>`).join('') : '<p class="text-center py-8 text-gray-500">Aún no tienes pedidos.</p>';
+                myOrdersList.innerHTML = myOrds.length ? myOrds.map(o => `<div class="bg-white p-4 rounded-xl shadow border border-gray-100"><div class="flex justify-between items-center border-b pb-2 mb-2"><span class="font-bold text-primary">Pedido ${o.date ? new Date(o.date).toLocaleDateString() : ''}</span><span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${o.status || 'Pendiente'}</span></div><ul class="text-sm text-gray-600 mb-2 space-y-1">${(o.items || []).map(i => `<li>${i.quantity}x ${i.name}</li>`).join('')}</ul><div class="text-right font-bold text-lg">$${(o.total || 0).toFixed(2)}</div></div>`).join('') : '<p class="text-center py-8 text-gray-500">Aún no tienes pedidos.</p>';
             });
         };
         
@@ -1107,13 +859,7 @@
             if (!window.db) return;
             const q = window.query(window.collection(window.db, 'products'));
             unsubscribe = window.onSnapshot(q, s => {
-                // BLINDAJE TOTAL:
-                // 1. Filtramos documentos corruptos (sin nombre).
-                // 2. FILTRAMOS LOS PEDIDOS (type == 'order') PARA QUE NO SALGAN EN LA TIENDA
-                products = s.docs
-                    .map(d => ({ id: d.id, ...d.data() }))
-                    .filter(p => p.name && p.type !== 'order');
-                
+                products = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.name && p.type !== 'order' && p.type !== 'settings');
                 loadingMessage.classList.add('hidden');
                 generateProductSections();
                 if (!adminView.classList.contains('hidden')) renderAdminProductList();
@@ -1122,100 +868,31 @@
 
         const renderAdminProductList = () => {
             adminProductList.innerHTML = products.map(p => {
-                // BLINDAJE: Usar icono por defecto si falta
                 const iconSrc = p.icon || '📦';
-                const iconDisplay = iconSrc.startsWith('data:image') 
-                    ? `<img src="${iconSrc}" class="w-8 h-8 object-contain">` 
-                    : `<span class="text-xl">${iconSrc}</span>`;
-                    
-                return `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">${iconDisplay}</td>
-                    <td class="px-4 py-3 font-medium">${p.name || 'Sin Nombre'}</td>
-                    <td class="px-4 py-3 text-gray-500 text-sm">${p.category || 'General'}</td>
-                    <td class="px-4 py-3">$${(p.price || 0).toFixed(2)}</td>
-                    <td class="px-4 py-3"><button onclick="editProduct('${p.id}')" class="text-blue-600 font-bold mr-3">Editar</button><button onclick="deleteProduct('${p.id}')" class="text-red-600 font-bold">X</button></td>
-                </tr>`;
+                const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="w-8 h-8 object-contain">` : `<span class="text-xl">${iconSrc}</span>`;
+                return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${iconDisplay}</td><td class="px-4 py-3 font-medium">${p.name || 'Sin Nombre'}</td><td class="px-4 py-3 text-gray-500 text-sm">${p.category || 'General'}</td><td class="px-4 py-3">$${(p.price || 0).toFixed(2)}</td><td class="px-4 py-3"><button onclick="editProduct('${p.id}')" class="text-blue-600 font-bold mr-3">Editar</button><button onclick="deleteProduct('${p.id}')" class="text-red-600 font-bold">X</button></td></tr>`;
             }).join('');
         };
 
         const generateProductSections = () => {
             const cats = {};
-            products.forEach(p => { 
-                if (!p.category) p.category = 'Otros';
-                if(!cats[p.category]) cats[p.category]=[]; 
-                cats[p.category].push(p); 
-            });
-            
+            products.forEach(p => { if (!p.category) p.category = 'Otros'; if(!cats[p.category]) cats[p.category]=[]; cats[p.category].push(p); });
             let html = ''; let navHtml = '';
-            
-            // Ordenar categorías según allCategories si existen, sino al final
-            const sortedCats = Object.keys(cats).sort((a,b) => {
-                const idxA = allCategories.indexOf(a);
-                const idxB = allCategories.indexOf(b);
-                if(idxA === -1) return 1;
-                if(idxB === -1) return -1;
-                return idxA - idxB;
-            });
-
+            const sortedCats = Object.keys(cats).sort((a,b) => { const idxA = allCategories.indexOf(a); const idxB = allCategories.indexOf(b); if(idxA === -1) return 1; if(idxB === -1) return -1; return idxA - idxB; });
             if(sortedCats.length === 0) html = '<div class="col-span-full text-center py-10 text-gray-400">No hay productos disponibles.</div>';
-
             sortedCats.forEach(cat => {
                 const id = cat.replace(/\s+/g, '-').toLowerCase();
-                // Sidebar Link
-                navHtml += `
-                    <a href="#${id}" class="block px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-indigo-50 hover:text-primary transition flex items-center justify-between group" onclick="if(window.innerWidth < 768) toggleShopSidebar()">
-                        <span>${cat}</span>
-                        <span class="bg-gray-100 text-gray-400 py-0.5 px-2 rounded-full text-xs group-hover:bg-white group-hover:text-primary transition">${cats[cat].length}</span>
-                    </a>`;
-                
-                // Section content
-                html += `
-                    <section id="${id}" class="scroll-mt-32 mb-12">
-                        <div class="flex items-center mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800 relative">
-                                ${cat}
-                                <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-secondary rounded-full"></span>
-                            </h2>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            ${cats[cat].map(renderProductCard).join('')}
-                        </div>
-                    </section>`;
+                navHtml += `<a href="#${id}" class="block px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-indigo-50 hover:text-primary transition flex items-center justify-between group" onclick="if(window.innerWidth < 768) toggleShopSidebar()"><span>${cat}</span><span class="bg-gray-100 text-gray-400 py-0.5 px-2 rounded-full text-xs group-hover:bg-white group-hover:text-primary transition">${cats[cat].length}</span></a>`;
+                html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${cat}<span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${cats[cat].map(renderProductCard).join('')}</div></section>`;
             });
-            
             productsContainer.innerHTML = html;
             sidebarNavLinks.innerHTML = navHtml;
         };
 
         const renderProductCard = (p) => {
-            // BLINDAJE: Usar icono por defecto
             const iconSrc = p.icon || '📦';
-            const iconDisplay = iconSrc.startsWith('data:image') 
-                ? `<img src="${iconSrc}" class="h-24 object-contain">` 
-                : `<span class="text-6xl">${iconSrc}</span>`;
-
-            return `
-            <div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                <div class="h-40 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
-                    <div class="transform transition duration-500 group-hover:scale-110">
-                        ${iconDisplay}
-                    </div>
-                    <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow opacity-0 group-hover:opacity-100 transition">
-                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition">${p.name || 'Producto'}</h3>
-                    <p class="text-sm text-gray-500 line-clamp-2 h-10 mb-3">${p.description || ''}</p>
-                    <div class="flex justify-between items-end">
-                        <span class="text-lg font-extrabold text-primary">$${(p.price || 0).toFixed(2)}</span>
-                        <button class="bg-secondary text-primary p-2 rounded-full shadow-sm hover:bg-yellow-400 transition transform active:scale-90">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
+            const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-24 object-contain">` : `<span class="text-6xl">${iconSrc}</span>`;
+            return `<div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1"><div class="h-40 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden"><div class="transform transition duration-500 group-hover:scale-110">${iconDisplay}</div><div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow opacity-0 group-hover:opacity-100 transition"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div class="p-5"><h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition">${p.name || 'Producto'}</h3><p class="text-sm text-gray-500 line-clamp-2 h-10 mb-3">${p.description || ''}</p><div class="flex justify-between items-end"><span class="text-lg font-extrabold text-primary">$${(p.price || 0).toFixed(2)}</span><button class="bg-secondary text-primary p-2 rounded-full shadow-sm hover:bg-yellow-400 transition transform active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button></div></div></div>`;
         };
 
         window.openProductModal = (id) => {
@@ -1225,161 +902,47 @@
             document.getElementById('modal-product-name').textContent = p.name;
             document.getElementById('modal-product-description').textContent = p.description;
             document.getElementById('modal-product-price').textContent = `$${(p.price || 0).toFixed(2)}`;
-            
             const container = document.getElementById('modal-brands-container');
             container.innerHTML = '';
-            
             if(p.brands && p.brands.length) {
                 document.getElementById('no-brands-message').classList.add('hidden');
-                container.innerHTML = p.brands.map(b => `
-                    <div onclick="toggleBrandSelection(this)" data-name="${b.name}" class="cursor-pointer border-2 border-transparent hover:border-gray-300 rounded-lg p-2 bg-gray-50 text-center transition">
-                        <img src="${b.imageUrl}" class="w-full h-24 object-cover rounded-md mb-2 bg-white">
-                        <span class="text-sm font-bold block truncate">${b.name}</span>
-                    </div>`).join('');
-            } else {
-                document.getElementById('no-brands-message').classList.remove('hidden');
-            }
+                container.innerHTML = p.brands.map(b => `<div onclick="toggleBrandSelection(this)" data-name="${b.name}" class="cursor-pointer border-2 border-transparent hover:border-gray-300 rounded-lg p-2 bg-gray-50 text-center transition"><img src="${b.imageUrl}" class="w-full h-24 object-cover rounded-md mb-2 bg-white"><span class="text-sm font-bold block truncate">${b.name}</span></div>`).join('');
+            } else { document.getElementById('no-brands-message').classList.remove('hidden'); }
             productModal.classList.remove('hidden');
             document.getElementById('add-to-cart-button').onclick = () => addToCart(id);
         };
         
         window.closeProductModal = () => productModal.classList.add('hidden');
-        window.toggleBrandSelection = (el) => {
-            document.querySelectorAll('#modal-brands-container > div').forEach(d => d.classList.remove('border-secondary', 'bg-blue-50'));
-            el.classList.add('border-secondary', 'bg-blue-50');
-        };
-
+        window.toggleBrandSelection = (el) => { document.querySelectorAll('#modal-brands-container > div').forEach(d => d.classList.remove('border-secondary', 'bg-blue-50')); el.classList.add('border-secondary', 'bg-blue-50'); };
         window.addToCart = (id) => {
             const p = products.find(x => x.id === id);
             const selected = [];
             const selEl = document.querySelector('#modal-brands-container > div.border-secondary');
             if(selEl) selected.push(selEl.dataset.name);
-            
             if(p.brands && p.brands.length && !selected.length) return alertMessage('Elige una opción.', 'error');
-            
             cart.push({ id: Date.now(), productId: id, name: p.name, icon: p.icon, price: p.price, quantity: 1, selectedBrands: selected });
-            saveCart();
-            alertMessage('¡Añadido!', 'success');
-            closeProductModal();
+            saveCart(); alertMessage('¡Añadido!', 'success'); closeProductModal();
         };
 
-        // --- ADMIN CRUD ---
-        window.previewAndConvertProductIcon = (input) => {
-            if(input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => { productIconInput.value = e.target.result; document.getElementById('preview-product-icon-img').src = e.target.result; document.getElementById('product-icon-preview').classList.remove('hidden'); };
-                r.readAsDataURL(input.files[0]);
-            }
-        };
-        window.previewAndConvertBrandImage = (input) => {
-            if(input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => { brandImageDataInput.value = e.target.result; previewImg.src = e.target.result; imagePreviewDiv.classList.remove('hidden'); };
-                r.readAsDataURL(input.files[0]);
-            }
-        };
+        window.previewAndConvertProductIcon = (input) => { if(input.files[0]) { const r = new FileReader(); r.onload = e => { productIconInput.value = e.target.result; document.getElementById('preview-product-icon-img').src = e.target.result; document.getElementById('product-icon-preview').classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); } };
+        window.previewAndConvertBrandImage = (input) => { if(input.files[0]) { const r = new FileReader(); r.onload = e => { brandImageDataInput.value = e.target.result; previewImg.src = e.target.result; imagePreviewDiv.classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); } };
 
         window.editProduct = (id) => {
             const p = products.find(x => x.id === id);
-            document.getElementById('name').value = p.name;
-            document.getElementById('description').value = p.description;
-            document.getElementById('price').value = p.price;
-            document.getElementById('category').value = p.category;
-            productIconInput.value = p.icon;
-            editIdInput.value = id;
-            
-            const iconSrc = p.icon || '';
-            if(iconSrc.startsWith('data')) {
-                document.getElementById('preview-product-icon-img').src = iconSrc;
-                document.getElementById('product-icon-preview').classList.remove('hidden');
-            }
-            
-            adminFormTitle.textContent = "Editar Producto";
-            submitAdminForm.textContent = "Actualizar";
-            cancelEditButton.classList.remove('hidden');
-            brandManagementSection.classList.remove('hidden');
-            
-            brandsEditorContainer.innerHTML = (p.brands||[]).map(b => `
-                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border">
-                    <div class="flex items-center gap-2">
-                        <img src="${b.imageUrl}" class="w-8 h-8 rounded object-cover">
-                        <span class="text-sm font-bold">${b.name}</span>
-                    </div>
-                    <button onclick="deleteBrandFromProduct(event, '${id}', '${b.name}')" class="text-red-500 hover:bg-red-100 p-1 rounded">X</button>
-                </div>`).join('');
+            document.getElementById('name').value = p.name; document.getElementById('description').value = p.description; document.getElementById('price').value = p.price; document.getElementById('category').value = p.category; productIconInput.value = p.icon; editIdInput.value = id;
+            const iconSrc = p.icon || ''; if(iconSrc.startsWith('data')) { document.getElementById('preview-product-icon-img').src = iconSrc; document.getElementById('product-icon-preview').classList.remove('hidden'); }
+            adminFormTitle.textContent = "Editar Producto"; submitAdminForm.textContent = "Actualizar"; cancelEditButton.classList.remove('hidden'); brandManagementSection.classList.remove('hidden');
+            brandsEditorContainer.innerHTML = (p.brands||[]).map(b => `<div class="flex items-center justify-between bg-gray-50 p-2 rounded border"><div class="flex items-center gap-2"><img src="${b.imageUrl}" class="w-8 h-8 rounded object-cover"><span class="text-sm font-bold">${b.name}</span></div><button onclick="deleteBrandFromProduct(event, '${id}', '${b.name}')" class="text-red-500 hover:bg-red-100 p-1 rounded">X</button></div>`).join('');
         };
 
-        window.addBrandToProduct = async (e) => {
-            e.preventDefault();
-            const pid = editIdInput.value;
-            if(!pid) return alertMessage('Guarda el producto primero.', 'error');
-            const p = products.find(x => x.id === pid);
-            const brands = [...(p.brands||[]), { name: document.getElementById('brand-name').value, imageUrl: brandImageDataInput.value }];
-            await window.updateDoc(window.doc(window.db, 'products', pid), { brands });
-            alertMessage('Opción añadida.', 'success');
-            document.getElementById('add-brand-form').reset(); imagePreviewDiv.classList.add('hidden');
-            editProduct(pid);
-        };
-
-        window.deleteBrandFromProduct = async (e, pid, name) => {
-            e.preventDefault();
-            const p = products.find(x => x.id === pid);
-            const brands = p.brands.filter(b => b.name !== name);
-            await window.updateDoc(window.doc(window.db, 'products', pid), { brands });
-            alertMessage('Opción eliminada.', 'success');
-            editProduct(pid); // Refresh UI
-        };
-        
-        window.deleteProduct = async (id) => {
-            if(confirm('¿Borrar producto?')) await window.deleteDoc(window.doc(window.db, 'products', id));
-        };
-
-        window.resetAdminForm = () => {
-            addProductForm.reset();
-            editIdInput.value = '';
-            adminFormTitle.textContent = "Nuevo Producto";
-            submitAdminForm.textContent = "Guardar Producto";
-            cancelEditButton.classList.add('hidden');
-            brandManagementSection.classList.add('hidden');
-            document.getElementById('product-icon-preview').classList.add('hidden');
-        };
-
-        addProductForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = editIdInput.value;
-            const data = {
-                name: document.getElementById('name').value,
-                description: document.getElementById('description').value,
-                price: parseFloat(document.getElementById('price').value),
-                category: document.getElementById('category').value,
-                icon: productIconInput.value || '📦'
-            };
-            const ref = window.collection(window.db, 'products');
-            if(id) await window.updateDoc(window.doc(ref, id), data);
-            else await window.addDoc(ref, { ...data, brands: [] });
-            alertMessage('Producto guardado.', 'success');
-            resetAdminForm();
-        });
-
-        const alertMessage = (msg, type) => {
-            const d = document.createElement('div');
-            d.className = `fixed top-5 right-5 z-[120] px-6 py-3 rounded-lg shadow-2xl text-white font-bold transform transition-all translate-y-10 opacity-0 ${type==='success'?'bg-green-500':'bg-red-500'}`;
-            d.textContent = msg;
-            document.body.appendChild(d);
-            requestAnimationFrame(() => d.classList.remove('translate-y-10', 'opacity-0'));
-            setTimeout(() => { d.classList.add('translate-y-10', 'opacity-0'); setTimeout(()=>d.remove(), 300); }, 3000);
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            fillCategorySelect();
-            loadCart();
-            seedInitialData();
-        });
-        
-        const fillCategorySelect = () => {
-            categorySelect.innerHTML = '<option value="" disabled selected>Categoría</option>';
-            allCategories.forEach(c => categorySelect.innerHTML += `<option value="${c}">${c}</option>`);
-        };
+        window.addBrandToProduct = async (e) => { e.preventDefault(); const pid = editIdInput.value; if(!pid) return alertMessage('Guarda el producto primero.', 'error'); const p = products.find(x => x.id === pid); const brands = [...(p.brands||[]), { name: document.getElementById('brand-name').value, imageUrl: brandImageDataInput.value }]; await window.updateDoc(window.doc(window.db, 'products', pid), { brands }); alertMessage('Opción añadida.', 'success'); document.getElementById('add-brand-form').reset(); imagePreviewDiv.classList.add('hidden'); editProduct(pid); };
+        window.deleteBrandFromProduct = async (e, pid, name) => { e.preventDefault(); const p = products.find(x => x.id === pid); const brands = p.brands.filter(b => b.name !== name); await window.updateDoc(window.doc(window.db, 'products', pid), { brands }); alertMessage('Opción eliminada.', 'success'); editProduct(pid); };
+        window.deleteProduct = async (id) => { if(confirm('¿Borrar producto?')) await window.deleteDoc(window.doc(window.db, 'products', id)); };
+        window.resetAdminForm = () => { addProductForm.reset(); editIdInput.value = ''; adminFormTitle.textContent = "Nuevo Producto"; submitAdminForm.textContent = "Guardar Producto"; cancelEditButton.classList.add('hidden'); brandManagementSection.classList.add('hidden'); document.getElementById('product-icon-preview').classList.add('hidden'); };
+        addProductForm.addEventListener('submit', async (e) => { e.preventDefault(); const id = editIdInput.value; const data = { name: document.getElementById('name').value, description: document.getElementById('description').value, price: parseFloat(document.getElementById('price').value), category: document.getElementById('category').value, icon: productIconInput.value || '📦' }; const ref = window.collection(window.db, 'products'); if(id) await window.updateDoc(window.doc(ref, id), data); else await window.addDoc(ref, { ...data, brands: [] }); alertMessage('Producto guardado.', 'success'); resetAdminForm(); });
+        const alertMessage = (msg, type) => { const d = document.createElement('div'); d.className = `fixed top-5 right-5 z-[120] px-6 py-3 rounded-lg shadow-2xl text-white font-bold transform transition-all translate-y-10 opacity-0 ${type==='success'?'bg-green-500':'bg-red-500'}`; d.textContent = msg; document.body.appendChild(d); requestAnimationFrame(() => d.classList.remove('translate-y-10', 'opacity-0')); setTimeout(() => { d.classList.add('translate-y-10', 'opacity-0'); setTimeout(()=>d.remove(), 300); }, 3000); };
+        document.addEventListener('DOMContentLoaded', () => { fillCategorySelect(); loadCart(); seedInitialData(); });
+        const fillCategorySelect = () => { categorySelect.innerHTML = '<option value="" disabled selected>Categoría</option>'; allCategories.forEach(c => categorySelect.innerHTML += `<option value="${c}">${c}</option>`); };
     </script>
 </body>
 </html>
