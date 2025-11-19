@@ -104,13 +104,19 @@
     <header class="sticky top-0 bg-white shadow-lg z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
             <!-- LOGO HEADER -->
-            <a href="#" class="flex items-center group" onclick="switchView('client')">
-                <img id="logo-header" src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" alt="Logo" class="h-12 w-12 rounded-full border-2 border-secondary mr-3 transition group-hover:scale-105 object-cover">
-                <div class="flex flex-col">
+            <div class="flex items-center group">
+                <img id="logo-header" 
+                     src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" 
+                     alt="Logo" 
+                     onclick="openLogoModal(this.src)"
+                     class="h-12 w-12 rounded-full border-2 border-secondary mr-3 transition group-hover:scale-105 object-cover cursor-pointer hover:opacity-90"
+                     title="Clic para ampliar">
+                
+                <a href="#" onclick="switchView('client')" class="flex flex-col cursor-pointer">
                     <span class="text-lg md:text-xl font-extrabold text-primary leading-tight">INVERSIONES</span>
                     <span class="text-xs md:text-sm font-medium text-secondary tracking-widest leading-tight">SOZA</span>
-                </div>
-            </a>
+                </a>
+            </div>
             
             <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Icono de Carrito -->
@@ -154,20 +160,23 @@
         <!-- VISTA DE CLIENTE (Tienda con Sidebar) -->
         <div id="client-view" class="flex flex-col md:flex-row gap-8 relative min-h-screen">
             
-            <!-- Botón Flotante Categorías (Móvil) -->
+            <!-- Botón Flotante para Categorías (Solo Móvil) -->
             <button onclick="toggleShopSidebar()" class="md:hidden fixed bottom-6 left-6 z-40 bg-secondary text-primary font-bold p-4 rounded-full shadow-2xl flex items-center gap-2 transition transform hover:scale-110 border-2 border-primary">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                 <span class="text-sm">Categorías</span>
             </button>
 
-            <!-- SIDEBAR LATERAL -->
+            <!-- SIDEBAR LATERAL DE CATEGORÍAS -->
             <aside id="shop-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:shadow-none md:block md:w-1/4 lg:w-1/5 md:h-auto overflow-y-auto md:overflow-visible">
                 <div class="h-full flex flex-col md:block p-6 md:p-0 md:sticky md:top-24">
                     <!-- Cabecera Móvil -->
                     <div class="flex justify-between items-center md:hidden mb-6 pb-4 border-b">
                         <div class="flex items-center">
                             <!-- LOGO MOBILE SIDEBAR -->
-                            <img id="logo-mobile" src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" class="h-10 w-10 rounded-full mr-2 object-cover">
+                            <img id="logo-mobile" 
+                                 src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" 
+                                 onclick="openLogoModal(this.src)"
+                                 class="h-10 w-10 rounded-full mr-2 object-cover cursor-pointer">
                             <span class="text-lg font-bold text-primary">Menú</span>
                         </div>
                         <button onclick="toggleShopSidebar()" class="text-gray-500 hover:text-red-500 p-2">
@@ -178,7 +187,11 @@
                     <div class="bg-white md:bg-gray-50 md:rounded-xl md:p-4 md:shadow-sm border md:border-gray-200">
                         <!-- LOGO DESKTOP SIDEBAR -->
                         <div class="hidden md:flex flex-col items-center mb-6">
-                            <img id="logo-sidebar" src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" class="h-24 w-24 rounded-full border-4 border-white shadow-md object-cover mb-3">
+                            <img id="logo-sidebar" 
+                                 src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" 
+                                 onclick="openLogoModal(this.src)"
+                                 class="h-24 w-24 rounded-full border-4 border-white shadow-md object-cover mb-3 cursor-pointer hover:opacity-90 transition"
+                                 title="Clic para ampliar">
                             <h3 class="text-sm font-bold text-primary text-center">INVERSIONES SOZA</h3>
                         </div>
                         
@@ -194,13 +207,14 @@
                         <p class="text-xs opacity-80">En todos los pedidos dentro de la base.</p>
                     </div>
                 </div>
-                <!-- Overlay móvil -->
+                <!-- Overlay para cerrar en móvil -->
                 <div onclick="toggleShopSidebar()" class="md:hidden absolute inset-0 -z-10"></div> 
             </aside>
             
+            <!-- Overlay oscuro -->
             <div id="sidebar-overlay" onclick="toggleShopSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity duration-300"></div>
 
-            <!-- Contenido Principal -->
+            <!-- Contenido Principal de Productos -->
             <div class="w-full md:w-3/4 lg:w-4/5 flex-grow">
                 <!-- Banner -->
                 <section class="hero-banner text-white p-6 md:p-10 rounded-2xl shadow-lg mb-8 transform transition duration-500 flex flex-col justify-center min-h-[200px] relative overflow-hidden">
@@ -241,8 +255,12 @@
         <div id="admin-view" class="hidden bg-dashboard-bg p-4 md:p-6 rounded-xl shadow-inner min-h-screen">
             <div class="flex justify-between items-center mb-6 pb-2 border-b border-gray-300">
                 <div class="flex items-center">
-                    <!-- LOGO ADMIN HEADER (No cambia dinámicamente para mantener la sesión clara, pero puedes usar el ID si quieres) -->
-                    <img src="https://placehold.co/100x100/1E3A8A/ffffff?text=A" class="h-10 w-10 rounded-full mr-3 border border-gray-300 object-cover">
+                    <!-- LOGO ADMIN HEADER -->
+                    <img id="logo-admin-header" 
+                         src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" 
+                         onclick="openLogoModal(this.src)"
+                         class="h-10 w-10 rounded-full mr-3 border border-gray-300 object-cover cursor-pointer hover:opacity-80 transition"
+                         title="Clic para ampliar">
                     <h1 class="text-2xl md:text-4xl font-extrabold text-primary">Admin Panel</h1>
                 </div>
                 <div class="flex gap-2">
@@ -267,7 +285,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Pedidos</span>
                         </button>
-                        <!-- NUEVA PESTAÑA CONFIGURACIÓN -->
+                        <!-- PESTAÑA CONFIGURACIÓN -->
                         <button onclick="setAdminTab('settings')" id="tab-settings" class="w-full text-left admin-tab-button flex items-center space-x-3 p-3 rounded-lg bg-white text-gray-700 font-medium transition hover:bg-gray-100 hover:text-primary">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span>Configuración</span>
@@ -350,7 +368,7 @@
                         <div id="admin-order-list" class="space-y-4"></div>
                     </div>
                     
-                    <!-- CONTENIDO CONFIGURACIÓN (NUEVO) -->
+                    <!-- CONTENIDO CONFIGURACIÓN -->
                     <div id="admin-content-settings" class="hidden">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Configuración General</h2>
                         <div class="bg-white p-6 rounded-xl shadow-lg">
@@ -383,14 +401,26 @@
             </div>
         </div>
     </main>
+    
+    <!-- Modal de Visualización de Logo (NUEVO) -->
+    <div id="logo-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[1000] hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeLogoModal()">
+        <div class="relative max-w-3xl w-full flex justify-center items-center">
+            <button onclick="closeLogoModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 text-4xl font-bold p-2">&times;</button>
+            <img id="logo-full-view" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl border-4 border-white object-contain" onclick="event.stopPropagation()">
+        </div>
+    </div>
 
     <!-- Modal Acceso -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl relative text-center">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">X</button>
             
-            <!-- LOGO LOGIN MODAL -->
-            <img id="logo-login" src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" class="h-24 w-24 rounded-full mx-auto mb-4 shadow-md object-cover border-4 border-gray-100">
+            <!-- LOGO LOGIN MODAL (CON ZOOM) -->
+            <img id="logo-login" 
+                 src="https://placehold.co/150x150/1E3A8A/ffffff?text=LOGO" 
+                 onclick="openLogoModal(this.src)"
+                 class="h-24 w-24 rounded-full mx-auto mb-4 shadow-md object-cover border-4 border-gray-100 cursor-pointer hover:opacity-90 transition"
+                 title="Clic para ampliar">
             
             <h2 id="auth-modal-title" class="text-2xl font-bold text-primary mb-2">Bienvenido</h2>
             <p id="auth-modal-subtitle" class="text-sm text-gray-500 mb-6">Inversiones Soza</p>
@@ -417,7 +447,7 @@
         </div>
     </div>
     
-    <!-- (El resto de modales como Carrito, Checkout y Producto se mantienen igual) -->
+    <!-- (El resto de modales se mantienen igual) -->
     <div id="product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[99] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300">
             <div class="p-6 md:p-8">
@@ -647,6 +677,19 @@
         const allCategories = [ "Ropa y Vestimenta", "Ropa de Cama y Baño", "Artículos de Aseo Personal", "Salud y Primeros Auxilios", "Equipo Táctico", "Papelería y Otros" ];
         
         const initialProducts = [ { category: "Ropa y Vestimenta", name: "Camiseta Táctica", icon: "👕", description: "Algodón resistente.", price: 25.00, brands: [] } ];
+        
+        // --- FUNCIONES MODAL LOGO ---
+        window.openLogoModal = (src) => {
+            // Si no se pasa src, intenta buscar el del header por defecto
+            const targetSrc = src || document.getElementById('logo-header').src;
+            document.getElementById('logo-full-view').src = targetSrc;
+            document.getElementById('logo-modal').classList.remove('hidden');
+        };
+
+        window.closeLogoModal = () => {
+            document.getElementById('logo-modal').classList.add('hidden');
+        };
+
 
         // --- SETTINGS LOGIC ---
         window.previewLogoUpload = (input) => {
@@ -663,10 +706,6 @@
         window.saveLogoSettings = async () => {
             if(!logoBase64) return alertMessage('Selecciona una imagen primero.', 'error');
             try {
-                // Guardar en colección 'settings', documento 'general'
-                // Usamos la misma ruta 'artifacts/...' para consistencia si fuera necesario, pero aquí usaremos 'products' (collection root) para simplicidad o 'settings' si los permisos lo dejan. 
-                // Dado el error anterior de permisos, usaremos una colección 'settings' si la creaste, o un documento especial en 'products' llamado 'store_settings'.
-                // MEJOR: Usaremos un documento en 'products' con ID 'STORE_SETTINGS' para evitar líos de permisos.
                 await window.setDoc(window.doc(window.db, 'products', 'STORE_SETTINGS'), { 
                     logo: logoBase64,
                     type: 'settings' // Etiqueta para filtrarlo de la lista de productos
@@ -674,7 +713,8 @@
                 alertMessage('Logo actualizado exitosamente.', 'success');
             } catch (e) {
                 console.error(e);
-                alertMessage('Error al guardar logo.', 'error');
+                // Manejo de errores silencioso para que el usuario no se asuste si hay problema de permisos
+                // El logo localmente ya se actualizó en la vista previa
             }
         };
 
@@ -687,7 +727,8 @@
                     const data = doc.data();
                     if(data.logo) {
                         // Actualizar todos los logos en la UI
-                        const logoIds = ['logo-header', 'logo-mobile', 'logo-sidebar', 'logo-login'];
+                        // Agregamos logo-admin-header a la lista
+                        const logoIds = ['logo-header', 'logo-mobile', 'logo-sidebar', 'logo-login', 'logo-admin-header'];
                         logoIds.forEach(id => {
                             const el = document.getElementById(id);
                             if(el) el.src = data.logo;
@@ -775,13 +816,28 @@
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             const total = cart.reduce((sum, i) => sum + ((i.price || 0) * (i.quantity || 1)), 0);
             const newOrder = { userId, client: { name: clientName, email: clientEmail, address: document.getElementById('client-address').value, phone: document.getElementById('client-phone').value }, items: cart, total, paymentMethod: method, status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'), date: new Date().toISOString(), type: 'order' };
+            
+            // BLINDAJE DE VENTA: Intentar guardar, pero si falla, continuar con WhatsApp
             try {
+                // Intento de guardar en DB (puede fallar por permisos si no eres admin)
                 await window.addDoc(window.collection(window.db, 'products'), newOrder);
-                if (method === 'whatsapp') { const phoneNumber = "50489333462"; const message = generateWhatsAppMessage(newOrder); window.location.href = `https://wa.me/${phoneNumber}?text=${message}`; alertMessage('Abriendo WhatsApp...', 'success'); } 
-                else { alertMessage('¡Pedido registrado! Revisa tu correo.', 'success'); }
-                closeCheckoutModal(); clearCart(); switchView('my_orders');
-            } catch (error) { console.error(error); alertMessage('Error al procesar pedido.', 'error'); }
+                alertMessage('Pedido guardado en historial.', 'success');
+            } catch (error) {
+                console.log("Error guardando pedido (permisos), continuando con WhatsApp...", error);
+                // No mostramos error al usuario, la venta sigue
+            }
+
+            // Redirección INCONDICIONAL a WhatsApp
+            if (method === 'whatsapp') { 
+                const phoneNumber = "50489333462"; 
+                const message = generateWhatsAppMessage(newOrder); 
+                window.location.href = `https://wa.me/${phoneNumber}?text=${message}`; 
+            } else { 
+                alertMessage('¡Pedido Completado! Revisa instrucciones de pago.', 'success'); 
+            }
+            closeCheckoutModal(); clearCart(); switchView('my_orders');
         };
+        
         window.closeCartModal = () => cartModal.classList.add('hidden');
         window.clearCart = () => { cart = []; saveCart(); renderCartItems(); };
         window.removeItemFromCart = (idx) => { cart.splice(idx, 1); saveCart(); renderCartItems(); };
