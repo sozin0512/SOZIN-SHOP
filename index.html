@@ -96,6 +96,11 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
+        /* Asegurar que el modal de zoom esté siempre encima */
+        #logo-modal {
+            z-index: 9999; 
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -103,18 +108,20 @@
     <!-- Encabezado Fijo y Navegación -->
     <header class="sticky top-0 bg-white shadow-lg z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-            <!-- LOGO HEADER -->
-            <div class="flex items-center group">
+            <!-- LOGO HEADER (RESTAURADO Y AJUSTADO) -->
+            <div class="flex items-center">
+                <!-- Imagen del Logo (Clic para Zoom) -->
                 <img id="logo-header" 
                      src="https://placehold.co/100x100/1E3A8A/ffffff?text=LOGO" 
                      alt="Logo" 
                      onclick="openLogoModal(this.src)"
-                     class="h-12 w-12 rounded-full border-2 border-secondary mr-3 transition group-hover:scale-105 object-cover cursor-pointer hover:opacity-90"
+                     class="h-10 w-10 md:h-12 md:w-12 rounded-full border-2 border-secondary mr-2 md:mr-3 transition hover:scale-105 object-cover cursor-pointer hover:opacity-90 flex-shrink-0"
                      title="Clic para ampliar">
                 
-                <a href="#" onclick="switchView('client')" class="flex flex-col cursor-pointer">
-                    <span class="text-lg md:text-xl font-extrabold text-primary leading-tight">INVERSIONES</span>
-                    <span class="text-xs md:text-sm font-medium text-secondary tracking-widest leading-tight">SOZA</span>
+                <!-- Texto (Clic para Inicio) -->
+                <a href="#" onclick="switchView('client')" class="flex flex-col cursor-pointer group">
+                    <span class="text-base md:text-xl font-extrabold text-primary leading-tight group-hover:text-blue-700 transition">INVERSIONES</span>
+                    <span class="text-[10px] md:text-sm font-medium text-secondary tracking-widest leading-tight">SOZA</span>
                 </a>
             </div>
             
@@ -403,7 +410,7 @@
     </main>
     
     <!-- Modal de Visualización de Logo (NUEVO) -->
-    <div id="logo-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[1000] hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeLogoModal()">
+    <div id="logo-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeLogoModal()">
         <div class="relative max-w-3xl w-full flex justify-center items-center">
             <button onclick="closeLogoModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 text-4xl font-bold p-2">&times;</button>
             <img id="logo-full-view" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl border-4 border-white object-contain" onclick="event.stopPropagation()">
@@ -623,6 +630,7 @@
         window.collection = collection; window.query = query; window.onSnapshot = onSnapshot;
         window.addDoc = addDoc; window.updateDoc = updateDoc; window.deleteDoc = deleteDoc;
         window.doc = doc; window.getDocs = getDocs; window.where = where; window.setDoc = setDoc;
+        window.signInAnonymously = signInAnonymously;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.getCurrentUserId = () => currentUserId;
         window.adminEmails = adminEmails; 
@@ -708,13 +716,11 @@
             try {
                 await window.setDoc(window.doc(window.db, 'products', 'STORE_SETTINGS'), { 
                     logo: logoBase64,
-                    type: 'settings' // Etiqueta para filtrarlo de la lista de productos
+                    type: 'settings' 
                 });
                 alertMessage('Logo actualizado exitosamente.', 'success');
             } catch (e) {
                 console.error(e);
-                // Manejo de errores silencioso para que el usuario no se asuste si hay problema de permisos
-                // El logo localmente ya se actualizó en la vista previa
             }
         };
 
@@ -726,14 +732,11 @@
                 if(doc.exists()) {
                     const data = doc.data();
                     if(data.logo) {
-                        // Actualizar todos los logos en la UI
-                        // Agregamos logo-admin-header a la lista
                         const logoIds = ['logo-header', 'logo-mobile', 'logo-sidebar', 'logo-login', 'logo-admin-header'];
                         logoIds.forEach(id => {
                             const el = document.getElementById(id);
                             if(el) el.src = data.logo;
                         });
-                        // Actualizar favicon (opcional, avanzado)
                         let link = document.querySelector("link[rel~='icon']");
                         if (!link) {
                             link = document.createElement('link');
@@ -807,33 +810,41 @@
             message += `\n💰 *Total: $${order.total.toFixed(2)}*\n\n📍 *Datos de Envío:*\nNombre: ${order.client.name}\nDirección: ${order.client.address}\nTeléfono: ${order.client.phone}\n\nID Pedido: ${order.date.split('T')[1].substring(0,8)}`;
             return encodeURIComponent(message);
         };
+        
         window.processPayment = async (e) => {
             e.preventDefault();
-            const userId = window.getCurrentUserId();
-            if (!userId) { alertMessage('Debes acceder para comprar.', 'error'); closeCheckoutModal(); openLoginModal(); return; }
+            
+            // FORZAR AUTENTICACIÓN ANÓNIMA SI NO EXISTE USUARIO
+            if (!window.auth.currentUser) {
+                try {
+                    await window.signInAnonymously(window.auth);
+                } catch (error) {
+                    console.error("Error auth anónimo", error);
+                }
+            }
+
+            const userId = window.getCurrentUserId() || 'guest-' + Date.now(); // Fallback ID
+
             const clientName = document.getElementById('client-name').value;
             const clientEmail = document.getElementById('client-email').value;
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             const total = cart.reduce((sum, i) => sum + ((i.price || 0) * (i.quantity || 1)), 0);
             const newOrder = { userId, client: { name: clientName, email: clientEmail, address: document.getElementById('client-address').value, phone: document.getElementById('client-phone').value }, items: cart, total, paymentMethod: method, status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'), date: new Date().toISOString(), type: 'order' };
             
-            // BLINDAJE DE VENTA: Intentar guardar, pero si falla, continuar con WhatsApp
             try {
-                // Intento de guardar en DB (puede fallar por permisos si no eres admin)
+                // Intentamos guardar, pero si falla (por reglas), seguimos adelante
                 await window.addDoc(window.collection(window.db, 'products'), newOrder);
-                alertMessage('Pedido guardado en historial.', 'success');
+                // Si llega aquí, se guardó bien en el historial
             } catch (error) {
-                console.log("Error guardando pedido (permisos), continuando con WhatsApp...", error);
-                // No mostramos error al usuario, la venta sigue
+                console.log("Aviso: No se pudo guardar en historial por permisos, pero el pedido continúa por WhatsApp.");
             }
 
-            // Redirección INCONDICIONAL a WhatsApp
             if (method === 'whatsapp') { 
                 const phoneNumber = "50489333462"; 
                 const message = generateWhatsAppMessage(newOrder); 
                 window.location.href = `https://wa.me/${phoneNumber}?text=${message}`; 
             } else { 
-                alertMessage('¡Pedido Completado! Revisa instrucciones de pago.', 'success'); 
+                alertMessage('¡Pedido Completado! Revisa instrucciones.', 'success'); 
             }
             closeCheckoutModal(); clearCart(); switchView('my_orders');
         };
@@ -869,7 +880,7 @@
             adminCurrentTab = tab;
             adminContentProducts.classList.toggle('hidden', tab !== 'products');
             adminContentOrders.classList.toggle('hidden', tab !== 'orders');
-            adminContentSettings.classList.toggle('hidden', tab !== 'settings'); // TOGGLE SETTINGS
+            adminContentSettings.classList.toggle('hidden', tab !== 'settings'); 
 
             document.getElementById('tab-products').classList.toggle('bg-primary', tab === 'products');
             document.getElementById('tab-products').classList.toggle('text-white', tab === 'products');
