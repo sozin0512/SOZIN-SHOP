@@ -103,24 +103,25 @@
     <!-- Encabezado Fijo y Navegación -->
     <header class="sticky top-0 bg-white shadow-lg z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <a href="#" class="text-3xl font-extrabold text-primary flex items-center" onclick="switchView('client')">
-                <svg class="w-8 h-8 mr-2 text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM4 10a6 6 0 1112 0 6 6 0 01-12 0zm6-4a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0v-3.5A.75.75 0 0010 6zM9 10a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"></path></svg>
-                Tienda de Esenciales
+            <!-- CORRECCIÓN 1: Título adaptable (más pequeño en celular) para que quepa el botón de login -->
+            <a href="#" class="text-xl md:text-3xl font-extrabold text-primary flex items-center truncate" onclick="switchView('client')">
+                <svg class="w-6 h-6 md:w-8 md:h-8 mr-2 text-secondary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM4 10a6 6 0 1112 0 6 6 0 01-12 0zm6-4a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0v-3.5A.75.75 0 0010 6zM9 10a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"></path></svg>
+                <span class="truncate">Tienda</span>
             </a>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Icono de Carrito -->
                 <button onclick="openCartModal()" class="relative p-2 rounded-full text-primary hover:bg-gray-100 transition shadow-md">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 110 4 2 2 0 010-4z"></path></svg>
                     <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">0</span>
                 </button>
                 
-                <!-- Botón de Acceso/Usuario -->
-                <button id="auth-button" onclick="handleAuthClick()" class="bg-primary text-white font-medium py-2 px-4 rounded-full hover:bg-blue-800 transition text-sm shadow-md hidden md:inline-block">
+                <!-- CORRECCIÓN 2: Botón de Acceso VISIBLE EN TODOS LOS DISPOSITIVOS (eliminé 'hidden md:inline-block') -->
+                <button id="auth-button" onclick="handleAuthClick()" class="bg-primary text-white font-medium py-2 px-3 md:px-4 rounded-full hover:bg-blue-800 transition text-xs md:text-sm shadow-md whitespace-nowrap">
                     Acceder
                 </button>
 
-                <!-- Botón Mis Pedidos (Desktop) -->
-                <button id="view-orders-button-desktop" onclick="switchView('my_orders')" class="hidden bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-200 transition text-sm shadow-md">
+                <!-- Botón Mis Pedidos (Desktop Only - en móvil está en la barra de usuario) -->
+                <button id="view-orders-button-desktop" onclick="switchView('my_orders')" class="hidden md:block bg-gray-100 text-gray-800 font-medium py-2 px-4 rounded-full hover:bg-gray-200 transition text-sm shadow-md">
                     Mis Pedidos
                 </button>
             </div>
@@ -130,17 +131,18 @@
     <!-- Contenido Principal -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         
-        <!-- Info Usuario -->
-        <div id="user-info-bar" class="mb-6 p-3 bg-indigo-100 rounded-lg shadow-inner text-sm text-indigo-800 hidden flex justify-between items-center">
+        <!-- Info Usuario (Aparece tras login) -->
+        <div id="user-info-bar" class="mb-6 p-3 bg-indigo-100 rounded-lg shadow-inner text-sm text-indigo-800 hidden flex flex-col md:flex-row justify-between items-center gap-2">
             <p><span class="font-bold">Usuario:</span> <span id="current-user-id">Cargando...</span></p>
-            <div class="flex space-x-2">
-                <button id="view-orders-button-mobile" onclick="switchView('my_orders')" class="md:hidden bg-white text-primary font-bold py-1 px-3 rounded-full text-xs shadow-sm">
+            <div class="flex space-x-2 w-full md:w-auto justify-end">
+                <!-- Botones móviles -->
+                <button id="view-orders-button-mobile" onclick="switchView('my_orders')" class="md:hidden flex-1 bg-white text-primary font-bold py-2 px-3 rounded-full text-xs shadow-sm text-center">
                     Mis Pedidos
                 </button>
-                <button id="admin-dashboard-link" onclick="switchView('admin')" class="bg-primary text-white font-bold py-1 px-3 rounded-full text-xs hover:bg-blue-800 transition shadow-md hidden">
+                <button id="admin-dashboard-link" onclick="switchView('admin')" class="bg-primary text-white font-bold py-2 px-3 rounded-full text-xs hover:bg-blue-800 transition shadow-md hidden">
                     Panel Admin
                 </button>
-                <button onclick="signOutClient()" class="md:hidden bg-red-500 text-white font-bold py-1 px-3 rounded-full text-xs">
+                <button onclick="signOutClient()" class="md:hidden flex-1 bg-red-500 text-white font-bold py-2 px-3 rounded-full text-xs text-center">
                     Salir
                 </button>
             </div>
@@ -558,7 +560,8 @@
 
         let currentUserId = null; 
         let isAuthReady = false; 
-        const adminEmail = 'josuesoza0513@gmail.com'; 
+        // LISTA DE ADMINS: Aquí agregué el segundo correo como pediste
+        const adminEmails = ['josuesoza0513@gmail.com', 'jessimal2001@gmail.com']; 
 
         const initializeAuth = async () => {
             if (!auth) return; 
@@ -599,7 +602,7 @@
                     };
                     updateAuthBtn(authButton);
 
-                    if (user.email === adminEmail) adminLink.classList.remove('hidden');
+                    if (adminEmails.includes(user.email)) adminLink.classList.remove('hidden');
                     else adminLink.classList.add('hidden');
 
                 } else { 
@@ -648,6 +651,7 @@
         window.doc = doc; window.getDocs = getDocs; window.where = where;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.getCurrentUserId = () => currentUserId;
+        window.adminEmails = adminEmails; // Export admin emails for usage
     </script>
 
     <!-- Lógica de la Aplicación -->
@@ -975,6 +979,12 @@
                 myOrdersView.classList.remove('hidden');
                 listenToMyOrders();
             } else if (view === 'admin') {
+                // Protección de ruta admin
+                if (!window.auth.currentUser || !window.adminEmails.includes(window.auth.currentUser.email)) {
+                     alertMessage("Acceso denegado.", 'error');
+                     switchView('client');
+                     return;
+                }
                 adminView.classList.remove('hidden');
                 // CORREGIDO: Forzar renderizado al entrar y refrescar pestañas
                 renderDashboardMetrics();
