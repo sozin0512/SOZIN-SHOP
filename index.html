@@ -480,6 +480,14 @@
                     <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-700 transition bg-gray-100 hover:bg-gray-200 rounded-full p-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
                 <div class="space-y-4">
+                    <!-- NEW: Image Display Area -->
+                    <div class="text-center p-4 bg-gray-50 rounded-xl mb-4 border border-gray-200">
+                        <div id="modal-product-icon-container" class="cursor-pointer inline-block hover:opacity-80 transition" onclick="openLogoModal(this.querySelector('img, span').dataset.src)">
+                            <!-- Image or Emoji injected here by JS -->
+                        </div>
+                    </div>
+                    <!-- END NEW IMAGE AREA -->
+
                     <p id="modal-product-description" class="text-gray-600 text-lg leading-relaxed"></p>
                     
                     <!-- Stock Status in Modal -->
@@ -533,7 +541,7 @@
                 <div class="flex justify-between font-bold text-xl text-primary mb-4"><span>Total:</span><span id="cart-total">L 0.00</span></div>
                 <div class="flex gap-3">
                     <button onclick="clearCart()" class="w-1/3 bg-red-100 text-red-600 font-bold py-3 rounded-lg hover:bg-red-200 text-sm transition">Vaciar</button>
-                    <button onclick="openCheckoutModal()" class="w-2/3 bg-secondary text-primary font-bold py-3 rounded-lg hover:bg-yellow-400 shadow-lg text-lg transition transform active:scale-95">Pagar Ahora</button>
+                    <button onclick="preCheckoutAuthCheck()" class="w-2/3 bg-secondary text-primary font-bold py-3 rounded-lg hover:bg-yellow-400 shadow-lg text-lg transition transform active:scale-95">Pagar Ahora</button>
                 </div>
             </div>
         </div>
@@ -1026,6 +1034,26 @@
         };
         // --- END NEW SHARE FUNCTIONALITY ---
 
+        // --- PRE-CHECKOUT AUTH CHECK (The required functionality) ---
+        window.preCheckoutAuthCheck = () => {
+            const user = window.auth.currentUser;
+            
+            if (cart.length === 0) {
+                 return alertMessage('El carrito está vacío.', 'error');
+            }
+
+            // Check if the user is authenticated (not null AND not anonymous)
+            if (user && !user.isAnonymous) {
+                // User is signed in, proceed to checkout
+                window.openCheckoutModal();
+            } else {
+                // User is anonymous or logged out, force login/signup
+                alertMessage('Debes iniciar sesión para guardar tu pedido.', 'error');
+                window.closeCartModal();
+                window.openLoginModal('signin'); // Open the login modal
+            }
+        };
+
 
         // --- ADMIN ORDERS MANAGEMENT ---
         window.manageOrder = async (orderId) => {
@@ -1231,6 +1259,8 @@
             const modal = document.getElementById('cart-modal');
             if(modal) modal.classList.remove('hidden'); 
         };
+        
+        // This is the old openCheckoutModal. We rename it to handle the logic.
         window.openCheckoutModal = () => { 
             if (cart.length === 0) return alertMessage('El carrito está vacío.', 'error'); 
             window.closeCartModal(); 
@@ -1238,6 +1268,7 @@
             if(modal) modal.classList.remove('hidden'); 
             togglePaymentForm('whatsapp'); 
         };
+
         window.closeCheckoutModal = () => {
             const modal = document.getElementById('checkout-modal');
             if(modal) modal.classList.add('hidden');
@@ -1259,18 +1290,38 @@
         
         window.processPayment = async (e) => {
             e.preventDefault();
-            if (!window.auth.currentUser) { try { await window.signInAnonymously(window.auth); } catch (error) { console.error("Error auth anónimo", error); } }
-            const userId = window.getCurrentUserId() || 'guest-' + Date.now(); 
+            // Since we force authentication in preCheckoutAuthCheck, this user is always authenticated (not anonymous).
+            const user = window.auth.currentUser;
+            const userId = user.uid; // Use the actual authenticated user's UID
+            
             const clientName = document.getElementById('client-name').value;
-            const clientEmail = document.getElementById('client-email').value;
+            const clientEmail = user.email || document.getElementById('client-email').value;
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             const total = cart.reduce((sum, i) => sum + ((i.price || 0) * (i.quantity || 1)), 0);
-            const newOrder = { userId, client: { name: clientName, email: clientEmail, address: document.getElementById('client-address').value, phone: document.getElementById('client-phone').value }, items: cart, total, paymentMethod: method, status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'), date: new Date().toISOString(), type: 'order' };
+            
+            const newOrder = { 
+                userId, 
+                client: { 
+                    name: clientName, 
+                    email: clientEmail, 
+                    address: document.getElementById('client-address').value, 
+                    phone: document.getElementById('client-phone').value 
+                }, 
+                items: cart, 
+                total, 
+                paymentMethod: method, 
+                status: "Pendiente" + (method === 'whatsapp' ? ' (WhatsApp)' : ' (Depósito)'), 
+                date: new Date().toISOString(), 
+                type: 'order' 
+            };
             
             try {
+                // Save the order linked to the authenticated userId
                 await window.addDoc(window.getOrdersCollection(), newOrder);
             } catch (error) {
-                console.log("Aviso: No se pudo guardar en historial por permisos.", error);
+                // Should not happen if auth is enforced, but good to handle
+                console.error("Error al guardar pedido en historial:", error);
+                alertMessage("Error al guardar pedido. Intenta nuevamente.", 'error');
             }
 
             if (method === 'whatsapp') { 
@@ -1397,8 +1448,19 @@
 
         // --- ADMIN & AUTH ---
         window.handleAuthClick = () => { if (document.getElementById('auth-button').innerText.includes('Salir')) signOutClient(); else openLoginModal(); }
-        window.openLoginModal = (tab = 'signin') => { loginModal.classList.remove('hidden'); document.getElementById(tab === 'signin' ? 'signin-form' : 'signup-form').classList.remove('hidden'); document.getElementById(tab === 'signin' ? 'signup-form' : 'signin-form').classList.add('hidden'); setAuthTab(tab); };
-        window.openAdminLogin = () => { loginModal.classList.remove('hidden'); document.getElementById('signin-form').classList.remove('hidden'); document.getElementById('signup-form').classList.add('hidden'); document.getElementById('auth-modal-title').textContent = "Admin Login"; }
+        window.openLoginModal = (tab = 'signin') => { 
+            loginModal.classList.remove('hidden'); 
+            document.getElementById('auth-modal-title').textContent = "Bienvenido";
+            document.getElementById(tab === 'signin' ? 'signin-form' : 'signup-form').classList.remove('hidden'); 
+            document.getElementById(tab === 'signin' ? 'signup-form' : 'signin-form').classList.add('hidden'); 
+            setAuthTab(tab); 
+        };
+        window.openAdminLogin = () => { 
+            loginModal.classList.remove('hidden'); 
+            document.getElementById('signin-form').classList.remove('hidden'); 
+            document.getElementById('signup-form').classList.add('hidden'); 
+            document.getElementById('auth-modal-title').textContent = "Admin Login";
+        }
         window.closeLoginModal = () => loginModal.classList.add('hidden');
         window.setAuthTab = (tab) => { 
             document.getElementById('signin-form').classList.toggle('hidden', tab !== 'signin'); 
@@ -1667,6 +1729,18 @@
             document.getElementById('modal-product-name').textContent = p.name;
             document.getElementById('modal-product-description').textContent = p.description;
             document.getElementById('modal-product-price').textContent = formatCurrency(p.price);
+            
+            // --- IMAGE DISPLAY ---
+            const iconContainer = document.getElementById('modal-product-icon-container');
+            const iconSrc = p.icon || '📦';
+            
+            if (iconSrc.startsWith('data:image')) {
+                iconContainer.innerHTML = `<img src="${iconSrc}" class="h-40 w-40 object-contain mx-auto rounded-lg border bg-white" data-src="${iconSrc}">`;
+            } else {
+                iconContainer.innerHTML = `<span class="text-8xl block text-center" data-src="${iconSrc}">${iconSrc}</span>`;
+            }
+            // --- END IMAGE DISPLAY ---
+
             
             // Stock Status Display in Modal
             const stockStatusEl = document.getElementById('modal-stock-status');
