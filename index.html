@@ -35,7 +35,7 @@
                         },
                         slideUp: {
                             '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
                         }
                     }
                 }
@@ -109,12 +109,28 @@
             }
             .no-print { display: none !important; }
         }
+
+        /* NEW: Header Transition and Hide on Scroll */
+        #header-main {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+            transform: translateY(0);
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+
+        #header-main.header-hidden {
+            transform: translateY(-100%);
+            box-shadow: none;
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 font-sans text-gray-800 pt-[70px] md:pt-[70px]">
 
     <!-- Encabezado -->
-    <header class="sticky top-0 bg-white shadow-lg z-50 backdrop-blur-md bg-opacity-95">
+    <header id="header-main" class="bg-white shadow-lg z-50 backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
             <div class="flex items-center">
                 <img id="logo-header" src="https://placehold.co/100x100/1E3A8A/ffffff?text=SOZA" alt="Logo" onclick="openLogoModal(this.src)" class="h-10 w-10 md:h-12 md:w-12 rounded-full border-2 border-secondary mr-2 md:mr-3 cursor-pointer object-cover" title="Clic para ampliar">
@@ -344,6 +360,12 @@
                         </section>
 
                         <section class="bg-white p-6 rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                            <!-- BÚSQUEDA ADMIN PRODUCTOS -->
+                            <div class="relative mb-4 max-w-md w-full">
+                                <input type="text" id="admin-product-search-input" onkeyup="filterAdminProducts(this.value)" placeholder="Buscar producto en la lista..." class="w-full p-3 rounded-xl border border-gray-300 shadow-sm text-gray-800 focus:ring-2 focus:ring-secondary outline-none transition">
+                                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <!-- FIN BÚSQUEDA ADMIN PRODUCTOS -->
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Img</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">$$</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr></thead>
@@ -356,6 +378,12 @@
                     <!-- ADMIN INVENTARIO (STOCK) -->
                     <div id="admin-content-inventory" class="hidden animate-fade-in">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Ajuste de Inventario</h2>
+                        <!-- BÚSQUEDA INVENTARIO -->
+                        <div class="relative mb-4 max-w-lg w-full">
+                            <input type="text" id="admin-inventory-search-input" onkeyup="filterAdminInventory(this.value)" placeholder="Buscar producto para ajustar stock..." class="w-full p-3 rounded-xl border border-gray-300 shadow-sm text-gray-800 focus:ring-2 focus:ring-secondary outline-none transition">
+                            <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <!-- FIN BÚSQUEDA INVENTARIO -->
                         <div id="inventory-stock-list" class="bg-white p-6 rounded-xl shadow-lg overflow-hidden border border-gray-100">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Stock Actual</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Ajuste (+/-)</th></tr></thead>
@@ -370,12 +398,19 @@
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Pedidos Recientes</h2>
                         
                         <!-- NEW: Order Filters -->
-                        <div class="flex flex-wrap gap-2 mb-6" id="order-filters">
+                        <div class="flex flex-wrap gap-2 mb-4" id="order-filters">
                             <button onclick="setAdminOrderFilter('all')" id="filter-all" class="px-4 py-2 text-sm font-semibold rounded-full transition bg-primary text-white shadow-md">Todos (<span id="count-all">0</span>)</button>
                             <button onclick="setAdminOrderFilter('Pendiente')" id="filter-Pendiente" class="px-4 py-2 text-sm font-semibold rounded-full transition bg-white text-gray-700 shadow-sm border border-gray-200 hover:bg-yellow-50">Pendientes (<span id="count-Pendiente">0</span>)</button>
                             <button onclick="setAdminOrderFilter('Confirmado')" id="filter-Confirmado" class="px-4 py-2 text-sm font-semibold rounded-full transition bg-white text-gray-700 shadow-sm border border-gray-200 hover:bg-green-50">Confirmados (<span id="count-Confirmado">0</span>)</button>
                             <button onclick="setAdminOrderFilter('Enviado')" id="filter-Enviado" class="px-4 py-2 text-sm font-semibold rounded-full transition bg-white text-gray-700 shadow-sm border border-gray-200 hover:bg-blue-50">Enviados (<span id="count-Enviado">0</span>)</button>
                         </div>
+                        
+                        <!-- BÚSQUEDA PEDIDOS -->
+                        <div class="relative mb-6 max-w-lg w-full">
+                            <input type="text" id="admin-order-search-input" onkeyup="filterAdminOrders(this.value)" placeholder="Buscar por nombre o teléfono del cliente..." class="w-full p-3 rounded-xl border border-gray-300 shadow-sm text-gray-800 focus:ring-2 focus:ring-secondary outline-none transition">
+                            <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <!-- FIN BÚSQUEDA PEDIDOS -->
                         
                         <div id="admin-order-list" class="space-y-4"></div>
                     </div>
@@ -523,8 +558,8 @@
 
                     <!-- Kit Contents Container -->
                     <div id="modal-kit-contents" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-100">
-                            <h3 class="text-sm font-bold text-blue-800 mb-2 uppercase">Contenido del Kit:</h3>
-                            <ul id="modal-kit-list" class="text-sm text-gray-700 space-y-1 list-disc pl-5"></ul>
+                                <h3 class="text-sm font-bold text-blue-800 mb-2 uppercase">Contenido del Kit:</h3>
+                                <ul id="modal-kit-list" class="text-sm text-gray-700 space-y-1 list-disc pl-5"></ul>
                     </div>
                     <div class="flex justify-between items-center text-xl font-bold pt-2 border-t">
                         <span>Precio:</span>
@@ -633,6 +668,7 @@
 
         let currentUserId = null; 
         let isAuthReady = false; 
+        let hasSeeded = false; // NUEVO: Bandera para controlar la siembra de datos
         const adminEmails = ['josuesoza0513@gmail.com', 'jessimal2001@gmail.com', 'admin@soza.com']; 
         let currentLogo = null;
         let allCategories = [ "Ropa y Vestimenta", "Ropa de Cama y Baño", "Artículos de Aseo Personal", "Salud y Primeros Auxilios", "Equipo Táctico", "Papelería y Otros" ];
@@ -686,7 +722,11 @@
                 if (user) { 
                     listenToCategories(); 
                     listenToProducts(); 
-                    listenToSettings(); 
+                    // Llama a la siembra de datos SÓLO después de que la autenticación inicial se haya resuelto
+                    if (!hasSeeded) {
+                        seedInitialData();
+                        hasSeeded = true;
+                    }
                 }
             });
         }
@@ -729,7 +769,7 @@
         let currentModalProductId = null; 
         let adminCurrentTab = 'products';
         
-        // CORRECCIÓN: Inicialización de variables de estado
+        // Variables de estado del dashboard de cliente
         let adminOrderFilter = 'all'; 
         let currentCategoryFilter = 'all'; 
         let currentSearchTerm = '';
@@ -778,7 +818,7 @@
 
 
         const initialProducts = [
-            { category: "Ropa y Vestimenta", name: "Camisa Azul D/P", icon: "👕", description: "Uniforme diario para cadetes.", price: 150.00, brands: [{name:'Talla S', imageUrl:''}, {name:'Talla M', imageUrl:''}], stock: 50, type: 'product' },
+            { category: "Ropa y Vestimenta", name: "Camisa Azul D/P", icon: "👕", description: "Uniforme diario para cadetes. Requiere selección de talla.", price: 150.00, brands: [{name:'Talla S', priceAdjustment: 0.0, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+S'}, {name:'Talla M', priceAdjustment: 0.0, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+M'}, {name:'Talla L (+L20)', priceAdjustment: 20.00, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+L'}], stock: 50, type: 'product' },
             { category: "Equipo Táctico", name: "Cinturón Táctico", icon: "🔗", description: "Cinturón de lona resistente con hebilla de liberación rápida.", price: 350.00, brands: [], stock: 30, type: 'product' },
             { category: "Ropa de Cama y Baño", name: "Sábana Blanca", icon: "🛏️", description: "Sábana de algodón para uso en barracas.", price: 120.00, brands: [], stock: 100, type: 'product' },
             { category: "Artículos de Aseo Personal", name: "Kit de Afeitado", icon: "🧴", description: "Incluye navaja, crema y aftershave.", price: 80.00, brands: [], stock: 15, type: 'product' },
@@ -896,9 +936,10 @@
         const generateWhatsAppMessage = (order) => {
             let message = `¡Hola! 👋 Quiero realizar el siguiente pedido:\n\n`;
             order.items.forEach(item => { 
-                const brand = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : ''; 
+                // CORRECCIÓN: Usar el adjustment del item del carrito
+                const brandsText = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : ''; 
                 const itemPrice = (item.price || 0) + (item.priceAdjustment || 0);
-                message += `▪️ ${item.quantity}x ${item.name}${brand} - ${formatCurrency(itemPrice * item.quantity)}\n`; 
+                message += `▪️ ${item.quantity}x ${item.name}${brandsText} - ${formatCurrency(itemPrice * item.quantity)}\n`; 
             });
             message += `\n💰 *Total: ${formatCurrency(order.total)}*\n\n📍 *Datos de Envío:*\nNombre: ${order.client.name}\nDirección: ${order.client.address}\nTeléfono: ${order.client.phone}\n\nID Pedido: ${order.date.split('T')[1].substring(0,8)}`;
             return encodeURIComponent(message);
@@ -989,6 +1030,7 @@
             const dateStr = order.date ? new Date(order.date).toLocaleDateString() : 'N/A';
             
             let itemsHtml = order.items.map(item => {
+                // CORRECCIÓN: Asegurar el uso correcto de price y priceAdjustment
                 const itemPrice = (item.price || 0) + (item.priceAdjustment || 0);
                 const brands = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : '';
                 return `
@@ -1088,7 +1130,7 @@
         };
 
         const seedInitialData = async () => { 
-            if (!window.db || !window.auth.currentUser) return; 
+            if (!window.db || !window.auth.currentUser || hasSeeded) return; // Añadido check a hasSeeded
             const ref = window.getProductsCollection(); 
             try { 
                 const snap = await window.getDocs(ref);
@@ -1260,10 +1302,10 @@
                         <div>
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">3</span>
-                                <h3 class="font-bold text-sm">Control de Envío</h3>
                             </div>
                             
                             ${canConfirm ? `
+                                <h3 class="font-bold text-sm">Confirmar Pedido</h3>
                                 <p class="text-xs text-gray-500 mb-2">Días estimados para entrega:</p>
                                 <div class="flex gap-2 mb-3">
                                     <input type="number" id="days-input-${orderId}" value="${estimatedDays}" class="w-16 p-1 border rounded text-center text-sm">
@@ -1273,11 +1315,13 @@
                                     Confirmar Pedido
                                 </button>
                             ` : isSent ? `
+                                <h3 class="font-bold text-sm">Estado Finalizado</h3>
                                 <div class="bg-blue-50 text-blue-800 p-2 rounded text-center text-sm font-bold flex items-center justify-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     ¡ENTREGADO!
                                 </div>
                             ` : `
+                                <h3 class="font-bold text-sm">Preparar Envío</h3>
                                 <p class="text-xs text-gray-500 mb-3">Estado: Confirmado (Entrega en ${estimatedDays} días)</p>
                                 <button onclick="sendOrder('${orderId}', '${order.client.phone}')" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 text-sm font-bold flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
@@ -1394,6 +1438,12 @@
             const modal = document.getElementById('cart-modal');
             if (modal && !modal.classList.contains('hidden')) renderCartItems();
         };
+        const getStockStatus = (stock) => {
+             const s = stock || 0;
+             if (s > 10) return { text: 'En Stock', class: 'text-stock-positive bg-green-100' };
+             if (s > 0) return { text: 'Stock Bajo', class: 'text-stock-low bg-amber-100' };
+             return { text: 'Encargo (Sin Stock)', class: 'text-stock-none bg-red-100' };
+        };
         const renderCartItems = () => {
             if(!cartItemsContainer) return;
             cartItemsContainer.innerHTML = '';
@@ -1404,23 +1454,27 @@
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.add('hidden');
             } else {
-                if(cartEmptyMessage) cartItemsContainer.classList.remove('hidden'); 
+                if(cartEmptyMessage) cartEmptyMessage.classList.add('hidden'); 
+                cartItemsContainer.classList.remove('hidden'); 
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.remove('hidden');
                 
                 cart.forEach((item, index) => {
                     if (!item) return; 
+                    // CORRECCIÓN: Usar item.priceAdjustment que se guardó en el carrito
                     const itemPrice = (item.price || 0) + (item.priceAdjustment || 0);
                     subtotal += itemPrice * (item.quantity || 1);
                     const p = products.find(x => x.id === item.productId);
                     const maxStock = p && p.type !== 'kit' ? p.stock : 999; 
-                    const stockWarning = maxStock > 0 && item.quantity > maxStock ? 
-                        `<div class="text-xs text-red-500 font-bold flex items-center gap-1 mt-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.666 1.776-3.088l-6.885-13.856c-.726-1.422-2.85-1.422-3.576 0L4.318 17.912C3.592 19.334 4.553 21 6.094 21z"></path></svg> Encargo: +${item.quantity - maxStock}</div>` : '';
+                    
+                    // CORRECCIÓN: Advertencia de stock fuera del modal (se muestra si la cantidad supera el stock)
+                    const stockWarning = (p && p.type !== 'kit' && maxStock > 0 && item.quantity > maxStock) ? 
+                         `<div class="text-xs text-red-500 font-bold flex items-center gap-1 mt-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.666 1.776-3.088l-6.885-13.856c-.726-1.422-2.85-1.422-3.576 0L4.318 17.912C3.592 19.334 4.553 21 6.094 21z"></path></svg> Encargo: +${item.quantity - maxStock}</div>` : '';
 
                     const iconSrc = item.icon || '📦';
                     const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="w-12 h-12 object-contain rounded bg-gray-50 p-1 border">` : `<span class="text-2xl">${iconSrc}</span>`;
                     
-                    // CORRECCIÓN: Mostrar la marca seleccionada justo debajo del nombre del producto.
+                    // CORRECCIÓN: Mostrar la marca/variante seleccionada.
                     const brandDisplay = item.selectedBrands && item.selectedBrands.length ? 
                         `<p class="text-xs text-gray-500 truncate bg-gray-100 inline-block px-1 rounded">${item.selectedBrands.join(', ')}</p>` : '';
 
@@ -1443,14 +1497,15 @@
             window.closeCartModal(); 
             const modal = document.getElementById('checkout-modal');
             if(modal) modal.classList.remove('hidden'); 
-            // Ya no llamamos a togglePaymentForm('whatsapp') aquí, el HTML está fijo.
+            // Inicializar campos de correo y teléfono (opcional)
+            const user = window.auth.currentUser;
+            if (user && user.email) document.getElementById('client-email').value = user.email;
         };
 
         window.closeCheckoutModal = () => {
             const modal = document.getElementById('checkout-modal');
             if(modal) modal.classList.add('hidden');
         };
-        // ELIMINAMOS togglePaymentForm ya que solo hay un método.
         
         window.processPayment = async (e) => {
             e.preventDefault();
@@ -1458,8 +1513,8 @@
             const userId = user.uid; 
             
             const clientName = document.getElementById('client-name').value;
-            const clientEmail = user.email || document.getElementById('client-email').value;
-            const method = 'whatsapp'; // Mantenemos el método fijo como WhatsApp
+            const clientEmail = document.getElementById('client-email').value; // Usar el campo del formulario si está lleno
+            
             // Recalculate total using adjustment for cart items
             const total = cart.reduce((sum, i) => sum + (((i.price || 0) + (i.priceAdjustment || 0)) * (i.quantity || 1)), 0);
             
@@ -1473,25 +1528,29 @@
                 }, 
                 items: cart, 
                 total, 
-                paymentMethod: method, 
+                paymentMethod: "whatsapp", 
                 status: "Pendiente (WhatsApp)", // Estado fijo
                 date: new Date().toISOString(), 
                 type: 'order' 
             };
             
             try {
-                await window.addDoc(window.getOrdersCollection(), newOrder);
+                // Generar un ID temporal para el mensaje de WhatsApp, antes de que Firestore le asigne uno.
+                const tempDocRef = await window.addDoc(window.getOrdersCollection(), newOrder);
+                // El ID real de Firestore será tempDocRef.id
             } catch (error) {
                 console.error("Error al guardar pedido en historial:", error);
                 alertMessage("Error al guardar pedido. Intenta nuevamente.", 'error');
+                return; // Detener el flujo si falla guardar en Firestore
             }
 
             // Flujo de WhatsApp fijo
             const phoneNumber = "50489333462"; 
             const message = generateWhatsAppMessage(newOrder); 
-            window.location.href = `https://wa.me/${phoneNumber}?text=${message}`; 
+            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank'); 
             
             closeCheckoutModal(); clearCart(); switchView('my_orders');
+            alertMessage('Pedido guardado. Abriendo WhatsApp para finalizar el pago.', 'success');
         };
         
         window.closeCartModal = () => {
@@ -1502,18 +1561,9 @@
         window.removeItemFromCart = (idx) => { cart.splice(idx, 1); saveCart(); renderCartItems(); };
         window.updateItemQuantity = (idx, qty) => { 
             const p = products.find(x => x.id === cart[idx].productId);
-            const maxStock = p && p.type !== 'kit' ? p.stock : 999; 
-
+            
             if (qty <= 0) { 
                 cart.splice(idx, 1);
-            } else if (p.type !== 'kit' && (p.stock || 0) > 0) {
-                if (qty > p.stock) {
-                    // Alert is now inside renderCartItems, but we log here if it exceeds stock
-                    console.warn(`Quantity requested (${qty}) exceeds stock (${p.stock}).`);
-                    cart[idx].quantity = qty; 
-                } else {
-                    cart[idx].quantity = qty;
-                }
             } else {
                 cart[idx].quantity = qty;
             }
@@ -1665,7 +1715,10 @@
 
         window.switchView = (view) => {
             clientView.classList.add('hidden'); adminView.classList.add('hidden'); myOrdersView.classList.add('hidden');
+            // Al cambiar la vista, forzamos que el header se muestre
+            header.classList.remove('header-hidden');
             window.scrollTo(0,0);
+            
             if (view === 'client') { clientView.classList.remove('hidden'); if(unsubscribeOrders) unsubscribeOrders(); } 
             else if (view === 'my_orders') { myOrdersView.classList.remove('hidden'); listenToMyOrders(); } 
             else if (view === 'admin') {
@@ -1685,39 +1738,61 @@
                 if(t === tab) { el.classList.add('bg-primary', 'text-white'); el.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100'); } 
                 else { el.classList.remove('bg-primary', 'text-white'); el.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100'); }
             });
-            if (tab === 'orders') { setAdminOrderFilter(adminOrderFilter); listenToAdminOrders(); } // Listen to orders only when on tab
-            else if (tab === 'inventory') renderAdminInventoryList(); 
+            if (tab === 'orders') { 
+                setAdminOrderFilter(adminOrderFilter); 
+                document.getElementById('admin-order-search-input').value = ''; 
+                listenToAdminOrders(); 
+            }
+            else if (tab === 'inventory') { 
+                document.getElementById('admin-inventory-search-input').value = ''; 
+                filterAdminInventory(''); 
+            }
             else if (tab === 'settings') renderCategoriesList();
-            else if (tab === 'products') { if(unsubscribeOrders) unsubscribeOrders(); renderAdminProductList(); }
+            else if (tab === 'products') { 
+                if(unsubscribeOrders) unsubscribeOrders(); 
+                document.getElementById('admin-product-search-input').value = ''; 
+                filterAdminProducts(''); 
+            }
         };
 
         // --- INVENTORY MANAGEMENT ---
-        window.renderAdminInventoryList = () => {
-            const inventoryTableBody = document.getElementById('admin-inventory-table-body');
-            const simpleProducts = products.filter(p => p.type !== 'kit');
-            inventoryTableBody.innerHTML = '';
-            document.getElementById('inventory-empty-message').classList.toggle('hidden', simpleProducts.length > 0);
+        window.filterAdminInventory = (term) => {
+             const searchTerm = term.toLowerCase().trim();
+             const inventoryTableBody = document.getElementById('admin-inventory-table-body');
+             const simpleProducts = products.filter(p => p.type !== 'kit');
+             inventoryTableBody.innerHTML = '';
+             
+             const filtered = simpleProducts.filter(p => 
+                 (p.name?.toLowerCase() || '').includes(searchTerm) || 
+                 (p.category?.toLowerCase() || '').includes(searchTerm)
+             );
 
-            simpleProducts.forEach(p => {
-                const stock = p.stock || 0;
-                const stockClass = stock > 10 ? 'text-stock-positive' : stock > 0 ? 'text-stock-low' : 'text-stock-none';
-                
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 transition';
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-medium text-gray-900">${p.name}</td>
-                    <td class="px-4 py-3 text-sm text-gray-500">${p.category}</td>
-                    <td class="px-4 py-3 text-center font-bold text-lg ${stockClass}">${stock}</td>
-                    <td class="px-4 py-3">
-                        <div class="flex gap-2 items-center">
-                            <input type="number" id="qty-input-${p.id}" value="1" min="1" class="w-16 p-2 border border-gray-300 rounded-lg text-center text-sm">
-                            <button onclick="adjustStock('${p.id}', true)" class="bg-green-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-green-600 transition font-bold">+ Entrada</button>
-                            <button onclick="adjustStock('${p.id}', false)" class="bg-red-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-red-600 transition font-bold">- Salida</button>
-                        </div>
-                    </td>
-                `;
-                inventoryTableBody.appendChild(tr);
-            });
+             document.getElementById('inventory-empty-message').classList.toggle('hidden', filtered.length > 0);
+
+             filtered.forEach(p => {
+                 const stock = p.stock || 0;
+                 const stockClass = stock > 10 ? 'text-stock-positive' : stock > 0 ? 'text-stock-low' : 'text-stock-none';
+                 
+                 const tr = document.createElement('tr');
+                 tr.className = 'hover:bg-gray-50 transition';
+                 tr.innerHTML = `
+                      <td class="px-4 py-3 font-medium text-gray-900">${p.name}</td>
+                      <td class="px-4 py-3 text-sm text-gray-500">${p.category}</td>
+                      <td class="px-4 py-3 text-center font-bold text-lg ${stockClass}">${stock}</td>
+                      <td class="px-4 py-3">
+                          <div class="flex gap-2 items-center">
+                              <input type="number" id="qty-input-${p.id}" value="1" min="1" class="w-16 p-2 border border-gray-300 rounded-lg text-center text-sm">
+                              <button onclick="adjustStock('${p.id}', true)" class="bg-green-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-green-600 transition font-bold">+ Entrada</button>
+                              <button onclick="adjustStock('${p.id}', false)" class="bg-red-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-red-600 transition font-bold">- Salida</button>
+                          </div>
+                      </td>
+                 `;
+                 inventoryTableBody.appendChild(tr);
+             });
+        };
+        
+        window.renderAdminInventoryList = () => {
+             filterAdminInventory(document.getElementById('admin-inventory-search-input')?.value || '');
         };
 
         window.adjustStock = async (id, isAddition) => {
@@ -1759,6 +1834,33 @@
         };
         // --- END INVENTORY MANAGEMENT ---
 
+        // --- ADMIN PRODUCTS CRUD LIST ---
+        window.filterAdminProducts = (term) => {
+            const searchTerm = term.toLowerCase().trim();
+            const filtered = products.filter(p => 
+                (p.name?.toLowerCase() || '').includes(searchTerm) || 
+                (p.description?.toLowerCase() || '').includes(searchTerm) ||
+                (p.type?.toLowerCase() || '').includes(searchTerm)
+            );
+
+            if(filtered.length === 0) {
+                adminProductList.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No hay productos que coincidan con la búsqueda.</td></tr>';
+                return;
+            }
+
+            adminProductList.innerHTML = filtered.map(p => {
+                const isKit = p.type === 'kit';
+                const iconSrc = p.icon || (isKit ? '🎒' : '📦');
+                const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="w-10 h-10 object-contain rounded border bg-gray-50">` : `<span class="text-xl">${iconSrc}</span>`;
+                return `<tr class="hover:bg-gray-50 transition"><td class="px-4 py-3">${iconDisplay}</td><td class="px-4 py-3 font-medium text-gray-900">${p.name || 'Sin Nombre'}</td><td class="px-4 py-3 text-gray-500 text-sm"><span class="${isKit ? 'bg-indigo-100 text-indigo-800 font-bold' : 'bg-gray-100'} px-2 py-1 rounded text-xs">${isKit ? 'KIT / COMBO' : (p.category || 'General')}</span></td><td class="px-4 py-3 font-mono text-sm">${formatCurrency(p.price)}</td><td class="px-4 py-3"><div class="flex gap-2"><button onclick="editProduct('${p.id}')" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition">Editar</button><button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition">Borrar</button></div></td></tr>`;
+            }).join('');
+        };
+        window.renderAdminProductList = () => {
+             filterAdminProducts(document.getElementById('admin-product-search-input')?.value || '');
+        };
+        // --- END ADMIN PRODUCTS CRUD LIST ---
+
+
         window.setAdminOrderFilter = (status) => {
             adminOrderFilter = status;
             ['all', 'Pendiente', 'Confirmado', 'Enviado'].forEach(s => {
@@ -1778,6 +1880,12 @@
             });
             listenToAdminOrders(); // Re-render with new filter
         };
+        
+        // --- ADMIN ORDER SEARCH/FILTER ---
+        window.filterAdminOrders = () => {
+             // La función listenToAdminOrders se llama directamente y usa el valor del input.
+             listenToAdminOrders();
+        }
 
 
         const listenToAdminOrders = () => {
@@ -1786,10 +1894,30 @@
             unsubscribeOrders = window.onSnapshot(q, s => {
                 orders = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(b.date) - new Date(a.date));
                 
-                // Calculate counts
+                // --- FILTRADO DE ESTADO Y BÚSQUEDA ---
+                const searchInput = document.getElementById('admin-order-search-input');
+                const searchTerm = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+                const filteredOrders = orders.filter(o => {
+                    // 1. Filtrado por Estado
+                    const rawStatus = o.status || 'Pendiente';
+                    const currentStatus = rawStatus.includes('Confirmado') ? 'Confirmado' : rawStatus.includes('Enviado') ? 'Enviado' : 'Pendiente';
+                    
+                    if (adminOrderFilter !== 'all' && currentStatus !== adminOrderFilter) return false;
+
+                    // 2. Filtrado por Búsqueda
+                    if (searchTerm === '') return true;
+                    return (o.client.name?.toLowerCase() || '').includes(searchTerm) ||
+                           (o.client.phone || '').includes(searchTerm);
+                });
+                // --- FIN FILTRADO ---
+
+
+                // Calculate counts for UI
                 const statusCounts = { 'all': orders.length, 'Pendiente': 0, 'Confirmado': 0, 'Enviado': 0 };
                 orders.forEach(o => {
-                    const status = o.status.includes('Confirmado') ? 'Confirmado' : o.status.includes('Enviado') ? 'Enviado' : 'Pendiente';
+                    const rawStatus = o.status || 'Pendiente';
+                    const status = rawStatus.includes('Confirmado') ? 'Confirmado' : rawStatus.includes('Enviado') ? 'Enviado' : 'Pendiente';
                     if (statusCounts[status] !== undefined) statusCounts[status]++;
                 });
 
@@ -1800,16 +1928,7 @@
                 });
 
 
-                const filteredOrders = orders.filter(o => {
-                    if (adminOrderFilter === 'all') return true;
-                    if (adminOrderFilter === 'Pendiente') return o.status.includes('Pendiente');
-                    if (adminOrderFilter === 'Confirmado') return o.status.includes('Confirmado') && !o.status.includes('Enviado');
-                    if (adminOrderFilter === 'Enviado') return o.status.includes('Enviado');
-                    return true;
-                });
-
-
-                if (filteredOrders.length === 0) { adminOrderList.innerHTML = '<div class="bg-white p-8 text-center rounded-xl shadow-sm"><p class="text-gray-500">No hay pedidos en este estado.</p></div>'; renderDashboardMetrics(); return; }
+                if (filteredOrders.length === 0) { adminOrderList.innerHTML = `<div class="bg-white p-8 text-center rounded-xl shadow-sm"><p class="text-gray-500">No hay pedidos que coincidan con los filtros.</p></div>`; renderDashboardMetrics(); return; }
                 
                 let tableHtml = `<div class="bg-white rounded-xl shadow overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Artículos</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">`;
                 tableHtml += filteredOrders.map(o => {
@@ -1820,9 +1939,10 @@
                     }).join('');
                     const dateStr = o.date ? new Date(o.date).toLocaleDateString() + ' ' + new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A';
                     
+                    const rawStatus = o.status || 'Pendiente';
                     let statusClass = 'bg-yellow-100 text-yellow-800';
-                    if (o.status.includes('Confirmado')) statusClass = 'bg-green-100 text-green-800';
-                    if (o.status.includes('Enviado')) statusClass = 'bg-blue-100 text-blue-800';
+                    if (rawStatus.includes('Confirmado')) statusClass = 'bg-green-100 text-green-800';
+                    if (rawStatus.includes('Enviado')) statusClass = 'bg-blue-100 text-blue-800';
                     
                     return `<tr class="hover:bg-gray-50"><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-bold text-gray-900">${o.client?.name || 'Cliente'}</div><div class="text-xs text-gray-500">${o.client?.phone || ''}</div><div class="text-xs text-gray-400 truncate w-40">${o.client?.email || ''}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td><td class="px-6 py-4"><div class="flex flex-wrap">${itemsSummary}</div></td><td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${formatCurrency(o.total)}</td><td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${o.status || 'Pendiente'}</span></td><td class="px-6 py-4"><div class="flex flex-col gap-1"><button onclick="manageOrder('${o.id}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-200 transition w-full">Gestionar</button><button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-red-100 transition w-full">Eliminar</button></div></td></tr>`;
                 }).join('');
@@ -1834,14 +1954,19 @@
         const listenToMyOrders = () => {
             if (unsubscribeOrders) unsubscribeOrders();
             const uid = window.getCurrentUserId();
-            if (!uid) return;
+            if (!uid || window.auth.currentUser?.isAnonymous) {
+                myOrdersList.innerHTML = '<div class="text-center py-12 bg-white rounded-xl shadow-sm"><svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg><p class="text-gray-500">Inicia sesión con tu cuenta para ver tu historial de pedidos.</p></div>';
+                return;
+            }
+            
             const q = window.query(window.getOrdersCollection(), window.where('type', '==', 'order'), window.where("userId", "==", uid));
             unsubscribeOrders = window.onSnapshot(q, s => {
                 const myOrds = s.docs.map(d => d.data()).sort((a,b) => new Date(b.date) - new Date(a.date));
                 myOrdersList.innerHTML = myOrds.length ? myOrds.map(o => {
+                    const rawStatus = o.status || 'Pendiente';
                     let statusClass = 'bg-yellow-100 text-yellow-800';
-                    if (o.status.includes('Confirmado')) statusClass = 'bg-green-100 text-green-800';
-                    if (o.status.includes('Enviado')) statusClass = 'bg-blue-100 text-blue-800';
+                    if (rawStatus.includes('Confirmado')) statusClass = 'bg-green-100 text-green-800';
+                    if (rawStatus.includes('Enviado')) statusClass = 'bg-blue-100 text-blue-800';
 
                     return `<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition"><div class="flex justify-between items-center border-b pb-3 mb-3"><span class="font-bold text-primary text-lg">Pedido del ${o.date ? new Date(o.date).toLocaleDateString() : ''}</span><span class="${statusClass} text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wide">${o.status || 'Pendiente'}</span></div><ul class="text-sm text-gray-600 mb-3 space-y-2 pl-2 border-l-2 border-gray-100">${(o.items || []).map(i => `<li><span class="font-bold text-gray-800">${i.quantity}x</span> ${i.name} ${i.selectedBrands && i.selectedBrands.length ? '<span class="text-xs text-gray-400">('+i.selectedBrands.join(', ')+')</span>' : ''}</li>`).join('')}</ul><div class="text-right font-extrabold text-xl text-gray-800 pt-2">Total: ${formatCurrency(o.total)}</div></div>`;
                 }).join('') : '<div class="text-center py-12 bg-white rounded-xl shadow-sm"><svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><p class="text-gray-500">Aún no tienes pedidos en tu historial.</p></div>';
@@ -1907,35 +2032,26 @@
             generateProductSections();
         };
 
-        const renderAdminProductList = () => {
-            if(products.length === 0) {
-                adminProductList.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No hay productos inventariados.</td></tr>';
-                return;
-            }
-            adminProductList.innerHTML = products.map(p => {
-                const isKit = p.type === 'kit';
-                const iconSrc = p.icon || (isKit ? '🎒' : '📦');
-                const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="w-10 h-10 object-contain rounded border bg-gray-50">` : `<span class="text-xl">${iconSrc}</span>`;
-                return `<tr class="hover:bg-gray-50 transition"><td class="px-4 py-3">${iconDisplay}</td><td class="px-4 py-3 font-medium text-gray-900">${p.name || 'Sin Nombre'}</td><td class="px-4 py-3 text-gray-500 text-sm"><span class="${isKit ? 'bg-indigo-100 text-indigo-800 font-bold' : 'bg-gray-100'} px-2 py-1 rounded text-xs">${isKit ? 'KIT / COMBO' : (p.category || 'General')}</span></td><td class="px-4 py-3 font-mono text-sm">${formatCurrency(p.price)}</td><td class="px-4 py-3"><div class="flex gap-2"><button onclick="editProduct('${p.id}')" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition">Editar</button><button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition">Borrar</button></div></td></tr>`;
-            }).join('');
-        };
+        // CORRECCIÓN: Esta función ahora se declara solo una vez
+        function renderProductCard(p) {
+            const iconSrc = p.icon || '📦';
+            const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-32 w-full object-contain transition-transform duration-500 group-hover:scale-110">` : `<span class="text-6xl transform transition duration-500 group-hover:scale-110 block text-center">${iconSrc}</span>`;
+            
+            const stockStatus = p.type !== 'kit' && p.stock <= 0 ? `<span class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">PEDIDO X ENCARGO</span>` : '';
+            const opacityClass = ''; 
 
-        const getStockStatus = (stock) => {
-            if (stock > 10) return { text: 'En Stock', class: 'text-stock-positive bg-green-100' };
-            if (stock > 0) return { text: 'Bajo Stock', class: 'text-stock-low bg-yellow-100' };
-            if (stock <= 0) return { text: 'Pedido por Encargo', class: 'text-primary bg-indigo-100 border border-primary' };
-            return { text: 'Agotado', class: 'text-stock-none bg-red-100' };
+            return `<div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 ${opacityClass}"><div class="h-48 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">${iconDisplay}${stockStatus}<div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div class="p-5"><h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition text-lg">${p.name || 'Producto'}</h3><p class="text-sm text-gray-500 line-clamp-2 h-10 mb-4">${p.description || ''}</p><div class="flex justify-between items-center border-t pt-3"><span class="text-xl font-extrabold text-primary">${formatCurrency(p.price)}</span><button class="bg-secondary hover:bg-yellow-400 text-primary p-2 rounded-full shadow-sm transition transform active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button></div></div></div>`;
         };
-
+        
         const generateProductSections = () => {
             const cats = {};
             const kits = [];
             
             // 1. Filtrar primero por término de búsqueda y clasificar.
             const filteredProducts = products.filter(p => 
-                p.name.toLowerCase().includes(currentSearchTerm) || 
-                p.description.toLowerCase().includes(currentSearchTerm) ||
-                (p.category || '').toLowerCase().includes(currentSearchTerm)
+                (p.name?.toLowerCase() || '').includes(currentSearchTerm) || 
+                (p.description?.toLowerCase() || '').includes(currentSearchTerm) ||
+                (p.category?.toLowerCase() || '').includes(currentSearchTerm)
             );
 
             filteredProducts.forEach(p => {
@@ -1954,8 +2070,11 @@
             
             navHtml += renderSidebarLink('Todos los Productos', 'all', currentCategoryFilter, totalProducts);
 
-            if (filteredProducts.filter(p => p.type === 'kit').length > 0) {
-                 navHtml += renderSidebarLink('Kits y Combos', 'Kits', currentCategoryFilter, kits.length);
+            if (products.filter(p => p.type === 'kit').length > 0) { // Mostrar link de Kits si hay kits en el catalogo (sin filtro de búsqueda)
+                 const kitCountInFilter = filteredProducts.filter(p => p.type === 'kit').length;
+                 if (kitCountInFilter > 0) {
+                     navHtml += renderSidebarLink('Kits y Combos', 'Kits', currentCategoryFilter, kitCountInFilter);
+                 }
             }
             
             const sortedCategories = allCategories.filter(cat => cat !== 'Kits');
@@ -1974,83 +2093,69 @@
             
             const heroKitsScrollContainer = heroKitsContainer.querySelector('.kits-scroll-container');
             
-            // Si no hay término de búsqueda O el filtro es 'all' o 'Kits', mostramos los kits en el hero
+            // Si no hay término de búsqueda Y el filtro es 'all' o 'Kits', mostramos los kits en el hero
             if (currentSearchTerm === '' && kits.length > 0 && (currentCategoryFilter === 'all' || currentCategoryFilter === 'Kits')) {
                 heroKitsContainer.classList.remove('hidden');
                 heroKitsScrollContainer.innerHTML = kits.map(k => {
-                     const iconSrc = k.icon || '🎒';
-                     const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-20 w-full object-contain mb-2">` : `<div class="text-5xl mb-2 text-center">${iconSrc}</div>`;
-                     return `<div onclick="openProductModal('${k.id}')" class="flex-shrink-0 w-48 bg-white/90 backdrop-blur rounded-lg p-3 cursor-pointer hover:bg-white transition transform hover:scale-105 shadow-lg border-2 border-transparent hover:border-secondary snap-center flex flex-col h-full justify-between">
-                         <div>
-                             <div class="bg-gray-50 rounded p-2 mb-2">${iconDisplay}</div>
-                             <h4 class="font-bold text-sm text-primary leading-tight mb-1">${k.name}</h4>
-                             <p class="text-xs text-gray-500 line-clamp-2">${k.description}</p>
-                         </div>
-                         <div class="mt-2 font-extrabold text-lg text-secondary text-right">${formatCurrency(k.price)}</div>
-                     </div>`;
-                 }).join('');
+                    const iconSrc = k.icon || '🎒';
+                    const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-20 w-full object-contain mb-2">` : `<div class="text-5xl mb-2 text-center">${iconSrc}</div>`;
+                    return `<div onclick="openProductModal('${k.id}')" class="flex-shrink-0 w-48 bg-white/90 backdrop-blur rounded-lg p-3 cursor-pointer hover:bg-white transition transform hover:scale-105 shadow-lg border-2 border-transparent hover:border-secondary snap-center flex flex-col h-full justify-between">
+                            <div>
+                                 <div class="bg-gray-50 rounded p-2 mb-2">${iconDisplay}</div>
+                                 <h4 class="font-bold text-sm text-primary leading-tight mb-1">${k.name}</h4>
+                                 <p class="text-xs text-gray-500 line-clamp-2">${k.description}</p>
+                            </div>
+                            <div class="mt-2 font-extrabold text-lg text-secondary text-right">${formatCurrency(k.price)}</div>
+                        </div>`;
+                    }).join('');
             } else {
                 heroKitsContainer.classList.add('hidden');
                 heroKitsScrollContainer.innerHTML = '';
             }
 
-            const categoriesToRender = [];
-            const isCategoryFilterApplied = currentCategoryFilter !== 'all' && currentCategoryFilter !== 'Kits';
+            // Aplicar el filtro de categoría al contenido
+            const productsToDisplay = [];
             
-            if (isCategoryFilterApplied) {
-                 if (cats[currentCategoryFilter]) categoriesToRender.push(currentCategoryFilter);
-            } else if (currentCategoryFilter === 'all' || currentCategoryFilter === 'Kits') {
-                 // Si hay término de búsqueda, mostramos los kits como una sección normal si el filtro es 'all' o 'Kits'
-                 if (currentSearchTerm !== '' && kits.length > 0 && currentCategoryFilter !== 'Kits') {
-                    // Si el usuario busca y selecciona "Todos", mostramos los kits y productos en sus secciones
-                    categoriesToRender.push('Kits'); // Kits como categoría si hay búsqueda
-                 } else if (currentCategoryFilter === 'Kits' && currentSearchTerm === '') {
-                     // If just 'Kits' is selected, the list is displayed in the hero. Render nothing below.
+            if (currentCategoryFilter === 'all') {
+                productsToDisplay.push(...filteredProducts);
+            } else if (currentCategoryFilter === 'Kits') {
+                 // Si el filtro es Kits, solo mostramos los kits si hay una búsqueda, si no, se muestran en el hero.
+                 if (currentSearchTerm !== '') {
+                      productsToDisplay.push(...kits);
+                 } else {
+                      // No renderizar nada en la sección principal si solo es el filtro Kits y no hay búsqueda
                  }
-                 
-                 // Mostrar categorías de productos (filtrando kits si no se seleccionó "all")
-                 sortedCategories.forEach(cat => {
-                    if (cats[cat] && cats[cat].length > 0) categoriesToRender.push(cat);
-                 });
+            } else {
+                // Filtro por categoría específica
+                if (cats[currentCategoryFilter]) {
+                    productsToDisplay.push(...cats[currentCategoryFilter]);
+                }
+            }
+            
+            // Si el filtro no es 'Kits' y no hay búsqueda (o sí la hay y devuelve resultados)
+            if (currentCategoryFilter !== 'Kits' || currentSearchTerm !== '') {
+                 if (productsToDisplay.length > 0) {
+                     const sectionTitle = currentSearchTerm !== '' ? 'Resultados de Búsqueda' : 
+                                          currentCategoryFilter === 'all' ? 'Todos los Productos' : 
+                                          currentCategoryFilter;
+                     
+                     const id = sectionTitle.replace(/\s+/g, '-').toLowerCase();
+                     html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${sectionTitle}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToDisplay.map(renderProductCard).join('')}</div></section>`;
+                 } else if (filteredProducts.length === 0) {
+                      html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
+                 }
+            } else if (currentCategoryFilter === 'Kits' && currentSearchTerm === '' && kits.length > 0) {
+                 // Dejar vacío ya que se muestran en el Hero, pero asegurar que no se muestre el "no encontrado"
+            } else if (filteredProducts.length === 0) {
+                 html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
             }
 
-            if (filteredProducts.length === 0) {
-                 html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
-            } else if (currentSearchTerm !== '' || currentCategoryFilter === 'Kits') {
-                // If search term exists, or only Kits is selected, render all matches in one section if filtered
-                if (currentCategoryFilter === 'all' && currentSearchTerm !== '') {
-                    html = `<section id="search-results" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">Resultados de Búsqueda<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${filteredProducts.map(renderProductCard).join('')}</div></section>`;
-                } else if (currentCategoryFilter === 'Kits' && currentSearchTerm === '') {
-                    // If just 'Kits' is selected, the list is displayed in the hero. Render nothing below.
-                } else {
-                    categoriesToRender.forEach(cat => {
-                        const productsToRender = cat === 'Kits' ? kits : cats[cat];
-                         const id = cat.replace(/\s+/g, '-').toLowerCase();
-                         html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${cat}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToRender.map(renderProductCard).join('')}</div></section>`;
-                    });
-                }
-            } else {
-                 categoriesToRender.forEach(cat => {
-                     const productsToRender = cats[cat];
-                     const id = cat.replace(/\s+/g, '-').toLowerCase();
-                     html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${cat}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToRender.map(renderProductCard).join('')}</div></section>`;
-                 });
-            }
 
             productsContainer.innerHTML = html;
             // --- FIN RENDER CONTENIDO PRINCIPAL ---
         };
 
-        const renderProductCard = (p) => {
-            const iconSrc = p.icon || '📦';
-            const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-32 w-full object-contain transition-transform duration-500 group-hover:scale-110">` : `<span class="text-6xl transform transition duration-500 group-hover:scale-110 block text-center">${iconSrc}</span>`;
-            
-            const stockStatus = p.type !== 'kit' && p.stock <= 0 ? `<span class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">PEDIDO X ENCARGO</span>` : '';
-            const opacityClass = ''; 
-
-            return `<div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 ${opacityClass}"><div class="h-48 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">${iconDisplay}${stockStatus}<div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div class="p-5"><h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition text-lg">${p.name || 'Producto'}</h3><p class="text-sm text-gray-500 line-clamp-2 h-10 mb-4">${p.description || ''}</p><div class="flex justify-between items-center border-t pt-3"><span class="text-xl font-extrabold text-primary">${formatCurrency(p.price)}</span><button class="bg-secondary hover:bg-yellow-400 text-primary p-2 rounded-full shadow-sm transition transform active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button></div></div></div>`;
-        };
-
+        // CORRECCIÓN: Esta función ahora se declara solo una vez
         const calculateFinalPrice = (basePrice, adjustment) => {
             return (parseFloat(basePrice) || 0) + (parseFloat(adjustment) || 0);
         };
@@ -2071,7 +2176,7 @@
             const iconSrc = p.icon || '📦';
             
             if (iconSrc.startsWith('data:image')) {
-                iconContainer.innerHTML = `<img src="${iconSrc}" class="h-40 w-40 object-contain mx-auto rounded-lg border bg-white" data-src="${iconSrc}">`;
+                iconContainer.innerHTML = `<img src="${iconSrc}" class="h-40 w-40 object-contain mx-auto rounded-lg border bg-white" data-src="${iconSrc}" onerror="this.onerror=null;this.src='https://placehold.co/160x160/1E3A8A/ffffff?text=IMG'">`;
             } else {
                 iconContainer.innerHTML = `<span class="text-8xl block text-center" data-src="${iconSrc}">${iconSrc}</span>`;
             }
@@ -2094,12 +2199,24 @@
                 kitContents.classList.add('hidden');
                 brandsSection.classList.remove('hidden');
                 brandsContainer.innerHTML = '';
+                // Limpiar cualquier selección previa
+                brandsContainer.dataset.selectedBrand = ''; 
+
                 if(p.brands && p.brands.length) {
                     noBrandsMsg.classList.add('hidden');
                     brandsContainer.innerHTML = p.brands.map(b => {
-                        const adjustmentDisplay = b.priceAdjustment && parseFloat(b.priceAdjustment) !== 0 ? 
-                                `<span class="text-xs ${parseFloat(b.priceAdjustment) > 0 ? 'text-red-500' : 'text-green-500'}">(${parseFloat(b.priceAdjustment) >= 0 ? '+' : ''}${formatCurrency(b.priceAdjustment)})</span>` : '';
-                        return `<div onclick="toggleBrandSelection(this, ${b.priceAdjustment || 0})" data-name="${b.name}" data-adjustment="${b.priceAdjustment || 0}" class="cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-lg p-2 bg-white text-center transition-all duration-200 group transform hover:scale-[1.02]"><div class="w-full h-24 bg-gray-50 rounded-md mb-2 overflow-hidden border border-gray-100"><img src="${b.imageUrl}" onerror="this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'" class="w-full h-full object-contain group-hover:scale-105 transition"></div><span class="text-sm font-bold block truncate text-gray-700 group-hover:text-primary">${b.name}</span>${adjustmentDisplay}</div>`;
+                        const adjustment = parseFloat(b.priceAdjustment) || 0;
+                        const adjustmentDisplay = adjustment !== 0 ? 
+                                `<span class="text-xs ${adjustment > 0 ? 'text-red-500' : 'text-green-500'}">(${adjustment >= 0 ? '+' : ''}${formatCurrency(adjustment)})</span>` : '';
+                        
+                        // Añadir data-attributes para capturar la selección
+                        return `<div onclick="toggleBrandSelection(this, '${b.name}', ${adjustment})" data-name="${b.name}" data-adjustment="${adjustment}" class="cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-lg p-2 bg-white text-center transition-all duration-200 group transform hover:scale-[1.02]">
+                                <div class="w-full h-24 bg-gray-50 rounded-md mb-2 overflow-hidden border border-gray-100">
+                                    <img src="${b.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'" class="w-full h-full object-contain group-hover:scale-105 transition">
+                                </div>
+                                <span class="text-sm font-bold block truncate text-gray-700 group-hover:text-primary">${b.name}</span>
+                                ${adjustmentDisplay}
+                            </div>`;
                     }).join('');
                 } else { noBrandsMsg.classList.remove('hidden'); }
             }
@@ -2113,20 +2230,31 @@
             productModal.classList.add('hidden');
         };
         
-        window.toggleBrandSelection = (el, adjustment) => { 
+        window.toggleBrandSelection = (el, name, adjustment) => { 
+            const brandsContainer = document.getElementById('modal-brands-container');
             const basePriceEl = document.getElementById('modal-product-price');
             const basePrice = parseFloat(basePriceEl.getAttribute('data-base-price'));
             
+            const isSelected = el.classList.contains('border-secondary');
+
             document.querySelectorAll('#modal-brands-container > div').forEach(d => {
                 d.classList.remove('border-secondary', 'bg-blue-50', 'border-4', 'shadow-md', 'scale-[1.03]');
                 d.classList.add('border-2', 'border-gray-200');
             });
             
-            el.classList.add('border-secondary', 'bg-blue-50', 'border-4', 'shadow-md', 'scale-[1.03]');
-            el.classList.remove('border-gray-200', 'hover:border-gray-400'); 
-
-            const finalPrice = calculateFinalPrice(basePrice, adjustment);
-            basePriceEl.textContent = formatCurrency(finalPrice);
+            // Si estaba seleccionado, se deselecciona. Si no, se selecciona.
+            if (!isSelected) {
+                 el.classList.add('border-secondary', 'bg-blue-50', 'border-4', 'shadow-md', 'scale-[1.03]');
+                 el.classList.remove('border-gray-200', 'hover:border-gray-400'); 
+                 const finalPrice = calculateFinalPrice(basePrice, adjustment);
+                 basePriceEl.textContent = formatCurrency(finalPrice);
+                 brandsContainer.dataset.selectedBrand = name;
+                 brandsContainer.dataset.selectedAdjustment = adjustment;
+            } else {
+                 basePriceEl.textContent = formatCurrency(basePrice);
+                 brandsContainer.dataset.selectedBrand = '';
+                 brandsContainer.dataset.selectedAdjustment = 0;
+            }
         };
 
         window.addToCart = (id) => {
@@ -2134,22 +2262,25 @@
             
             let selectedBrands = [];
             let priceAdjustment = 0;
-            const selEl = document.querySelector('#modal-brands-container > div.border-secondary');
-            
-            if(p.type !== 'kit' && p.brands && p.brands.length) {
-                // CORRECCIÓN: Asegurarse de que la variante fue seleccionada
-                if(!selEl) return alertMessage('Debes seleccionar una opción (Talla/Tipo).', 'error');
+            const brandsContainer = document.getElementById('modal-brands-container');
+            const selectedBrandName = brandsContainer.dataset.selectedBrand;
+            const hasBrands = p.brands && p.brands.length > 0;
+
+            if (hasBrands) {
+                if (!selectedBrandName) {
+                    return alertMessage('Debes seleccionar una opción (Talla/Tipo).', 'error');
+                }
                 
-                // CORRECCIÓN: Capturar los datos de la variante seleccionada.
-                selectedBrands.push(selEl.dataset.name);
-                priceAdjustment = parseFloat(selEl.dataset.adjustment) || 0;
+                selectedBrands.push(selectedBrandName);
+                priceAdjustment = parseFloat(brandsContainer.dataset.selectedAdjustment) || 0;
             }
             
+            // Re-evaluar stock (Solo para productos no-kit)
             if (p.type !== 'kit' && (p.stock || 0) > 0) {
                  const currentQuantityInCart = cart.filter(item => item.productId === id).reduce((sum, item) => sum + item.quantity, 0);
                  if ((currentQuantityInCart + 1) > p.stock) {
-                    // Warning is now handled in renderCartItems, allowing the item to be added.
-                   }
+                    // Si excede el stock, se añadirá como encargo. El warning se maneja en renderCartItems.
+                 }
             }
             
             cart.push({ 
@@ -2158,9 +2289,9 @@
                 name: p.name, 
                 icon: p.icon, 
                 price: p.price, 
-                priceAdjustment: priceAdjustment, // NEW: Se incluye el ajuste de precio
+                priceAdjustment: priceAdjustment, // Se incluye el ajuste de precio
                 quantity: 1, 
-                selectedBrands: selectedBrands // NEW: Se incluye el nombre de la variante
+                selectedBrands: selectedBrands // Se incluye el nombre de la variante
             });
             saveCart(); alertMessage('¡Añadido al carrito!', 'success'); closeProductModal();
         };
@@ -2223,17 +2354,18 @@
         window.editBrandInline = async (e, productId, brandName) => {
             e.preventDefault();
             const p = products.find(x => x.id === productId);
-            const brand = p.brands.find(b => b.name === brandName);
+            const brand = (p.brands || []).find(b => b.name === brandName);
 
             if (!brand) {
                 return alertMessage(`Error: No se encontró la variante "${brandName}".`, 'error');
             }
 
             const newName = prompt(`Editar nombre para "${brandName}":`, brand.name);
-            // Use String() to ensure we handle the null/empty string case correctly before parseFloat
+            if (newName === null || newName.trim() === '') return;
+
             const newAdjustmentStr = prompt(`Editar ajuste de precio para "${newName.trim()}" (Ej: 25.00 o -5.00):`, String(brand.priceAdjustment || 0));
 
-            if (newName === null || newAdjustmentStr === null) return;
+            if (newAdjustmentStr === null) return;
 
             const newAdjustment = parseFloat(newAdjustmentStr);
 
@@ -2284,7 +2416,7 @@
             editProduct(pid); 
         };
         
-        window.deleteBrandFromProduct = async (e, pid, name) => { e.preventDefault(); if(await window.customConfirm('¿Estás seguro de eliminar esta variante?')) { const p = products.find(x => x.id === pid); const brands = p.brands.filter(b => b.name !== name); await window.updateDoc(window.getProductDoc(pid), { brands }); alertMessage('Variante eliminada.', 'success'); editProduct(pid); }};
+        window.deleteBrandFromProduct = async (e, pid, name) => { e.preventDefault(); if(await window.customConfirm('¿Estás seguro de eliminar esta variante?')) { const p = products.find(x => x.id === pid); const brands = (p.brands || []).filter(b => b.name !== name); await window.updateDoc(window.getProductDoc(pid), { brands }); alertMessage('Variante eliminada.', 'success'); editProduct(pid); }};
         window.deleteProduct = async (id) => { if(await window.customConfirm('¿Estás seguro de borrar este ítem?')) { await window.deleteDoc(window.getProductDoc(id)); alertMessage('Eliminado.', 'success'); resetAdminForm(); }};
         window.resetAdminForm = () => { 
             addProductForm.reset(); 
@@ -2331,7 +2463,9 @@
         document.addEventListener('DOMContentLoaded', () => { 
             fillCategorySelect(); 
             loadCart(); 
-            seedInitialData(); 
+            // seedInitialData(); // REMOVED: Ahora se llama dentro de onAuthStateChanged
+            // NEW: Add scroll listener for header
+            window.addEventListener('scroll', handleScroll);
         });
         
         window.addEventListener('hashchange', () => {
@@ -2341,6 +2475,24 @@
                 setTimeout(() => openProductModal(productId), 100); 
             }
         });
+        
+        // NEW: Scroll Hide/Show Logic
+        let lastScrollTop = 0;
+        const header = document.getElementById('header-main');
+        const headerHeight = 70; // Altura fija del header en px (estimación basada en py-3)
+
+        function handleScroll() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop && scrollTop > headerHeight) {
+                // Scrolling down
+                header.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollTop || scrollTop < headerHeight) {
+                // Scrolling up or near top
+                header.classList.remove('header-hidden');
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For mobile browsers
+        }
         
         const fillCategorySelect = () => { 
             categorySelect.innerHTML = '<option value="" disabled selected>Categoría</option>'; 
