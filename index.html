@@ -14,8 +14,8 @@
                     colors: {
                         'primary': '#1E3A8A', // Azul oscuro
                         'secondary': '#FBBF24', // Amarillo
-                        'dashboard-bg': '#F3F4F6', 
-                        'whatsapp': '#25D366', 
+                        'dashboard-bg': '#F3F4F6',
+                        'whatsapp': '#25D366',
                         // Colores de Stock
                         'stock-positive': '#10B981', // green-500
                         'stock-low': '#FBBF24', // amber-400
@@ -125,9 +125,14 @@
             transform: translateY(-100%);
             box-shadow: none;
         }
+
+        /* Fixed padding for body when header is fixed */
+        .pt-safe {
+            padding-top: 70px; /* Adjust based on header height */
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800 pt-[70px] md:pt-[70px]">
+<body class="bg-gray-50 font-sans text-gray-800 pt-safe">
 
     <!-- Encabezado -->
     <header id="header-main" class="bg-white shadow-lg z-50 backdrop-blur-md bg-opacity-95">
@@ -332,6 +337,12 @@
                                             <div id="kit-selected-list" class="flex-grow overflow-y-auto space-y-1">
                                                 <p class="text-xs text-gray-400 text-center mt-10">El kit está vacío.</p>
                                             </div>
+                                            <!-- NEW: Kit Total Display -->
+                                            <div id="kit-calculated-total-container" class="border-t pt-2 mt-2 flex justify-between items-center">
+                                                <span class="text-sm font-bold text-blue-900">Subtotal de Artículos:</span>
+                                                <span id="kit-calculated-total" class="text-lg font-extrabold text-primary">L 0.00</span>
+                                            </div>
+                                            <!-- END NEW: Kit Total Display -->
                                         </div>
                                     </div>
                                 </div>
@@ -558,8 +569,8 @@
 
                     <!-- Kit Contents Container -->
                     <div id="modal-kit-contents" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                <h3 class="text-sm font-bold text-blue-800 mb-2 uppercase">Contenido del Kit:</h3>
-                                <ul id="modal-kit-list" class="text-sm text-gray-700 space-y-1 list-disc pl-5"></ul>
+                        <h3 class="text-sm font-bold text-blue-800 mb-2 uppercase">Contenido del Kit:</h3>
+                        <ul id="modal-kit-list" class="text-sm text-gray-700 space-y-1 list-disc pl-5"></ul>
                     </div>
                     <div class="flex justify-between items-center text-xl font-bold pt-2 border-t">
                         <span>Precio:</span>
@@ -1307,6 +1318,7 @@
                         <div>
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">3</span>
+                                <h3 class="font-bold text-sm">Procesar</h3>
                             </div>
                             
                             ${canConfirm ? `
@@ -1339,7 +1351,7 @@
                     <div class="col-span-1 md:col-span-3 pt-4 border-t mt-4">
                         <button onclick="deleteOrder('${orderId}')" class="w-full bg-red-100 text-red-600 font-bold py-2 rounded-lg hover:bg-red-200 transition text-sm flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            Eliminar Pedido (No Completado)
+                            Eliminar Pedido
                         </button>
                     </div>
                 </div>
@@ -1459,7 +1471,7 @@
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.add('hidden');
             } else {
-                if(cartEmptyMessage) cartItemsContainer.classList.remove('hidden'); 
+                if(cartEmptyMessage) cartEmptyMessage.classList.remove('hidden'); 
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.remove('hidden');
                 
@@ -1576,6 +1588,18 @@
         };
 
         // --- KIT BUILDER LOGIC ---
+        // Helper para calcular el precio base de los items en el kit
+        const calculateKitBasePrice = () => {
+            let total = 0;
+            currentKitItems.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    total += (product.price || 0) * (item.quantity || 1);
+                }
+            });
+            return total;
+        };
+
         window.toggleProductType = (type) => {
             const isKit = type === 'kit';
             document.getElementById('item-type').value = type;
@@ -1593,7 +1617,8 @@
             const catSelect = document.getElementById('category');
             const stockInput = document.getElementById('initial-stock');
             const brandSection = document.getElementById('brand-management-section');
-            
+            const priceInput = document.getElementById('price'); // El input de precio del formulario
+
             if (isKit) {
                 kitSection.classList.remove('hidden');
                 catSelect.innerHTML = '<option value="Kits" selected>Kits y Combos</option>';
@@ -1604,12 +1629,17 @@
                 currentKitItems = [];
                 renderKitSelector();
                 renderSelectedKitItems();
+                priceInput.value = (0).toFixed(2); // Inicia en 0
             } else {
                 kitSection.classList.add('hidden');
                 catSelect.disabled = false;
                 stockInput.disabled = false;
                 fillCategorySelect();
-                brandSection.classList.add('hidden'); 
+                brandSection.classList.add('hidden');
+                // Si estaba editando un kit, restaura el precio a un valor vacío o su valor original si es edición
+                if (!editIdInput.value) {
+                    priceInput.value = '';
+                }
             }
         };
 
@@ -1624,8 +1654,25 @@
             }
             candidates.forEach(p => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-2 bg-white border rounded hover:bg-gray-50 cursor-pointer";
-                div.innerHTML = `<div class="flex items-center gap-2 truncate"><span class="text-lg">${p.icon || '📦'}</span><span class="text-sm font-medium truncate">${p.name}</span></div><button type="button" class="text-primary font-bold hover:bg-blue-100 p-1 rounded">+</button>`;
+                // Añadir clases para el tooltip al hacer hover
+                div.className = "relative flex items-center justify-between p-2 bg-white border rounded hover:bg-gray-50 cursor-pointer group";
+                
+                // Tooltip structure
+                const tooltipHtml = `<div class="absolute z-10 hidden group-hover:block left-full ml-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg shadow-xl pointer-events-none transform transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                    <span class="font-bold block mb-1">${p.name} (${p.category})</span>
+                    ${p.description}
+                    <span class="block mt-2 font-extrabold text-secondary">${formatCurrency(p.price)}</span>
+                </div>`;
+
+                const iconDisplay = p.icon.startsWith('data:image') ? `<img src="${p.icon}" class="w-8 h-8 object-contain rounded-full bg-gray-200 p-1">` : `<span class="text-lg">${p.icon || '📦'}</span>`;
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 truncate min-w-0">
+                        ${iconDisplay}
+                        <span class="text-sm font-medium truncate">${p.name}</span>
+                    </div>
+                    ${tooltipHtml}
+                    <button type="button" class="flex-shrink-0 text-primary font-bold hover:bg-blue-100 p-1 rounded">+</button>`;
                 div.onclick = () => addToKit(p);
                 list.appendChild(div);
             });
@@ -1633,12 +1680,14 @@
 
         window.filterKitSelector = () => renderKitSelector();
 
+        // Modificado para usar el precio del producto
         window.addToKit = (product) => {
             const existing = currentKitItems.find(i => i.id === product.id);
             if(existing) {
                 existing.quantity = (existing.quantity || 1) + 1;
             } else {
-                currentKitItems.push({ id: product.id, name: product.name, icon: product.icon, quantity: 1 });
+                // Al agregar, guarda el precio base del item individual
+                currentKitItems.push({ id: product.id, name: product.name, icon: product.icon, quantity: 1, price: product.price });
             }
             renderSelectedKitItems();
         };
@@ -1647,20 +1696,48 @@
             currentKitItems.splice(index, 1);
             renderSelectedKitItems();
         };
-
+        
+        // Modificado para calcular y mostrar el total
         window.renderSelectedKitItems = () => {
             const list = document.getElementById('kit-selected-list');
+            const totalDisplay = document.getElementById('kit-calculated-total');
+            const priceInput = document.getElementById('price');
+            let calculatedTotal = 0;
+
             list.innerHTML = '';
+
             if(currentKitItems.length === 0) {
                 list.innerHTML = '<p class="text-xs text-gray-400 text-center mt-10">El kit está vacío.</p>';
-                return;
             }
+            
             currentKitItems.forEach((item, idx) => {
+                const itemPrice = item.price || 0; // Usamos el precio guardado al añadir
+                calculatedTotal += itemPrice * (item.quantity || 1);
+                
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-2 bg-white border rounded";
-                div.innerHTML = `<div class="flex items-center gap-2 truncate"><span class="text-lg">${item.icon || '📦'}</span><div class="text-xs font-bold bg-blue-100 px-1 rounded text-blue-700">x${item.quantity}</div><span class="text-sm font-medium truncate">${item.name}</span></div><button type="button" class="text-red-500 font-bold hover:bg-red-50 p-1 rounded" onclick="removeFromKit(${idx})">&times;</button>`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-lg">${item.icon || '📦'}</span>
+                        <div class="text-xs font-bold bg-blue-100 px-1 rounded text-blue-700">x${item.quantity}</div>
+                        <span class="text-sm font-medium truncate">${item.name}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold">${formatCurrency(itemPrice * (item.quantity || 1))}</span>
+                        <button type="button" class="text-red-500 font-bold hover:bg-red-50 p-1 rounded" onclick="removeFromKit(${idx})">&times;</button>
+                    </div>
+                `;
                 list.appendChild(div);
             });
+            
+            // Mostrar el total calculado
+            totalDisplay.textContent = formatCurrency(calculatedTotal);
+            
+            // Opcional: Actualizar el precio del formulario si está vacío o si el usuario no lo ha tocado
+            // Permitimos al usuario editar el precio si quiere aplicar un margen/descuento.
+            if (priceInput.value === '' || parseFloat(priceInput.value) === 0) {
+                 priceInput.value = calculatedTotal.toFixed(2);
+            }
         };
 
         // --- ADMIN & AUTH ---
@@ -1755,7 +1832,8 @@
         window.switchView = (view) => {
             clientView.classList.add('hidden'); adminView.classList.add('hidden'); myOrdersView.classList.add('hidden');
             // Al cambiar la vista, forzamos que el header se muestre
-            header.classList.remove('header-hidden');
+            const header = document.getElementById('header-main');
+            if(header) header.classList.remove('header-hidden');
             window.scrollTo(0,0);
             
             if (view === 'client') { clientView.classList.remove('hidden'); if(unsubscribeOrders) unsubscribeOrders(); } 
@@ -1992,7 +2070,7 @@
         
         const listenToMyOrders = () => {
             if (unsubscribeOrders) unsubscribeOrders();
-            const uid = window.getCurrentUserId();
+            const uid = window.auth.currentUser?.uid; // Usar uid directo
             if (!uid || window.auth.currentUser?.isAnonymous) {
                 myOrdersList.innerHTML = '<div class="text-center py-12 bg-white rounded-xl shadow-sm"><svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg><p class="text-gray-500">Inicia sesión con tu cuenta para ver tu historial de pedidos.</p></div>';
                 return;
@@ -2055,7 +2133,7 @@
                  loadingSpinnerArea.classList.add('hidden');
                  // Y aseguramos que el spinner no esté dentro del container de productos.
                  if(productsContainer.contains(loadingSpinnerArea)) {
-                    productsContainer.removeChild(loadingSpinnerArea);
+                     productsContainer.removeChild(loadingSpinnerArea);
                  }
              }
         };
@@ -2163,14 +2241,14 @@
                     const iconSrc = k.icon || '🎒';
                     const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-20 w-full object-contain mb-2">` : `<div class="text-5xl mb-2 text-center">${iconSrc}</div>`;
                     return `<div onclick="openProductModal('${k.id}')" class="flex-shrink-0 w-48 bg-white/90 backdrop-blur rounded-lg p-3 cursor-pointer hover:bg-white transition transform hover:scale-105 shadow-lg border-2 border-secondary snap-center flex flex-col h-full justify-between">
-                            <div>
-                                 <div class="bg-gray-50 rounded p-2 mb-2">${iconDisplay}</div>
-                                 <h4 class="font-bold text-sm text-primary leading-tight mb-1">${k.name}</h4>
-                                 <p class="text-xs text-gray-500 line-clamp-2">${k.description}</p>
-                            </div>
-                            <div class="mt-2 font-extrabold text-lg text-secondary text-right">${formatCurrency(k.price)}</div>
-                        </div>`;
-                    }).join('');
+                                <div>
+                                    <div class="bg-gray-50 rounded p-2 mb-2">${iconDisplay}</div>
+                                    <h4 class="font-bold text-sm text-primary leading-tight mb-1">${k.name}</h4>
+                                    <p class="text-xs text-gray-500 line-clamp-2">${k.description}</p>
+                                </div>
+                                <div class="mt-2 font-extrabold text-lg text-secondary text-right">${formatCurrency(k.price)}</div>
+                            </div>`;
+                }).join('');
             } else {
                 heroKitsContainer.classList.add('hidden');
                 heroKitsScrollContainer.innerHTML = '';
@@ -2195,28 +2273,23 @@
                 }
             }
             
-            // Si el filtro no es 'Kits' y no hay búsqueda (o sí la hay y devuelve resultados)
-            if (currentCategoryFilter !== 'Kits' || currentSearchTerm !== '') {
-                 if (productsToDisplay.length > 0) {
-                     const sectionTitle = currentSearchTerm !== '' ? 'Resultados de Búsqueda' : 
-                                          currentCategoryFilter === 'all' ? 'Todos los Productos' : 
-                                          currentCategoryFilter;
-                     
-                     const id = sectionTitle.replace(/\s+/g, '-').toLowerCase();
-                     html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${sectionTitle}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToDisplay.map(renderProductCard).join('')}</div></section>`;
-                 } else if (filteredProducts.length === 0 && !isLoading) {
-                      html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
-                 }
-            } else if (filteredProducts.length === 0 && !isLoading) {
+            // Si el filtro no es 'Kits' o hay un término de búsqueda, renderizamos la lista principal
+            if (productsToDisplay.length > 0) {
+                 const sectionTitle = currentSearchTerm !== '' ? `Resultados de Búsqueda para "${currentSearchTerm}"` : 
+                                      currentCategoryFilter === 'all' ? 'Todos los Productos' : 
+                                      currentCategoryFilter;
+                 
+                 const id = sectionTitle.replace(/\s+/g, '-').toLowerCase();
+                 html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${sectionTitle}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToDisplay.map(renderProductCard).join('')}</div></section>`;
+            } else if (products.length > 0 && currentSearchTerm !== '') {
+                 // Caso: hay productos en total, pero la búsqueda/filtro no encontró nada.
                  html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
+            } else if (products.length === 0 && !isLoading) {
+                 html = `<div class="col-span-full text-center py-10 text-gray-400">El catálogo está vacío. Por favor, agregue productos desde el Panel Admin.</div>`;
             }
 
 
             productsContainer.innerHTML = html;
-            // Si la carga terminó y no hay productos, mostramos el mensaje de no encontrado (solo si no se está cargando).
-            if (products.length === 0 && !isLoading) {
-                 productsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">El catálogo está vacío. Por favor, agregue productos desde el Panel Admin.</div>`;
-            }
             // --- FIN RENDER CONTENIDO PRINCIPAL ---
         };
 
@@ -2278,12 +2351,12 @@
                                 `<span class="text-xs ${adjustment > 0 ? 'text-red-500' : 'text-green-500'}">(${adjustment >= 0 ? '+' : ''}${formatCurrency(adjustment)})</span>` : '';
                         
                         return `<div onclick="toggleBrandSelection(this, '${b.name}', ${adjustment})" data-name="${b.name}" data-adjustment="${adjustment}" class="cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-lg p-2 bg-white text-center transition-all duration-200 group transform hover:scale-[1.02]">
-                                <div class="w-full h-24 bg-gray-50 rounded-md mb-2 overflow-hidden border border-gray-100">
-                                    <img src="${b.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'" class="w-full h-full object-contain group-hover:scale-105 transition">
-                                </div>
-                                <span class="text-sm font-bold block truncate text-gray-700 group-hover:text-primary">${b.name}</span>
-                                ${adjustmentDisplay}
-                            </div>`;
+                                 <div class="w-full h-24 bg-gray-50 rounded-md mb-2 overflow-hidden border border-gray-100">
+                                     <img src="${b.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'" class="w-full h-full object-contain group-hover:scale-105 transition">
+                                 </div>
+                                 <span class="text-sm font-bold block truncate text-gray-700 group-hover:text-primary">${b.name}</span>
+                                 ${adjustmentDisplay}
+                             </div>`;
                     }).join('');
                 } else { noBrandsMsg.classList.remove('hidden'); brandsContainer.innerHTML = ''; }
             }
@@ -2346,7 +2419,7 @@
             if (p.type !== 'kit' && (p.stock || 0) > 0) {
                  const currentQuantityInCart = cart.filter(item => item.productId === id).reduce((sum, item) => sum + item.quantity, 0);
                  if ((currentQuantityInCart + 1) > p.stock) {
-                    // Si excede el stock, se añadirá como encargo. El warning se maneja en renderCartItems.
+                     // Si excede el stock, se añadirá como encargo. El warning se maneja en renderCartItems.
                  }
             }
             
