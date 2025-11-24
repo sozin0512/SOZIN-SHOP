@@ -1549,7 +1549,8 @@
             }
 
             // Flujo de WhatsApp fijo
-            const phoneNumber = "50489333462"; // Ya incluye el código de país
+            // CORRECCIÓN FINAL: Incluir el signo + para compatibilidad con iOS
+            const phoneNumber = "+50489333462"; 
             const message = generateWhatsAppMessage(newOrder); 
             window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank'); 
             
