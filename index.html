@@ -225,7 +225,7 @@
                 </section>
                 
                 <div id="products-container" class="space-y-12 pb-20">
-                    <div class="text-center p-16 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
+                    <div id="loading-spinner-area" class="text-center p-16 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
                         <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
                         <p class="text-xl text-gray-500 font-medium" id="loading-message">Cargando catálogo...</p>
                     </div>
@@ -651,7 +651,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, doc, addDoc, updateDoc, deleteDoc, getDocs, setLogLevel, where, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, getDoc, addDoc, updateDoc, deleteDoc, getDocs, setLogLevel, where, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // --- FIREBASE SETUP ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -722,6 +722,7 @@
                 if (user) { 
                     listenToCategories(); 
                     listenToProducts(); 
+                    listenToSettings(); // Asegurar que la configuración se escuche después del auth
                     // Llama a la siembra de datos SÓLO después de que la autenticación inicial se haya resuelto
                     if (!hasSeeded) {
                         seedInitialData();
@@ -749,6 +750,7 @@
         window.getCurrentUserId = () => currentUserId;
         window.adminEmails = adminEmails; 
         window.runTransaction = runTransaction;
+        window.getDoc = getDoc; // Añadido para la carga bajo demanda
         
         window.getProductsCollection = () => collection(db, 'artifacts', appId, 'public', 'data', 'products');
         window.getProductDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'products', id);
@@ -776,6 +778,7 @@
         
         let logoBase64 = null;
         const CURRENCY_SYMBOL = 'L ';
+        let isLoading = true; // NUEVA: Bandera de carga
 
         const clientView = document.getElementById('client-view');
         const adminView = document.getElementById('admin-view');
@@ -815,9 +818,10 @@
         const heroKitsContainer = document.getElementById('hero-kits-container');
         const initialStockInput = document.getElementById('initial-stock'); 
         const categoriesListContainer = document.getElementById('categories-list-container');
-
+        const loadingSpinnerArea = document.getElementById('loading-spinner-area'); // NUEVO
 
         const initialProducts = [
+            // NOTA: Se remueve la imagen base64 de las marcas para evitar carga lenta en el seed
             { category: "Ropa y Vestimenta", name: "Camisa Azul D/P", icon: "👕", description: "Uniforme diario para cadetes. Requiere selección de talla.", price: 150.00, brands: [{name:'Talla S', priceAdjustment: 0.0, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+S'}, {name:'Talla M', priceAdjustment: 0.0, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+M'}, {name:'Talla L (+L20)', priceAdjustment: 20.00, imageUrl:'https://placehold.co/100x100/1E3A8A/ffffff?text=Talla+L'}], stock: 50, type: 'product' },
             { category: "Equipo Táctico", name: "Cinturón Táctico", icon: "🔗", description: "Cinturón de lona resistente con hebilla de liberación rápida.", price: 350.00, brands: [], stock: 30, type: 'product' },
             { category: "Ropa de Cama y Baño", name: "Sábana Blanca", icon: "🛏️", description: "Sábana de algodón para uso en barracas.", price: 120.00, brands: [], stock: 100, type: 'product' },
@@ -933,17 +937,18 @@
 
         const alertMessage = (msg, type) => { const d = document.createElement('div'); d.className = `fixed top-6 right-6 z-[120] px-6 py-4 rounded-xl shadow-2xl text-white font-bold transform transition-all duration-500 translate-y-10 opacity-0 flex items-center gap-3 ${type==='success'?'bg-gradient-to-r from-green-500 to-emerald-600':'bg-gradient-to-r from-red-500 to-pink-600'}`; d.innerHTML = `${type==='success'?'<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>':'<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}<span>${msg}</span>`; document.body.appendChild(d); requestAnimationFrame(() => d.classList.remove('translate-y-10', 'opacity-0')); setTimeout(() => { d.classList.add('translate-y-10', 'opacity-0'); setTimeout(()=>d.remove(), 500); }, 3000); };
 
+        // SOLUCIÓN PARA IPAD/IPHONE: Mensaje muy corto y simple.
         const generateWhatsAppMessage = (order) => {
-            let message = `¡Hola! 👋 Quiero realizar el siguiente pedido:\n\n`;
-            order.items.forEach(item => { 
-                // CORRECCIÓN: Usar el adjustment del item del carrito
-                const brandsText = item.selectedBrands && item.selectedBrands.length > 0 ? ` (${item.selectedBrands.join(', ')})` : ''; 
-                const itemPrice = (item.price || 0) + (item.priceAdjustment || 0);
-                message += `▪️ ${item.quantity}x ${item.name}${brandsText} - ${formatCurrency(itemPrice * item.quantity)}\n`; 
-            });
-            message += `\n💰 *Total: ${formatCurrency(order.total)}*\n\n📍 *Datos de Envío:*\nNombre: ${order.client.name}\nDirección: ${order.client.address}\nTeléfono: ${order.client.phone}\n\nID Pedido: ${order.date.split('T')[1].substring(0,8)}`;
+            // Generar un resumen corto y el total. El detalle completo se revisa en el admin.
+            const total = formatCurrency(order.total);
+            const clientName = order.client.name;
+            const itemSummary = order.items.map(i => `${i.quantity}x ${i.name}`).join(', ');
+            
+            const message = `¡Hola! Acabo de realizar un pedido en Inversiones Soza. Mi nombre es ${clientName}. Pedido: ${itemSummary}. Total: ${total}. Por favor, ayúdame a confirmar mi compra.`;
+
             return encodeURIComponent(message);
         };
+        // FIN SOLUCIÓN PARA IPAD/IPHONE
 
         window.printProductDetails = () => {
             const p = products.find(x => x.id === currentModalProductId);
@@ -1454,8 +1459,7 @@
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.add('hidden');
             } else {
-                if(cartEmptyMessage) cartEmptyMessage.classList.add('hidden'); 
-                cartItemsContainer.classList.remove('hidden'); 
+                if(cartEmptyMessage) cartItemsContainer.classList.remove('hidden'); 
                 const sumDiv = document.getElementById('cart-summary');
                 if(sumDiv) sumDiv.classList.remove('hidden');
                 
@@ -1545,7 +1549,7 @@
             }
 
             // Flujo de WhatsApp fijo
-            const phoneNumber = "50489333462"; 
+            const phoneNumber = "50489333462"; // Ya incluye el código de país
             const message = generateWhatsAppMessage(newOrder); 
             window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank'); 
             
@@ -1692,7 +1696,41 @@
             }
         }
         document.getElementById('signin-form').addEventListener('submit', async (e) => { e.preventDefault(); try { await window.signInWithEmailAndPassword(window.auth, document.getElementById('signin-email').value, document.getElementById('signin-password').value); closeLoginModal(); alertMessage('Sesión iniciada.', 'success'); } catch (e) { alertMessage('Error de acceso.', 'error'); } });
-        document.getElementById('signup-form').addEventListener('submit', async (e) => { e.preventDefault(); try { await window.createUserWithEmailAndPassword(window.auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value); closeLoginModal(); alertMessage('¡Bienvenido!', 'success'); } catch (e) { alertMessage('Error de registro.', 'error'); } });
+        
+        // --- INICIO: MANEJADOR DE REGISTRO MEJORADO (SOLUCIÓN) ---
+        document.getElementById('signup-form').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            try { 
+                await window.createUserWithEmailAndPassword(
+                    window.auth, 
+                    document.getElementById('signup-email').value, 
+                    document.getElementById('signup-password').value
+                ); 
+                closeLoginModal(); 
+                alertMessage('¡Bienvenido! Cuenta creada con éxito.', 'success'); 
+            } catch (e) { 
+                console.error("Error de registro Firebase:", e);
+                let errorMessage = 'Error al registrar. Intenta nuevamente.';
+
+                if (e.code) {
+                    switch (e.code) {
+                        case 'auth/email-already-in-use':
+                            errorMessage = 'El correo ya está registrado. Intenta iniciar sesión.';
+                            break;
+                        case 'auth/weak-password':
+                            errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'El formato del correo es inválido.';
+                            break;
+                        default:
+                            errorMessage = `Error: ${e.message}`;
+                    }
+                }
+                alertMessage(errorMessage, 'error'); 
+            }
+        });
+        // --- FIN: MANEJADOR DE REGISTRO MEJORADO (SOLUCIÓN) ---
 
         const renderDashboardMetrics = () => { 
             const totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0); 
@@ -1978,10 +2016,14 @@
             if (!window.db) return;
             const q = window.query(window.getProductsCollection());
             unsubscribe = window.onSnapshot(q, s => {
+                // Revertido: Cargamos la data completa para el mejor rendimiento de carga inicial.
                 products = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.name);
-                const loader = document.getElementById('loading-message');
-                if(loader) loader.classList.add('hidden');
+                isLoading = false; // Datos cargados
+
+                // Si hay productos, forzamos la renderización inmediata. 
+                renderLoadingState(); 
                 generateProductSections();
+                
                 if (adminView && !adminView.classList.contains('hidden')) {
                     if (adminCurrentTab === 'products') renderAdminProductList();
                     if (adminCurrentTab === 'inventory') renderAdminInventoryList(); 
@@ -2000,6 +2042,23 @@
             });
         };
         
+        // Función para mostrar/ocultar el estado de carga
+        const renderLoadingState = () => {
+             // Solo si la lista de productos está completamente vacía Y se está cargando, mostramos el spinner
+             if (isLoading && products.length === 0) { // CORRECCIÓN: Usamos products.length para saber si ya hay algo cargado
+                 productsContainer.innerHTML = '';
+                 productsContainer.appendChild(loadingSpinnerArea);
+                 loadingSpinnerArea.classList.remove('hidden');
+             } else {
+                 // Si ya hay data, ocultamos el spinner (incluso si está en un refresh)
+                 loadingSpinnerArea.classList.add('hidden');
+                 // Y aseguramos que el spinner no esté dentro del container de productos.
+                 if(productsContainer.contains(loadingSpinnerArea)) {
+                    productsContainer.removeChild(loadingSpinnerArea);
+                 }
+             }
+        };
+
         // --- FUNCIÓN HELPER PARA GENERAR EL LINK DE LA BARRA LATERAL ---
         const renderSidebarLink = (text, category, currentFilter, count) => {
             const isActive = category === currentFilter;
@@ -2040,7 +2099,10 @@
             const stockStatus = p.type !== 'kit' && p.stock <= 0 ? `<span class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">PEDIDO X ENCARGO</span>` : '';
             const opacityClass = ''; 
 
-            return `<div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 ${opacityClass}"><div class="h-48 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">${iconDisplay}${stockStatus}<div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div class="p-5"><h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition text-lg">${p.name || 'Producto'}</h3><p class="text-sm text-gray-500 line-clamp-2 h-10 mb-4">${p.description || ''}</p><div class="flex justify-between items-center border-t pt-3"><span class="text-xl font-extrabold text-primary">${formatCurrency(p.price)}</span><button class="bg-secondary hover:bg-yellow-400 text-primary p-2 rounded-full shadow-sm transition transform active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button></div></div></div>`;
+            // Optimización: Mostrar la descripción de forma concisa si existe
+            const descriptionDisplay = p.description ? `<p class="text-sm text-gray-500 line-clamp-2 h-10 mb-4">${p.description}</p>` : `<div class="h-10 mb-4"></div>`;
+
+            return `<div onclick="openProductModal('${p.id}')" class="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 ${opacityClass}"><div class="h-48 bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">${iconDisplay}${stockStatus}<div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div><div class="p-5"><h3 class="font-bold text-gray-800 mb-1 truncate group-hover:text-primary transition text-lg">${p.name || 'Producto'}</h3>${descriptionDisplay}<div class="flex justify-between items-center border-t pt-3"><span class="text-xl font-extrabold text-primary">${formatCurrency(p.price)}</span><button class="bg-secondary hover:bg-yellow-400 text-primary p-2 rounded-full shadow-sm transition transform active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button></div></div></div>`;
         };
         
         const generateProductSections = () => {
@@ -2099,7 +2161,7 @@
                 heroKitsScrollContainer.innerHTML = kits.map(k => {
                     const iconSrc = k.icon || '🎒';
                     const iconDisplay = iconSrc.startsWith('data:image') ? `<img src="${iconSrc}" class="h-20 w-full object-contain mb-2">` : `<div class="text-5xl mb-2 text-center">${iconSrc}</div>`;
-                    return `<div onclick="openProductModal('${k.id}')" class="flex-shrink-0 w-48 bg-white/90 backdrop-blur rounded-lg p-3 cursor-pointer hover:bg-white transition transform hover:scale-105 shadow-lg border-2 border-transparent hover:border-secondary snap-center flex flex-col h-full justify-between">
+                    return `<div onclick="openProductModal('${k.id}')" class="flex-shrink-0 w-48 bg-white/90 backdrop-blur rounded-lg p-3 cursor-pointer hover:bg-white transition transform hover:scale-105 shadow-lg border-2 border-secondary snap-center flex flex-col h-full justify-between">
                             <div>
                                  <div class="bg-gray-50 rounded p-2 mb-2">${iconDisplay}</div>
                                  <h4 class="font-bold text-sm text-primary leading-tight mb-1">${k.name}</h4>
@@ -2141,17 +2203,19 @@
                      
                      const id = sectionTitle.replace(/\s+/g, '-').toLowerCase();
                      html += `<section id="${id}" class="scroll-mt-32 mb-12"><div class="flex items-center mb-6"><h2 class="text-2xl font-bold text-gray-800 relative">${sectionTitle}<span class="absolute -bottom-2 left-0 w-12 h-1 bg-secondary rounded-full"></span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${productsToDisplay.map(renderProductCard).join('')}</div></section>`;
-                 } else if (filteredProducts.length === 0) {
+                 } else if (filteredProducts.length === 0 && !isLoading) {
                       html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
                  }
-            } else if (currentCategoryFilter === 'Kits' && currentSearchTerm === '' && kits.length > 0) {
-                 // Dejar vacío ya que se muestran en el Hero, pero asegurar que no se muestre el "no encontrado"
-            } else if (filteredProducts.length === 0) {
+            } else if (filteredProducts.length === 0 && !isLoading) {
                  html = `<div class="col-span-full text-center py-10 text-gray-400">No se encontraron productos para "${currentSearchTerm || currentCategoryFilter}".</div>`;
             }
 
 
             productsContainer.innerHTML = html;
+            // Si la carga terminó y no hay productos, mostramos el mensaje de no encontrado (solo si no se está cargando).
+            if (products.length === 0 && !isLoading) {
+                 productsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">El catálogo está vacío. Por favor, agregue productos desde el Panel Admin.</div>`;
+            }
             // --- FIN RENDER CONTENIDO PRINCIPAL ---
         };
 
@@ -2160,7 +2224,8 @@
             return (parseFloat(basePrice) || 0) + (parseFloat(adjustment) || 0);
         };
 
-        window.openProductModal = (id) => {
+        // FUNCIÓN REVERTIDA: Ahora el modal utiliza la data ya cargada en la memoria (products array)
+        window.openProductModal = async (id) => {
             const p = products.find(x => x.id === id);
             if(!p) return;
             
@@ -2199,17 +2264,18 @@
                 kitContents.classList.add('hidden');
                 brandsSection.classList.remove('hidden');
                 brandsContainer.innerHTML = '';
-                // Limpiar cualquier selección previa
                 brandsContainer.dataset.selectedBrand = ''; 
+                brandsContainer.dataset.selectedAdjustment = 0; // Reset adjustment
 
-                if(p.brands && p.brands.length) {
+                const fullBrands = p.brands; // Usa la data ya cargada
+
+                if(fullBrands && fullBrands.length) {
                     noBrandsMsg.classList.add('hidden');
-                    brandsContainer.innerHTML = p.brands.map(b => {
+                    brandsContainer.innerHTML = fullBrands.map(b => {
                         const adjustment = parseFloat(b.priceAdjustment) || 0;
                         const adjustmentDisplay = adjustment !== 0 ? 
                                 `<span class="text-xs ${adjustment > 0 ? 'text-red-500' : 'text-green-500'}">(${adjustment >= 0 ? '+' : ''}${formatCurrency(adjustment)})</span>` : '';
                         
-                        // Añadir data-attributes para capturar la selección
                         return `<div onclick="toggleBrandSelection(this, '${b.name}', ${adjustment})" data-name="${b.name}" data-adjustment="${adjustment}" class="cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-lg p-2 bg-white text-center transition-all duration-200 group transform hover:scale-[1.02]">
                                 <div class="w-full h-24 bg-gray-50 rounded-md mb-2 overflow-hidden border border-gray-100">
                                     <img src="${b.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'" class="w-full h-full object-contain group-hover:scale-105 transition">
@@ -2218,7 +2284,7 @@
                                 ${adjustmentDisplay}
                             </div>`;
                     }).join('');
-                } else { noBrandsMsg.classList.remove('hidden'); }
+                } else { noBrandsMsg.classList.remove('hidden'); brandsContainer.innerHTML = ''; }
             }
 
             productModal.classList.remove('hidden');
@@ -2296,8 +2362,60 @@
             saveCart(); alertMessage('¡Añadido al carrito!', 'success'); closeProductModal();
         };
 
-        window.previewAndConvertProductIcon = (input) => { if(input.files[0]) { const r = new FileReader(); r.onload = e => { productIconInput.value = e.target.result; document.getElementById('preview-product-icon-img').src = e.target.result; document.getElementById('product-icon-preview').classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); } };
-        window.previewAndConvertBrandImage = (input) => { if(input.files[0]) { const r = new FileReader(); r.onload = e => { brandImageDataInput.value = e.target.result; previewImg.src = e.target.result; imagePreviewDiv.classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); } };
+        // --- OPTIMIZACIÓN DE IMÁGENES (COMPRESIÓN) ---
+        // Utiliza Canvas para reducir la calidad de las imágenes Base64 antes de guardarlas.
+        const compressImage = (base64, maxWidth = 400, quality = 0.7) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = base64;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = height * (maxWidth / width);
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convertir a JPEG con compresión
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(base64); // Fallback si hay error
+            });
+        };
+
+        window.previewAndConvertProductIcon = async (input) => { 
+             if(input.files[0]) { 
+                 const r = new FileReader(); 
+                 r.onload = async (e) => { 
+                     const compressedBase64 = await compressImage(e.target.result);
+                     productIconInput.value = compressedBase64; 
+                     document.getElementById('preview-product-icon-img').src = compressedBase64; 
+                     document.getElementById('product-icon-preview').classList.remove('hidden'); 
+                 }; 
+                 r.readAsDataURL(input.files[0]); 
+             } 
+        };
+
+        window.previewAndConvertBrandImage = async (input) => { 
+             if(input.files[0]) { 
+                 const r = new FileReader(); 
+                 r.onload = async (e) => { 
+                     const compressedBase64 = await compressImage(e.target.result);
+                     brandImageDataInput.value = compressedBase64; 
+                     previewImg.src = compressedBase64; 
+                     imagePreviewDiv.classList.remove('hidden'); 
+                 }; 
+                 r.readAsDataURL(input.files[0]); 
+             } 
+        };
+        // --- FIN OPTIMIZACIÓN DE IMÁGENES ---
 
         window.editProduct = (id) => {
             const p = products.find(x => x.id === id);
@@ -2463,7 +2581,7 @@
         document.addEventListener('DOMContentLoaded', () => { 
             fillCategorySelect(); 
             loadCart(); 
-            // seedInitialData(); // REMOVED: Ahora se llama dentro de onAuthStateChanged
+            renderLoadingState(); // Mostrar el spinner al inicio
             // NEW: Add scroll listener for header
             window.addEventListener('scroll', handleScroll);
         });
