@@ -648,10 +648,63 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Datos de Envío</label>
                         <div class="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                            <input type="text" id="client-name" placeholder="Nombre Completo" required class="w-full p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white">
-                            <div class="flex gap-2"><input type="email" id="client-email" placeholder="Correo" required class="w-1/2 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"><input type="tel" id="client-phone" placeholder="Teléfono" required class="w-1/2 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"></div>
-                            <input type="text" id="client-address" placeholder="Dirección Exacta" required class="w-full p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white">
-                        </div>
+    <input
+        type="text"
+        id="client-name"
+        placeholder="Nombre Completo"
+        required
+        class="w-full p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"
+    >
+
+    <!-- Fila de correo -->
+    <div class="flex gap-2">
+        <input
+            type="email"
+            id="client-email"
+            placeholder="Correo"
+            required
+            class="w-1/2 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"
+        >
+        <!-- Campo opcional reservado por si lo ocupas después -->
+        <input
+            type="text"
+            id="client-extra"
+            placeholder="(Opcional)"
+            class="w-1/2 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white hidden"
+        >
+    </div>
+
+    <!-- Fila de teléfono con código de país -->
+    <div class="flex gap-2">
+        <select
+            id="client-country-code"
+            class="w-1/3 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"
+        >
+            <option value="+504">+504 HN</option>
+            <option value="+502">+502 GT</option>
+            <option value="+503">+503 SV</option>
+            <option value="+505">+505 NI</option>
+            <option value="+506">+506 CR</option>
+            <option value="+52">+52 MX</option>
+            <option value="+1">+1 USA/CA</option>
+        </select>
+        <input
+            type="tel"
+            id="client-phone"
+            placeholder="Teléfono (solo número)"
+            required
+            class="w-2/3 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"
+        >
+    </div>
+
+    <input
+        type="text"
+        id="client-address"
+        placeholder="Dirección Exacta"
+        required
+        class="w-full p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none bg-white"
+    >
+</div>
                     </div>
                     
                     <!-- SECCIÓN DE PAGO SIMPLIFICADA (SOLO WHATSAPP) -->
@@ -1180,6 +1233,15 @@
         };
 
         window.printOrderDetails = () => {
+            const cc    = (order.client && order.client.countryCode) || '';
+const local = (order.client && order.client.localPhone) || '';
+const raw   = (order.client && order.client.phone) || '';
+
+const displayPhone =
+    cc && local ? `${cc} ${local}` :
+    cc && raw   ? `${cc} ${raw}`   :
+    raw || 'N/A';
+
             const orderId = document.getElementById('order-mgmt-content').dataset.orderId;
             const order = orders.find(o => o.id === orderId);
             if(!order) return alertMessage('Error al cargar la orden para imprimir.', 'error');
@@ -1223,7 +1285,7 @@
                                 <h2 style="font-size: 14pt; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">Detalles del Cliente</h2>
                                 <p style="font-size: 11pt;"><span style="font-weight: bold;">Nombre:</span> ${order.client.name}</p>
                                 <p style="font-size: 11pt;"><span style="font-weight: bold;">Dirección:</span> ${order.client.address}</p>
-                                <p style="font-size: 11pt;"><span style="font-weight: bold;">Teléfono:</span> ${order.client.phone}</p>
+                               <p style="font-size: 11pt;"><span style="font-weight: bold;">Teléfono:</span> ${displayPhone}</p>
                                 <p style="font-size: 11pt;"><span style="font-weight: bold;">Fecha:</span> ${dateStr}</p>
                             </div>
                             
@@ -1403,6 +1465,16 @@
             const status = order.status || 'Pendiente';
             const hasProof = order.proofOfPayment;
             const estimatedDays = order.estimatedDays ? parseInt(order.estimatedDays, 10) : 3;
+            // NUEVO: teléfono formateado para mostrar al admin
+const cc    = order.client && order.client.countryCode ? order.client.countryCode : '';
+const local = order.client && order.client.localPhone ? order.client.localPhone : '';
+const raw   = order.client && order.client.phone ? order.client.phone : '';
+
+const displayPhone =
+    cc && local ? `${cc} ${local}` :
+    cc && raw   ? `${cc} ${raw}`   :
+    raw;
+
 
             content.dataset.orderId = orderId; // Set data-attribute for printing
             
@@ -1417,7 +1489,7 @@
                 <div class="flex justify-between mb-4 bg-gray-50 p-3 rounded border">
                     <div>
                         <p class="font-bold text-lg text-primary">${order.client.name}</p>
-                        <p class="text-sm text-gray-600">${order.client.phone}</p>
+                        <p class="text-sm text-gray-600">${displayPhone}</p>
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-lg">${formatCurrency(order.total)}</p>
@@ -1665,57 +1737,75 @@
             if(modal) modal.classList.add('hidden');
         };
         
-        window.processPayment = async (e) => {
-            e.preventDefault();
-            const user = window.auth.currentUser;
-            const userId = user.uid; 
-            
-            const clientName = document.getElementById('client-name').value;
-            const clientEmail = document.getElementById('client-email').value; // Usar el campo del formulario si está lleno
-            
-            // Recalculate total using adjustment for cart items
-            const total = cart.reduce((sum, i) => sum + (((i.price || 0) + (i.priceAdjustment || 0)) * (i.quantity || 1)), 0);
-            
-            const newOrder = { 
-                userId, 
-                client: { 
-                    name: clientName, 
-                    email: clientEmail, 
-                    address: document.getElementById('client-address').value, 
-                    phone: document.getElementById('client-phone').value 
-                }, 
-                items: cart, 
-                total, 
-                paymentMethod: "whatsapp", 
-                status: "Pendiente (WhatsApp)", // Estado fijo
-                date: new Date().toISOString(), 
-                type: 'order' 
-            };
-            
-            try {
-                // Generar un ID temporal para el mensaje de WhatsApp, antes de que Firestore le asigne uno.
-                const tempDocRef = await window.addDoc(window.getOrdersCollection(), newOrder);
-                // El ID real de Firestore será tempDocRef.id
-            } catch (error) {
-                console.error("Error al guardar pedido en historial:", error);
-                alertMessage("Error al guardar pedido. Intenta nuevamente.", 'error');
-                return; // Detener el flujo si falla guardar en Firestore
-            }
+    window.processPayment = async (e) => {
+    e.preventDefault();
 
-            // Flujo de WhatsApp fijo
-            // CORRECCIÓN FINAL: Incluir el signo + para compatibilidad con iOS
-            const phoneNumber = "+50489333462"; 
-            const message = generateWhatsAppMessage(newOrder); 
-            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank'); 
-            
-            closeCheckoutModal(); clearCart(); switchView('my_orders');
-            alertMessage('Pedido guardado. Abriendo WhatsApp para finalizar el pago.', 'success');
-        };
-        
-        window.closeCartModal = () => {
-            const modal = document.getElementById('cart-modal');
-            if(modal) modal.classList.add('hidden');
-        };
+    const user = window.auth.currentUser;
+    const userId = user.uid;
+
+    const clientName   = document.getElementById('client-name').value;
+    const clientEmail  = document.getElementById('client-email').value;
+    const clientAddr   = document.getElementById('client-address').value;
+
+    // NUEVO: código de país y teléfono
+    const countryCode  = (document.getElementById('client-country-code').value || '+504').trim();
+    const phoneRaw     = (document.getElementById('client-phone').value || '').trim();
+
+    // Dejar solo dígitos del teléfono ingresado
+    const phoneDigits  = phoneRaw.replace(/[^0-9]/g, '');
+
+    if (!phoneDigits) {
+        return alertMessage('Ingresa un número de teléfono válido.', 'error');
+    }
+
+    // Formato internacional para WhatsApp: 50499998888 (sin +)
+    const fullPhoneDigits = countryCode.replace('+', '') + phoneDigits;
+
+    // Total usando el precio + ajuste
+    const total = cart.reduce(
+        (sum, i) => sum + (((i.price || 0) + (i.priceAdjustment || 0)) * (i.quantity || 1)),
+        0
+    );
+
+    const newOrder = {
+        userId,
+        client: {
+            name:       clientName,
+            email:      clientEmail,
+            address:    clientAddr,
+            // Guardamos estos campos para que el admin tenga todo:
+            phone:      fullPhoneDigits,  // para usar directo en wa.me/{phone}
+            countryCode,
+            localPhone: phoneDigits
+        },
+        items: cart,
+        total,
+        paymentMethod: "whatsapp",
+        status: "Pendiente (WhatsApp)",
+        date: new Date().toISOString(),
+        type: 'order'
+    };
+
+    try {
+        await window.addDoc(window.getOrdersCollection(), newOrder);
+    } catch (error) {
+        console.error("Error al guardar pedido en historial:", error);
+        alertMessage("Error al guardar pedido. Intenta nuevamente.", 'error');
+        return;
+    }
+
+    // Número de la tienda (sigue igual que antes)
+    const phoneNumber = "+50489333462";
+    const message     = generateWhatsAppMessage(newOrder);
+
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+
+    closeCheckoutModal();
+    clearCart();
+    switchView('my_orders');
+    alertMessage('Pedido guardado. Abriendo WhatsApp para finalizar el pago.', 'success');
+};
+
         window.clearCart = () => { cart = []; saveCart(); renderCartItems(); };
         window.removeItemFromCart = (idx) => { cart.splice(idx, 1); saveCart(); renderCartItems(); };
         window.updateItemQuantity = (idx, qty) => { 
