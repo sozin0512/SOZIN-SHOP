@@ -1795,31 +1795,27 @@ window.closeCheckoutModal = () => {
     if (modal) modal.classList.add('hidden');
 };
         
-    window.processPayment = async (e) => {
+  window.processPayment = async (e) => {
     e.preventDefault();
 
-    const user = window.auth.currentUser;
+    const user   = window.auth.currentUser;
     const userId = user.uid;
 
-    const clientName   = document.getElementById('client-name').value;
-    const clientEmail  = document.getElementById('client-email').value;
-    const clientAddr   = document.getElementById('client-address').value;
+    const clientName  = document.getElementById('client-name').value;
+    const clientEmail = document.getElementById('client-email').value;
+    const clientAddr  = document.getElementById('client-address').value;
 
     // NUEVO: código de país y teléfono
-    const countryCode  = (document.getElementById('client-country-code').value || '+504').trim();
-    const phoneRaw     = (document.getElementById('client-phone').value || '').trim();
+    const countryCode = (document.getElementById('client-country-code').value || '+504').trim();
+    const phoneRaw    = (document.getElementById('client-phone').value || '').trim();
 
-    // Dejar solo dígitos del teléfono ingresado
-    const phoneDigits  = phoneRaw.replace(/[^0-9]/g, '');
-
+    const phoneDigits      = phoneRaw.replace(/[^0-9]/g, '');
     if (!phoneDigits) {
         return alertMessage('Ingresa un número de teléfono válido.', 'error');
     }
 
-    // Formato internacional para WhatsApp: 50499998888 (sin +)
     const fullPhoneDigits = countryCode.replace('+', '') + phoneDigits;
 
-    // Total usando el precio + ajuste
     const total = cart.reduce(
         (sum, i) => sum + (((i.price || 0) + (i.priceAdjustment || 0)) * (i.quantity || 1)),
         0
@@ -1831,8 +1827,7 @@ window.closeCheckoutModal = () => {
             name:       clientName,
             email:      clientEmail,
             address:    clientAddr,
-            // Guardamos estos campos para que el admin tenga todo:
-            phone:      fullPhoneDigits,  // para usar directo en wa.me/{phone}
+            phone:      fullPhoneDigits,
             countryCode,
             localPhone: phoneDigits
         },
@@ -1852,7 +1847,7 @@ window.closeCheckoutModal = () => {
         return;
     }
 
-    // Número de la tienda (sigue igual que antes)
+    // Número de la tienda (ACTUALIZADO)
     const phoneNumber = "+50495733866";
     const message     = generateWhatsAppMessage(newOrder);
 
@@ -1863,6 +1858,7 @@ window.closeCheckoutModal = () => {
     switchView('my_orders');
     alertMessage('Pedido guardado. Abriendo WhatsApp para finalizar el pago.', 'success');
 };
+
 
         window.clearCart = () => { cart = []; saveCart(); renderCartItems(); };
         window.removeItemFromCart = (idx) => { cart.splice(idx, 1); saveCart(); renderCartItems(); };
