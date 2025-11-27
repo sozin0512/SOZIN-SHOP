@@ -1848,10 +1848,12 @@ window.closeCheckoutModal = () => {
     }
 
     // Número de la tienda (ACTUALIZADO)
-    const phoneNumber = "+50495733866";
+       // Número de la tienda (CORREGIDO PARA CELULAR)
+    const phoneNumber = "50495733866";  // <-- sin el +
     const message     = generateWhatsAppMessage(newOrder);
 
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    const waUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.location.href = waUrl;
 
     closeCheckoutModal();
     clearCart();
