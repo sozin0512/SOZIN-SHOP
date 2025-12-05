@@ -296,20 +296,79 @@
                                 </div>
                             </div>
                             
-                            <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <input type="hidden" id="edit-id" value=""> 
-                                <input type="hidden" id="item-type" value="product"> <!-- product or kit -->
-                                
-                                <input type="text" id="name" placeholder="Nombre del Producto o Kit" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
-                                <textarea id="description" placeholder="Descripción" required class="col-span-1 md:col-span-3 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition h-24 resize-none"></textarea>
-                                
-                                <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <input type="number" id="price" placeholder="Precio (L)" required min="0.01" step="0.01" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
-                                    <select id="category" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-white">
-                                        <option value="" disabled selected>Categoría</option>
-                                    </select>
-                                    <input type="number" id="initial-stock" placeholder="Stock Inicial" value="10" min="0" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" required>
-                                </div>
+                    <form id="add-product-form" class="space-y-4">
+
+    <!-- Campo oculto para saber si es producto o kit -->
+    <input type="hidden" id="item-type" name="item-type" value="product">
+
+    <!-- NUEVO: campo oculto para saber si estamos editando -->
+    <input type="hidden" id="edit-id" name="edit-id" value="">
+
+    <!-- resto de campos: name, description, price, cost-price, category, initial-stock, etc. -->
+
+
+
+    <!-- Nombre -->
+    <div>
+        <label for="name" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Nombre del producto
+        </label>
+        <input type="text" id="name" name="name"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+    </div>
+
+    <!-- Descripción -->
+    <div>
+        <label for="description" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Descripción
+        </label>
+        <textarea id="description" name="description"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+    </div>
+
+    <!-- Precio de venta -->
+    <div>
+        <label for="price" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Precio de venta
+        </label>
+        <input type="number" step="0.01" id="price" name="price"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+               placeholder="0.00">
+    </div>
+
+    <!-- Precio de costo -->
+    <div>
+        <label for="cost-price" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Precio de costo
+        </label>
+        <input type="number" step="0.01" id="cost-price" name="cost-price"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+               placeholder="0.00">
+    </div>
+
+    <!-- Categoría -->
+    <div>
+        <label for="category" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Categoría
+        </label>
+        <select id="category" name="category"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+        </select>
+    </div>
+
+    <!-- Stock inicial -->
+    <div>
+        <label for="initial-stock" class="block text-xs font-bold text-gray-600 uppercase mb-1">
+            Stock inicial
+        </label>
+        <input type="number" id="initial-stock" name="initial-stock"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+               value="0">
+    </div>
+
+
+
+
 
                                <!-- IMAGEN PRINCIPAL DEL PRODUCTO / KIT -->
 <div class="col-span-12 md:col-span-4">
@@ -362,7 +421,11 @@
                                 <!-- KIT BUILDER SECTION -->
                                 <div id="kit-builder-section" class="col-span-1 md:col-span-3 hidden border-t pt-4 mt-2">
                                     <label class="block text-sm font-bold text-gray-700 mb-2">Contenido del Kit</label>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- dentro del formulario de producto/kit -->
+
+</div>
+
+
                                         <!-- Product Selector -->
                                         <div class="bg-gray-50 p-3 rounded-lg border h-64 flex flex-col">
                                             <input type="text" id="kit-product-search" placeholder="Buscar producto para agregar..." class="w-full p-2 mb-2 border border-gray-300 rounded text-sm" onkeyup="filterKitSelector()">
@@ -1032,7 +1095,7 @@
         const productModal = document.getElementById('product-modal');
         const loginModal = document.getElementById('login-modal');
         const adminProductList = document.getElementById('admin-product-list');
-        const addProductForm = document.getElementById('add-product-form');
+      
         const categorySelect = document.getElementById('category');
         const adminFormTitle = document.getElementById('admin-form-title');
         const submitAdminForm = document.getElementById('submit-admin-form');
@@ -1061,8 +1124,12 @@
         const dashboardMetrics = document.getElementById('dashboard-metrics');
         const heroKitsContainer = document.getElementById('hero-kits-container');
         const initialStockInput = document.getElementById('initial-stock'); 
+        
         const categoriesListContainer = document.getElementById('categories-list-container');
         const loadingSpinnerArea = document.getElementById('loading-spinner-area'); // NUEVO
+        
+// NUEVO: input de costo de producto
+const costPriceInput = document.getElementById('cost-price');
 
         const initialProducts = [
             // NOTA: Se remueve la imagen base64 de las marcas para evitar carga lenta en el seed
@@ -1076,67 +1143,41 @@
         
         // --- CATEGORY MANAGEMENT LOGIC ---
 
-        const listenToCategories = () => {
-            if (unsubscribeCategories) unsubscribeCategories();
-            if (!window.db) return;
-            
-            unsubscribeCategories = window.onSnapshot(window.getCategoriesDoc(), (docSnapshot) => {
-                const isCurrentUserAdmin = window.auth.currentUser && adminEmails.includes(window.auth.currentUser.email);
-                let needsInitialSave = false;
+      // PÓNLO ASÍ:
+function listenToCategories() {
+    if (unsubscribeCategories) unsubscribeCategories();
+    if (!window.db) return;
+    
+    unsubscribeCategories = window.onSnapshot(window.getCategoriesDoc(), (docSnapshot) => {
+        const isCurrentUserAdmin =
+            window.auth.currentUser && adminEmails.includes(window.auth.currentUser.email);
+        let needsInitialSave = false;
 
-                if (docSnapshot.exists() && docSnapshot.data().categories) {
-                    allCategories = docSnapshot.data().categories.filter(c => c && typeof c === 'string');
-                    if (allCategories.length === 0) needsInitialSave = true;
-                } else {
-                    needsInitialSave = true;
-                }
-                
-                if (needsInitialSave && isCurrentUserAdmin) {
-                    allCategories = [...defaultCategories];
-                    window.saveCategories(false); 
-                } else if (needsInitialSave) {
-                    allCategories = [...defaultCategories]; 
-                }
-
-                fillCategorySelect();
-                if (adminCurrentTab === 'settings') renderCategoriesList();
-            }, (error) => {
-                console.error("Error fetching categories:", error);
-                if (error.code !== 'permission-denied') {
-                    alertMessage('Error al cargar categorías. Usando lista predeterminada.', 'error');
-                }
-                allCategories = [...defaultCategories]; 
-                fillCategorySelect();
-            });
-        };
+        if (docSnapshot.exists() && docSnapshot.data().categories) {
+            allCategories = docSnapshot.data().categories.filter(c => c && typeof c === 'string');
+            if (allCategories.length === 0) needsInitialSave = true;
+        } else {
+            needsInitialSave = true;
+        }
         
-        window.saveCategories = async (showAlert = true) => {
-            if (!window.db) return;
-            
-            if (showAlert && (!window.auth.currentUser || !adminEmails.includes(window.auth.currentUser.email))) {
-                return alertMessage('Permiso denegado: Solo los administradores pueden guardar configuraciones.', 'error');
-            }
+        if (needsInitialSave && isCurrentUserAdmin) {
+            allCategories = [...defaultCategories];
+            window.saveCategories(false); 
+        } else if (needsInitialSave) {
+            allCategories = [...defaultCategories]; 
+        }
 
-            try {
-                await window.setDoc(window.getCategoriesDoc(), { categories: allCategories, type: 'categories' });
-                if (showAlert) alertMessage('Categorías guardadas.', 'success');
-            } catch (e) {
-                console.error("Error saving categories:", e);
-                if (showAlert) alertMessage('Error al guardar categorías.', 'error');
-            }
-        };
-        
-        window.addCategory = (e) => {
-            e.preventDefault();
-            const newCat = document.getElementById('new-category-name').value.trim();
-            if (!newCat) return;
-            if (allCategories.map(c => c.toLowerCase()).includes(newCat.toLowerCase())) {
-                return alertMessage('La categoría ya existe.', 'error');
-            }
-            allCategories.push(newCat);
-            document.getElementById('new-category-name').value = '';
-            saveCategories(true);
-        };
+        fillCategorySelect();
+        if (adminCurrentTab === 'settings') renderCategoriesList();
+    }, (error) => {
+        console.error("Error fetching categories:", error);
+        if (error.code !== 'permission-denied') {
+            alertMessage('Error al cargar categorías. Usando lista predeterminada.', 'error');
+        }
+        allCategories = [...defaultCategories]; 
+        fillCategorySelect()
+    });
+}
 
         window.deleteCategory = async (name) => {
             if (defaultCategories.includes(name)) {
@@ -1672,7 +1713,7 @@ const displayPhone =
             }
         };
 
-        const listenToSettings = () => {
+       function listenToSettings() {
             if(unsubscribeSettings) unsubscribeSettings();
             if(!window.db) return;
             const ref = window.getSettingsDoc('STORE_SETTINGS');
@@ -1699,7 +1740,7 @@ const displayPhone =
             else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
         };
 
-        const loadCart = () => { try { const storedCart = localStorage.getItem('shoppingCart'); cart = storedCart ? JSON.parse(storedCart) : []; } catch (e) { cart = []; } updateCartUI(); };
+        function loadCart() { try { const storedCart = localStorage.getItem('shoppingCart'); cart = storedCart ? JSON.parse(storedCart) : []; } catch (e) { cart = []; } updateCartUI(); };
         const saveCart = () => { localStorage.setItem('shoppingCart', JSON.stringify(cart)); updateCartUI(); };
         const updateCartUI = () => {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -1933,96 +1974,62 @@ const calculateKitBasePrice = () => {
 };
 
 
-        window.toggleProductType = (type) => {
-            const isKit = type === 'kit';
-            document.getElementById('item-type').value = type;
-            document.getElementById('type-btn-product').classList.toggle('bg-white', !isKit);
-            document.getElementById('type-btn-product').classList.toggle('shadow-sm', !isKit);
-            document.getElementById('type-btn-product').classList.toggle('text-primary', !isKit);
-            document.getElementById('type-btn-product').classList.toggle('text-gray-500', isKit);
-            
-            document.getElementById('type-btn-kit').classList.toggle('bg-white', isKit);
-            document.getElementById('type-btn-kit').classList.toggle('shadow-sm', isKit);
-            document.getElementById('type-btn-kit').classList.toggle('text-primary', isKit);
-            document.getElementById('type-btn-kit').classList.toggle('text-gray-500', !isKit);
+ window.toggleProductType = (type) => {
+    const isKit = type === 'kit';
 
-            const kitSection = document.getElementById('kit-builder-section');
-            const catSelect = document.getElementById('category');
-            const stockInput = document.getElementById('initial-stock');
-            const brandSection = document.getElementById('brand-management-section');
-            const priceInput = document.getElementById('price'); // El input de precio del formulario
+    const itemTypeInput = document.getElementById('item-type');
+    if (itemTypeInput) {
+        itemTypeInput.value = type;
+    }
 
-            if (isKit) {
-                kitSection.classList.remove('hidden');
-                catSelect.innerHTML = '<option value="Kits" selected>Kits y Combos</option>';
-                catSelect.disabled = true;
-                stockInput.value = 0;
-                stockInput.disabled = true;
-                brandSection.classList.add('hidden');
-                currentKitItems = [];
-                renderKitSelector();
-                renderSelectedKitItems();
-                priceInput.value = (0).toFixed(2); // Inicia en 0
-            } else {
-                kitSection.classList.add('hidden');
-                catSelect.disabled = false;
-                stockInput.disabled = false;
-                fillCategorySelect();
-                brandSection.classList.add('hidden');
-                // Si estaba editando un kit, restaura el precio a un valor vacío o su valor original si es edición
-                if (!editIdInput.value) {
-                    priceInput.value = '';
-                }
-            }
-        };
+    const kitSection      = document.getElementById('kit-builder-section');
+    const catSelect       = document.getElementById('category');
+    const stockInput      = document.getElementById('initial-stock');
+    const brandSection    = document.getElementById('brand-management-section');
+    const priceInput      = document.getElementById('price');
 
-        window.renderKitSelector = () => {
-            const list = document.getElementById('kit-product-list');
-            list.innerHTML = '';
-            const term = document.getElementById('kit-product-search').value.toLowerCase();
-            
-            // CORRECCIÓN: Permitir Kits en el selector
-            const candidates = products.filter(p => (p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term)));
-            
-            if(candidates.length === 0) {
-                list.innerHTML = '<p class="text-xs text-gray-400 p-2 text-center">No se encontraron productos.</p>';
-                return;
-            }
-            candidates.forEach(p => {
-                const div = document.createElement('div');
-                // Añadir clases para el tooltip al hacer hover
-                div.className = "relative flex items-center justify-between p-2 bg-white border rounded hover:bg-gray-50 cursor-pointer group";
-                
-                // Tooltip structure
-                const tooltipHtml = `<div class="absolute z-10 hidden group-hover:block left-full ml-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg shadow-xl pointer-events-none transform transition-opacity duration-300 opacity-0 group-hover:opacity-100">
-                    <span class="font-bold block mb-1">${p.name} (${p.category})</span>
-                    ${p.description}
-                    <span class="block mt-2 font-extrabold text-secondary">${formatCurrency(p.price)}</span>
-                </div>`;
-                
-                // Mostrar ícono de cámara si la imagen es solo el placeholder
-                let iconDisplay;
-                if (p.icon === 'IMAGEN_PERSONALIZADA') {
-                    iconDisplay = `<span class="text-lg">📸</span>`;
-                } else if (p.icon.startsWith('data:image')) {
-                    iconDisplay = `<img src="${p.icon}" class="w-8 h-8 object-contain rounded-full bg-gray-200 p-1">`;
-                } else {
-                    iconDisplay = `<span class="text-lg">${p.icon || '📦'}</span>`;
-                }
+    // Usar editIdInput de forma segura
+    const isEditing = editIdInput && editIdInput.value;
 
+    if (isKit) {
+        // Modo KIT
+        if (kitSection) kitSection.classList.remove('hidden');
+        if (catSelect) {
+            catSelect.innerHTML = '<option value="Kits" selected>Kits y Combos</option>';
+            catSelect.disabled = true;
+        }
+        if (stockInput) {
+            stockInput.value = 0;
+            stockInput.disabled = true;
+        }
+        if (brandSection) brandSection.classList.add('hidden');
 
-                div.innerHTML = `
-                    <div class="flex items-center gap-2 truncate min-w-0">
-                        ${iconDisplay}
-                        <span class="text-sm font-medium truncate">${p.name}</span>
-                        ${p.type === 'kit' ? '<span class="text-xs bg-indigo-100 text-indigo-700 px-1 rounded font-bold">KIT</span>' : ''}
-                    </div>
-                    ${tooltipHtml}
-                    <button type="button" class="flex-shrink-0 text-primary font-bold hover:bg-blue-100 p-1 rounded">+</button>`;
-                div.onclick = () => addToKit(p);
-                list.appendChild(div);
-            });
-        };
+        currentKitItems = [];
+        if (typeof renderKitSelector === 'function') renderKitSelector();
+        if (typeof renderSelectedKitItems === 'function') renderSelectedKitItems();
+
+        // Solo tocar precio si NO estamos editando
+        if (priceInput && !isEditing) {
+            priceInput.value = (0).toFixed(2);
+        }
+    } else {
+        // Modo PRODUCTO normal
+        if (kitSection) kitSection.classList.add('hidden');
+        if (catSelect) {
+            catSelect.disabled = false;
+            fillCategorySelect();
+        }
+        if (stockInput) {
+            stockInput.disabled = false;
+        }
+        if (brandSection) brandSection.classList.remove('hidden');
+
+        // Solo limpiar precio si NO estamos editando
+        if (priceInput && !isEditing) {
+            priceInput.value = '';
+        }
+    }
+};
 
         window.filterKitSelector = () => renderKitSelector();
 
@@ -2224,24 +2231,79 @@ window.updateKitItemQuantity = (index, newQty) => {
         });
         // --- FIN: MANEJADOR DE REGISTRO MEJORADO (SOLUCIÓN) ---
 
-        const renderDashboardMetrics = () => { 
-            const totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0); 
-            const itemsInStock = products.filter(p => p.type !== 'kit').reduce((sum, p) => sum + (p.stock || 0), 0); 
-            dashboardMetrics.innerHTML = `
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-blue-400">
-                    <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Productos Únicos</p>
-                    <p class="text-3xl font-extrabold mt-2 text-gray-800">${products.length}</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-indigo-400">
-                    <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Unidades en Stock</p>
-                    <p class="text-3xl font-extrabold mt-2 text-indigo-600">${itemsInStock}</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-yellow-400">
-                    <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Pedidos</p>
-                    <p class="text-3xl font-extrabold mt-2 text-gray-800">${orders.length}</p>
-                </div>
-            `; 
-        };
+const renderDashboardMetrics = () => { 
+    // 1) Ventas brutas (todas las órdenes)
+    const totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0); 
+
+    // 2) Unidades en stock (solo productos simples, no kits)
+    const simpleProducts = products.filter(p => p.type !== 'kit');
+
+    const itemsInStock = simpleProducts
+        .reduce((sum, p) => sum + (p.stock || 0), 0); 
+
+    // 3) Costo estimado de lo ya vendido (para ganancia)
+    let totalCostVentas = 0;
+
+    orders.forEach(order => {
+        const items = order.items || [];
+        items.forEach(item => {
+            const product = products.find(p => p.id === item.productId);
+            if (!product) return; // producto ya no existe
+
+            const qty = item.quantity || 1;
+            const unitCost = product.costPrice != null ? parseFloat(product.costPrice) : 0;
+
+            totalCostVentas += unitCost * qty;
+        });
+    });
+
+    const totalProfit = totalRev - totalCostVentas;
+
+    // 4) Inversión en inventario actual (stock * costPrice)
+    const inventoryCost = simpleProducts.reduce((sum, p) => {
+        const stock = p.stock || 0;
+        const unitCost = p.costPrice != null ? parseFloat(p.costPrice) : 0;
+        return sum + (stock * unitCost);
+    }, 0);
+
+    dashboardMetrics.innerHTML = `
+        <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-blue-400">
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Productos Únicos</p>
+            <p class="text-3xl font-extrabold mt-2 text-gray-800">${products.length}</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-indigo-400">
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Unidades en Stock</p>
+            <p class="text-3xl font-extrabold mt-2 text-indigo-600">${itemsInStock}</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-rose-400">
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Inversión en Inventario</p>
+            <p class="text-3xl font-extrabold mt-2 text-gray-800">
+                ${formatCurrency(inventoryCost)}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">
+                Calculado como Σ(stock × costo unitario) de productos no-Kit.
+            </p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-yellow-400">
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Ventas Brutas</p>
+            <p class="text-3xl font-extrabold mt-2 text-gray-800">${formatCurrency(totalRev)}</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-lg border-b-4 border-emerald-400">
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">Ganancia Estimada</p>
+            <p class="text-3xl font-extrabold mt-2 ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}">
+                ${formatCurrency(totalProfit)}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">
+                Basado en costPrice y cantidad vendida. Órdenes sin costo registrado se calculan con costo = 0.
+            </p>
+        </div>
+    `; 
+};
+
 
         window.switchView = (view) => {
             clientView.classList.add('hidden'); adminView.classList.add('hidden'); myOrdersView.classList.add('hidden');
@@ -2520,7 +2582,7 @@ window.updateKitItemQuantity = (index, newQty) => {
             });
         };
         
-        const listenToProducts = () => {
+        function listenToProducts() {
             if (unsubscribe) unsubscribe();
             if (!window.db) return;
             const q = window.query(window.getProductsCollection());
@@ -3054,98 +3116,191 @@ window.setProductIconFromUrl = (value) => {
         };
         // --- FIN OPTIMIZACIÓN DE IMÁGENES ---
 
-        window.editProduct = (id) => {
-            const p = products.find(x => x.id === id);
-            document.getElementById('name').value = p.name; 
-            document.getElementById('description').value = p.description; 
-            document.getElementById('price').value = p.price; 
-            productIconInput.value = p.icon; 
-            editIdInput.value = id;
-            initialStockInput.value = p.stock || 0; 
-            const iconSrc = p.icon || ''; 
-            
-            // Lógica de visualización del icono en el formulario de edición (Asegura mostrar el placeholder)
-            if (iconSrc === 'IMAGEN_PERSONALIZADA') {
-                 document.getElementById('preview-product-icon-img').src = 'https://placehold.co/32x32/1E3A8A/ffffff?text=OK'; // Muestra un check o algo similar
-                 document.getElementById('product-icon-label').innerHTML = '📸 Imagen Personalizada (Cargar de nuevo para actualizar)';
-                 document.getElementById('product-icon-preview').classList.remove('hidden');
-            } else if (iconSrc.startsWith('data:image')) { 
-                 document.getElementById('preview-product-icon-img').src = iconSrc; 
-                 document.getElementById('product-icon-label').innerHTML = '📸 Imagen Principal (Clic para reemplazar)';
-                 document.getElementById('product-icon-preview').classList.remove('hidden'); 
-            } else {
-                 document.getElementById('preview-product-icon-img').src = '';
-                 document.getElementById('product-icon-label').innerHTML = '📸 Imagen Principal (Emoji/Subir)';
-                 document.getElementById('product-icon-preview').classList.add('hidden');
+   window.editProduct = (id) => {
+    const p = products.find(x => x.id === id);
+    if (!p) {
+        alertMessage('Producto no encontrado.', 'error');
+        return;
+    }
+
+    // Inputs principales
+    const nameInput        = document.getElementById('name');
+    const descInput        = document.getElementById('description');
+    const priceInput       = document.getElementById('price');
+    const categoryInput    = document.getElementById('category');
+    const stockInput       = document.getElementById('initial-stock');
+    const costInput        = document.getElementById('cost-price');   // <--- NUEVO
+    const previewImgEl     = document.getElementById('preview-product-icon-img');
+    const previewWrapper   = document.getElementById('product-icon-preview');
+    const previewLabelEl   = document.getElementById('product-icon-label');
+
+    // Rellenar campos básicos (solo si existen en el DOM)
+    if (nameInput)  nameInput.value  = p.name || '';
+    if (descInput)  descInput.value  = p.description || '';
+    if (priceInput) priceInput.value = p.price || '';
+
+    if (stockInput) stockInput.value = p.stock || 0;
+
+    // >>> COSTO (seguro, sin romper si no existe) <<<
+    if (costInput) {
+        costInput.value = (p.costPrice !== undefined && p.costPrice !== null)
+            ? p.costPrice
+            : '';
+    }
+
+    // Guardar id que se está editando
+    if (editIdInput) {
+        editIdInput.value = id;
+    }
+
+    // Icono
+    productIconInput.value = p.icon || '';
+    const iconSrc = p.icon || '';
+
+    if (previewImgEl && previewWrapper && previewLabelEl) {
+        if (iconSrc === 'IMAGEN_PERSONALIZADA') {
+            previewImgEl.src = 'https://placehold.co/32x32/1E3A8A/ffffff?text=OK';
+            previewLabelEl.innerHTML = '📸 Imagen Personalizada (Cargar de nuevo para actualizar)';
+            previewWrapper.classList.remove('hidden');
+        } else if (iconSrc.startsWith('data:image')) {
+            previewImgEl.src = iconSrc;
+            previewLabelEl.innerHTML = '📸 Imagen Principal (Clic para reemplazar)';
+            previewWrapper.classList.remove('hidden');
+        } else if (iconSrc) {
+            // Caso: URL normal
+            previewImgEl.src = iconSrc;
+            previewLabelEl.innerHTML = '📸 Imagen Principal (desde URL)';
+            previewWrapper.classList.remove('hidden');
+        } else {
+            previewImgEl.src = '';
+            previewLabelEl.innerHTML = '📸 Imagen Principal (Producto o Kit)';
+            previewWrapper.classList.add('hidden');
+        }
+    }
+
+    // PRODUCTO TIPO KIT O SIMPLE
+    if (p.type === 'kit') {
+        // ---- KIT ----
+        toggleProductType('kit');
+
+        currentKitItems = (p.kitItems || []).map(item => {
+            const product   = products.find(prod => prod.id === (item.productId || item.id));
+            const brandName = item.brandName || null;
+
+            let name = item.name;
+            if (!name || name.startsWith('data:image')) {
+                const brandSuffix = brandName ? ` (${brandName})` : '';
+                name = product ? product.name + brandSuffix : 'Artículo del kit';
             }
-            
-           if (p.type === 'kit') {
-    toggleProductType('kit');
 
-    currentKitItems = (p.kitItems || []).map(item => {
-        const product = products.find(prod => prod.id === (item.productId || item.id));
-        const brandName = item.brandName || null;
+            const unitPrice = item.price != null
+                ? item.price
+                : (product ? (product.price || 0) : 0);
 
-        let name = item.name;
-        if (!name || name.startsWith('data:image')) {
-            const brandSuffix = brandName ? ` (${brandName})` : '';
-            name = product ? product.name + brandSuffix : 'Artículo del kit';
+            return {
+                productId: product ? product.id : (item.productId || item.id),
+                name,
+                quantity: item.quantity || 1,
+                price: unitPrice,
+                brandName: brandName
+            };
+        });
+
+        if (priceInput) {
+            priceInput.value = calculateKitBasePrice().toFixed(2);
         }
 
-        const unitPrice = item.price != null
-            ? item.price
-            : (product ? (product.price || 0) : 0);
+        renderSelectedKitItems();
 
-        return {
-            productId: product ? product.id : (item.productId || item.id),
-            name,
-            quantity: item.quantity || 1,
-            price: unitPrice,
-            brandName: brandName
-        };
-    });
+        if (adminFormTitle) {
+            adminFormTitle.textContent = "Editar Kit";
+        }
 
-    document.getElementById('price').value = calculateKitBasePrice().toFixed(2);
-    renderSelectedKitItems();
-    adminFormTitle.textContent = "Editar Kit";
-} else {
-                toggleProductType('product');
-                document.getElementById('category').value = p.category;
-                adminFormTitle.textContent = "Editar Producto";
-                brandManagementSection.classList.remove('hidden');
-                
-                brandsEditorContainer.innerHTML = (p.brands||[]).map(b => {
-                    const adjustment = parseFloat(b.priceAdjustment) || 0;
-                    const adjustmentClass = adjustment > 0 ? 'text-red-600' : adjustment < 0 ? 'text-green-600' : 'text-gray-500';
-                    const adjustmentSign = adjustment >= 0 ? '+' : '';
+    } else {
+        // ---- PRODUCTO SIMPLE ----
+        toggleProductType('product');
 
-                    // Si la URL es null o vacía (debido a la nueva lógica), usamos placeholder.
-                    const imgSrc = b.imageUrl && b.imageUrl !== 'null' ? b.imageUrl : 'https://placehold.co/100x100/A0AEC0/ffffff?text=IMG';
+        if (categoryInput) {
+            categoryInput.value = p.category || '';
+        }
 
-                    return `<div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border hover:bg-gray-100 transition">
+        if (adminFormTitle) {
+            adminFormTitle.textContent = "Editar Producto";
+        }
+
+        if (brandManagementSection) {
+            brandManagementSection.classList.remove('hidden');
+        }
+
+        // Rellenar listado de variantes
+        if (brandsEditorContainer) {
+            brandsEditorContainer.innerHTML = (p.brands || []).map(b => {
+                const adjustment      = parseFloat(b.priceAdjustment) || 0;
+                const adjustmentClass = adjustment > 0
+                    ? 'text-red-600'
+                    : adjustment < 0
+                        ? 'text-green-600'
+                        : 'text-gray-500';
+                const adjustmentSign  = adjustment >= 0 ? '+' : '';
+
+                const imgSrc = b.imageUrl && b.imageUrl !== 'null'
+                    ? b.imageUrl
+                    : 'https://placehold.co/100x100/A0AEC0/ffffff?text=IMG';
+
+                return `
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border hover:bg-gray-100 transition">
                         <div class="flex items-center gap-3">
-                            <img src="${imgSrc}" class="w-10 h-10 rounded object-cover bg-white border" onerror="this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'">
+                            <img src="${imgSrc}" class="w-10 h-10 rounded object-cover bg-white border"
+                                 onerror="this.src='https://placehold.co/100x100/A0AEC0/ffffff?text=IMG'">
                             <div class="flex flex-col text-sm">
                                 <span class="font-bold text-gray-800">${b.name}</span>
-                                <span class="${adjustmentClass} font-semibold text-xs">Ajuste: ${adjustmentSign}${formatCurrency(adjustment)}</span>
+                                <span class="${adjustmentClass} font-semibold text-xs">
+                                    Ajuste: ${adjustmentSign}${formatCurrency(adjustment)}
+                                </span>
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="editBrandInline(event, '${id}', '${b.name}')" class="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition" title="Editar Precio/Nombre">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.228a3 3 0 013.78 3.78L13.8 20.72l-4.7 1.05 1.05-4.7L19 12.046z"/></svg>
+                            <button onclick="editBrandInline(event, '${id}', '${b.name}')"
+                                    class="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition"
+                                    title="Editar Precio/Nombre">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M15.232 5.232l3.536 3.536m-2.036-5.228a3 3 0 013.78 3.78L13.8 20.72l-4.7 1.05 1.05-4.7L19 12.046z"/>
+                                </svg>
                             </button>
-                            <button onclick="deleteBrandFromProduct(event, '${id}', '${b.name}')" class="text-red-500 hover:bg-red-100 p-2 rounded-full transition" title="Eliminar Variante">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <button onclick="deleteBrandFromProduct(event, '${id}', '${b.name}')"
+                                    class="text-red-500 hover:bg-red-100 p-2 rounded-full transition"
+                                    title="Eliminar Variante">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
                             </button>
                         </div>
                     </div>`;
-                }).join('');
-            }
-            
-            submitAdminForm.textContent = "Actualizar"; 
-            cancelEditButton.classList.remove('hidden'); 
-            window.scrollTo({ top: document.getElementById('admin-content-products').offsetTop - 100, behavior: 'smooth' });
-        };
+            }).join('');
+        }
+    }
+
+    if (submitAdminForm) {
+        submitAdminForm.textContent = "Actualizar";
+    }
+    if (cancelEditButton) {
+        cancelEditButton.classList.remove('hidden');
+    }
+
+    // Scroll al formulario
+    const adminContent = document.getElementById('admin-content-products');
+    if (adminContent) {
+        window.scrollTo({
+            top: adminContent.offsetTop - 100,
+            behavior: 'smooth'
+        });
+    }
+};
+
+
+
 
         window.editBrandInline = async (e, productId, brandName) => {
             e.preventDefault();
@@ -3215,82 +3370,141 @@ window.setProductIconFromUrl = (value) => {
             editProduct(pid); 
         };
         
-        window.deleteBrandFromProduct = async (e, pid, name) => { e.preventDefault(); if(await window.customConfirm('¿Estás seguro de eliminar esta variante?')) { const p = products.find(x => x.id === pid); const brands = (p.brands || []).filter(b => b.name !== name); await window.updateDoc(window.getProductDoc(pid), { brands }); alertMessage('Variante eliminada.', 'success'); editProduct(pid); }};
-        window.deleteProduct = async (id) => { if(await window.customConfirm('¿Estás seguro de borrar este ítem?')) { await window.deleteDoc(window.getProductDoc(id)); alertMessage('Eliminado.', 'success'); resetAdminForm(); }};
-        window.resetAdminForm = () => { 
-            addProductForm.reset(); 
-            editIdInput.value = ''; 
-            adminFormTitle.textContent = "Nuevo Ítem"; 
-            submitAdminForm.textContent = "Guardar"; 
-            cancelEditButton.classList.add('hidden'); 
-            brandManagementSection.classList.add('hidden'); 
-            document.getElementById('product-icon-preview').classList.add('hidden'); 
-            document.getElementById('product-icon-label').innerHTML = '📸 Imagen Principal (Producto o Kit)';
-            toggleProductType('product');
-        };
-        
-        addProductForm.addEventListener('submit', async (e) => { 
+      // --- REEMPLAZA EL BLOQUE ROTO CON ESTO ---
+
+window.deleteBrandFromProduct = async (e, pid, name) => { 
             e.preventDefault(); 
-            const id = editIdInput.value; 
-            const type = document.getElementById('item-type').value;
-            
-            const data = { 
-                name: document.getElementById('name').value, 
-                description: document.getElementById('description').value, 
-                price: parseFloat(document.getElementById('price').value), 
-                category: type === 'kit' ? 'Kits' : document.getElementById('category').value, 
-                icon: productIconInput.value || (type === 'kit' ? '🎒' : '📦'),
-                type: type,
-                stock: type === 'kit' ? 0 : parseInt(initialStockInput.value, 10) 
-            }; 
-            
-        if (type === 'kit') {
-    if (currentKitItems.length === 0) {
-        return alertMessage('El kit debe tener al menos un producto.', 'error');
-    }
+            if(await window.customConfirm('¿Estás seguro de eliminar esta variante?')) { 
+                const p = products.find(x => x.id === pid); 
+                const brands = (p.brands || []).filter(b => b.name !== name); 
+                await window.updateDoc(window.getProductDoc(pid), { brands }); 
+                alertMessage('Variante eliminada.', 'success'); 
+                editProduct(pid); 
+            }
+        };
 
-    // Guardamos solo lo necesario: producto, variante, cantidad y precio unitario
-    const cleanedKitItems = currentKitItems.map(item => {
-        const product = products.find(p => p.id === (item.productId || item.id));
-        const brandName = item.brandName || null;
+        window.deleteProduct = async (id) => { 
+            if(await window.customConfirm('¿Estás seguro de borrar este ítem?')) { 
+                await window.deleteDoc(window.getProductDoc(id)); 
+                alertMessage('Eliminado.', 'success'); 
+                resetAdminForm(); 
+            }
+        };
 
-        let name = item.name;
-        if (!name || name.startsWith('data:image')) {
-            const brandSuffix = brandName ? ` (${brandName})` : '';
-            name = product ? product.name + brandSuffix : 'Artículo del kit';
+        window.resetAdminForm = () => {
+            // Buscamos el formulario de forma segura
+            const form = document.getElementById('add-product-form');
+            if (form) form.reset();
+            
+            const editInput = document.getElementById('edit-id');
+            if (editInput) editInput.value = '';
+            
+            const title = document.getElementById('admin-form-title');
+            if (title) title.textContent = "Nuevo Ítem";
+            
+            const submitBtn = document.getElementById('submit-admin-form');
+            if(submitBtn) {
+                submitBtn.textContent = "Guardar";
+                submitBtn.disabled = false;
+            }
+            
+            const cancelBtn = document.getElementById('cancel-edit-button');
+            if(cancelBtn) cancelBtn.classList.add('hidden');
+            
+            const brandSection = document.getElementById('brand-management-section');
+            if(brandSection) brandSection.classList.add('hidden');
+            
+            const previewWrapper = document.getElementById('product-icon-preview');
+            if(previewWrapper) previewWrapper.classList.add('hidden');
+            
+            const iconLabel = document.getElementById('product-icon-label');
+            if(iconLabel) iconLabel.innerHTML = '📸 Imagen Principal (Producto o Kit)';
+
+            const costInput = document.getElementById('cost-price');
+            if (costInput) costInput.value = '';
+
+            // Volver al estado inicial
+            if (typeof toggleProductType === 'function') toggleProductType('product');
+        };
+
+        // --- LÓGICA DEL BOTÓN GUARDAR (VERSIÓN ROBUSTA) ---
+        const formElement = document.getElementById('add-product-form');
+
+        if (formElement) {
+            formElement.addEventListener('submit', async (e) => {
+                // 1. EVITAR RECARGA
+                e.preventDefault(); 
+                
+                console.log("Procesando formulario...");
+                const submitBtn = document.getElementById('submit-admin-form');
+                submitBtn.textContent = "Procesando...";
+                submitBtn.disabled = true;
+
+                const editIdInput = document.getElementById('edit-id');
+                const isEditing = !!(editIdInput && editIdInput.value);
+
+                // Helper para obtener valores seguramente
+                const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+
+                // Recoger campos
+                const itemType    = getVal('item-type') || 'product';
+                const name        = getVal('name').trim();
+                const price       = parseFloat(getVal('price') || 0);
+                const costPrice   = parseFloat(getVal('cost-price') || 0);
+                const category    = getVal('category');
+                const stock       = parseInt(getVal('initial-stock') || '0', 10);
+                const desc        = getVal('description');
+                const iconInput   = document.getElementById('icon');
+                const iconVal     = iconInput ? iconInput.value : '📦';
+                
+                const kitItemsData = itemType === 'kit' ? currentKitItems : [];
+
+                // Recuperar marcas si estamos editando
+                let currentBrands = [];
+                if (isEditing && typeof products !== 'undefined') {
+                    const currentP = products.find(p => p.id === editIdInput.value);
+                    if (currentP) currentBrands = currentP.brands || [];
+                }
+
+                const payload = {
+                    type: itemType,
+                    name: name,
+                    price: price,
+                    costPrice: costPrice,
+                    category: category,
+                    stock: stock,
+                    description: desc,
+                    icon: iconVal,
+                    brands: isEditing ? currentBrands : [], // Preservar variantes al editar
+                    kitItems: kitItemsData
+                };
+
+                try {
+                    if (isEditing) {
+                        await window.updateDoc(window.getProductDoc(editIdInput.value), payload);
+                        alertMessage('Producto actualizado correctamente.', 'success');
+                    } else {
+                        await window.addDoc(window.getProductsCollection(), payload);
+                        alertMessage('Producto creado correctamente.', 'success');
+                    }
+                    window.resetAdminForm();
+                } catch (err) {
+                    console.error("Error:", err);
+                    alertMessage('Error al guardar: ' + err.message, 'error');
+                } finally {
+                    submitBtn.textContent = "Guardar";
+                    submitBtn.disabled = false;
+                }
+            });
+        } else {
+            console.error("No se encontró el formulario add-product-form");
         }
 
-        const unitPrice = item.price != null
-            ? item.price
-            : (product ? (product.price || 0) : 0);
-
-        return {
-            productId: product ? product.id : (item.productId || item.id),
-            name,
-            quantity: item.quantity || 1,
-            price: unitPrice,
-            brandName: brandName
-        };
-    });
-
-    data.kitItems = cleanedKitItems;
-} else {
-    const existingProduct = products.find(p => p.id === id);
-    data.brands = existingProduct ? existingProduct.brands : [];
-}
-            const ref = window.getProductsCollection(); 
-            if(id) await window.updateDoc(window.getProductDoc(id), data); 
-            else await window.addDoc(ref, data); 
-            
-            alertMessage(type === 'kit' ? 'Kit guardado exitosamente.' : 'Producto guardado exitosamente.', 'success'); 
-            resetAdminForm(); 
-        });
-
+        // --- INICIALIZACIÓN ---
         document.addEventListener('DOMContentLoaded', () => { 
-            fillCategorySelect(); 
-            loadCart(); 
-            renderLoadingState(); // Mostrar el spinner al inicio
-            // NEW: Add scroll listener for header
+            if (typeof fillCategorySelect === 'function') fillCategorySelect(); 
+            if (typeof loadCart === 'function') loadCart(); 
+            // renderLoadingState(); // Si tienes esta función definida arriba
             window.addEventListener('scroll', handleScroll);
         });
         
@@ -3302,29 +3516,30 @@ window.setProductIconFromUrl = (value) => {
             }
         });
         
-        // NEW: Scroll Hide/Show Logic
+        // Scroll Logic
         let lastScrollTop = 0;
-        const header = document.getElementById('header-main');
-        const headerHeight = 70; // Altura fija del header en px (estimación basada en py-3)
+        const headerElement = document.getElementById('header-main');
+        const headerHeight = 70;
 
         function handleScroll() {
+            if (!headerElement) return;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
             if (scrollTop > lastScrollTop && scrollTop > headerHeight) {
-                // Scrolling down
-                header.classList.add('header-hidden');
+                headerElement.classList.add('header-hidden');
             } else if (scrollTop < lastScrollTop || scrollTop < headerHeight) {
-                // Scrolling up or near top
-                header.classList.remove('header-hidden');
+                headerElement.classList.remove('header-hidden');
             }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For mobile browsers
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         }
         
-        const fillCategorySelect = () => { 
-            categorySelect.innerHTML = '<option value="" disabled selected>Categoría</option>'; 
-            allCategories.forEach(c => categorySelect.innerHTML += `<option value="${c}">${c}</option>`); 
+        function fillCategorySelect() {
+            const sel = document.getElementById('category');
+            if (sel && typeof allCategories !== 'undefined') {
+                sel.innerHTML = '<option value="" disabled selected>Categoría</option>'; 
+                allCategories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`); 
+            }
         };
-        // --- FIN: CÓDIGO DE LÓGICA DE LA APLICACIÓN ---
     </script>
 </body>
 </html>
